@@ -42,4 +42,4 @@ const UseFetchEvents = () => {
     return {loading, error, fetchOne, fetchAll};
 };
 
-export default UseFetchEvents;
+//export default UseFetchEvents;

@@ -6,6 +6,7 @@ export const setCredentialsThunk = createAsyncThunk(
     async (credentials: { email: string, password: string }) => {
         try {
             const response = await ApiService.post('/auth/login', credentials);
+            console.log(response.data);
             return {
                 user: response.data.user,
                 access_token: response.data.access_token

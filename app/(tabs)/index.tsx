@@ -4,21 +4,20 @@ import ParallaxScrollView from '@/components/ParallaxScrollView';
 import {ThemedText} from '@/components/ThemedText';
 import {ThemedView} from '@/components/ThemedView';
 import {useEffect, useState} from "react";
-import UseFetchEvents from "@/hooks/useFetchEvents";
+import UseFetchEvents from "@/hooks/apiHooks/useFetchEvents";
 import {EventInfos} from "@/interfaces/event";
 import ScrollView = Animated.ScrollView;
 import EventHomeCard from "@/components/EventHomeCard";
 
 export default function HomeScreen() {
     const [events, setEvents] = useState<EventInfos[]>([]);
-    const {loading, error, fetchAll} = UseFetchEvents();
+    const {fetchAll} = UseFetchEvents();
 
     useEffect(() => {
 
         const fetchDatas = async () => {
             const data = await fetchAll();
-            console.log(data);
-            setEvents(data.event);
+            setEvents(data);
         }
 
         fetchDatas();
@@ -33,9 +32,9 @@ export default function HomeScreen() {
         return <ThemedText>Loading...</ThemedText>;
     }*/
 
-    if (error) {
+    /*if (error) {
         return <ThemedText>Error</ThemedText>;
-    }
+    }*/
 
     return (
         <View style={styles.container}>
