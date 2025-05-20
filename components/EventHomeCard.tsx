@@ -2,28 +2,32 @@ import React from 'react';
 import {EventInfos} from "@/interfaces/event";
 import {ThemedView} from "@/components/ThemedView";
 import {ThemedText} from "@/components/ThemedText";
-import {Button, StyleSheet, View} from "react-native";
+import {Button, StyleSheet, TouchableOpacity, View} from "react-native";
 
 interface EventHomeCardProps {
     infos: EventInfos;
+    onPress: () => void;
 }
 
-const EventHomeCard = ({infos}: EventHomeCardProps) => {
+const EventHomeCard = ({infos, onPress}: EventHomeCardProps) => {
+
     return (
-        <ThemedView style={styles.container}>
-            <View style={styles.presentation}>
-                <View>
-                    <ThemedText type={"subtitle"}>{infos.name}</ThemedText>
-                    <ThemedText type={"defaultSemiBold"}>{infos.city}, {infos.country}</ThemedText>
-                    <ThemedText type={"default"}>Petite description rapide ...</ThemedText>
+        <TouchableOpacity onPress={onPress}>
+            <ThemedView style={styles.container}>
+                <View style={styles.presentation}>
+                    <View>
+                        <ThemedText type={"subtitle"}>{infos.name}</ThemedText>
+                        <ThemedText type={"defaultSemiBold"}>{infos.city}, {infos.country}</ThemedText>
+                        <ThemedText type={"default"}>Petite description rapide ...</ThemedText>
+                    </View>
+                    <View><ThemedText>Image</ThemedText></View>
                 </View>
-                <View><ThemedText>Image</ThemedText></View>
-            </View>
-            <View style={styles.buttonsContainer}>
-                <Button title={'Qui participe'} onPress={() => {}}/>
-                <Button title={'Participer'} onPress={() => {}}/>
-            </View>
-        </ThemedView>
+                <View style={styles.buttonsContainer}>
+                    <Button title={'Qui participe'} onPress={() => {}}/>
+                    <Button title={'Participer'} onPress={() => {}}/>
+                </View>
+            </ThemedView>
+        </TouchableOpacity>
     );
 };
 

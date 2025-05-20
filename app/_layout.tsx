@@ -43,6 +43,7 @@ export default function RootLayout() {
                     <ThemedView style={styles.content}>
                         <Stack>
                             <Stack.Screen name="(tabs)" options={{headerShown: false}}/>
+                            <Stack.Screen name="(stack)" options={{headerShown: false,}}/>
                             <Stack.Screen name="+not-found"/>
                         </Stack>
                     </ThemedView>

@@ -8,10 +8,12 @@ import UseFetchEvents from "@/hooks/apiHooks/useFetchEvents";
 import {EventInfos} from "@/interfaces/event";
 import ScrollView = Animated.ScrollView;
 import EventHomeCard from "@/components/EventHomeCard";
+import {useRouter} from "expo-router";
 
 export default function HomeScreen() {
     const [events, setEvents] = useState<EventInfos[]>([]);
     const {fetchAll} = UseFetchEvents();
+    const router = useRouter();
 
     useEffect(() => {
 
@@ -35,12 +37,15 @@ export default function HomeScreen() {
     /*if (error) {
         return <ThemedText>Error</ThemedText>;
     }*/
-
     return (
         <View style={styles.container}>
             <ScrollView>
                 {events.length > 0 && events.map((event) => (
-                    <EventHomeCard infos={event} key={event.id}/>
+                    <EventHomeCard
+                        infos={event}
+                        key={event.id}
+                        /*onPress={() => router.push(`/(stack)/posts/${event.id}`)}/>*/
+                        onPress={() => router.push(`/(stack)/posts/${event.id}`)}/>
                 ))}
             </ScrollView>
         </View>
