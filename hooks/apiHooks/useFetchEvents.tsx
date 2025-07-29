@@ -5,9 +5,10 @@ import {EventInfos} from "@/interfaces/event";
 
 const useFetchEvents = () => {
 
-    const fetchOne = async (id: number) => {
+    const fetchOne = async (id: number): Promise<EventInfos | null> => {
         try {
-            return await ApiService.get(URLS.EVENT.ROOT + `/${id}`);
+            const response = await ApiService.get(URLS.EVENT.ROOT + `/${id}`);
+            return response.data.event || [];
         } catch (error) {
             console.error(error);
             return null;

@@ -18,8 +18,14 @@ export default function HomeScreen() {
     useEffect(() => {
 
         const fetchDatas = async () => {
-            const data = await fetchAll();
-            setEvents(data);
+            try {
+                const data = await fetchAll();
+                console.log('Fetched Events:', data);
+                setEvents(data);
+            } catch (e) {
+                console.error(e)
+            }
+
         }
 
         fetchDatas();

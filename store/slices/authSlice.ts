@@ -1,15 +1,8 @@
 import {createSlice} from "@reduxjs/toolkit";
 import {authHandleLoginCases} from "@/store/reducers/cases/handleAuthCases/AuthHandleLoginCases";
+import {User} from "@/interfaces";
 
-interface User {
-    id: number;
-    firstname: string;
-    lastname: string;
-    email: string;
-    groups: any[],
-    creation: string;
-    lastconnexion: string;
-}
+
 export interface AuthState {
     access_token: string | null,
     user: User | null,

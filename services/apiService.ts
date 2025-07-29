@@ -1,7 +1,7 @@
 import axios, {AxiosRequestConfig, AxiosResponse} from "axios";
 import {store} from "@/store";
 // const BASE_URL = 'http://127.0.0.1:3000';
-const BASE_URL = 'http://192.168.1.144:3000'; // Utiliser l'adresse IP de la machine car localhost ne fonctionne pas sur mobile
+const BASE_URL = 'http://192.168.1.107:3000'; // Utiliser l'adresse IP de la machine car localhost ne fonctionne pas sur mobile
 
 const apiInstance = axios.create({
     baseURL: BASE_URL,
@@ -15,6 +15,7 @@ const apiInstance = axios.create({
 apiInstance.interceptors.request.use(
     (config) => {
         const token = store.getState().auth.access_token;
+        console.log('token', token);
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }

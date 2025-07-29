@@ -1,12 +1,15 @@
 export interface EventInfos {
     id: number;
-    user_id: number;
-    group_id: number;
     name: string;
-    adress: string;
+    hours: any;
     city: string;
     country: string;
-    hours: string;
+    adress: string;
     link: string;
-    location: any;
+    user_id: number;
+    group_id: number;
+    location: {
+        type: string;
+        coordinates: [number, number];
+    };
 }

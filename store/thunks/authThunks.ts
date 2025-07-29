@@ -1,11 +1,12 @@
 import {createAsyncThunk} from "@reduxjs/toolkit";
 import {ApiService} from "@/services/apiService";
+import {URLS} from "@/constants/apiUrls";
 
 export const setCredentialsThunk = createAsyncThunk(
     'auth/login',
     async (credentials: { email: string, password: string }) => {
         try {
-            const response = await ApiService.post('/auth/login', credentials);
+            const response = await ApiService.post(URLS.AUTH.LOGIN, credentials);
             console.log(response.data);
             return {
                 user: response.data.user,
