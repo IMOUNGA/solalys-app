@@ -1,78 +1,64 @@
 import {DarkTheme, DefaultTheme, ThemeProvider} from '@react-navigation/native';
-import {useFonts} from 'expo-font';
-import {Stack, Tabs} from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
+import {Stack, useRouter} from 'expo-router';
 import {StatusBar} from 'expo-status-bar';
-import {useEffect} from 'react';
 import 'react-native-reanimated';
 
-import {useColorScheme} from '@/hooks/useColorScheme';
-import {SafeAreaView, StyleSheet, Text, View} from "react-native";
-import Header from "@/components/header/Header";
-import {ThemedView} from "@/components/ThemedView";
-import HomeScreen from "@/app/(tabs)";
+import {useColorScheme} from '@/hooks/use-color-scheme';
 import {Provider} from "react-redux";
-import {store} from "@/store";
+import {store, persistor} from "@/store";
+import { PersistGate } from 'redux-persist/integration/react';
+import "../global.css";
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
+import {ReactNode, useEffect} from "react";
+import {loadSessionThunk} from "@/store/thunks/authThunks";
+import {AlertProvider} from "@/contexts/AlertContext";
+import {Alert} from "@/components/ui/alert";
+import { ActivityIndicator, View } from 'react-native';
+import {useAppDispatch} from "@/hooks/useRedux";
+
+export const unstable_settings = {
+    anchor: '(tabs)',
+};
+
+// Composant pour initialiser la session au démarrage
+function SessionInitializer() {
+    const dispatch = useAppDispatch();
+
+    useEffect(() => {
+        // Charger la session au démarrage de l'app
+        dispatch(loadSessionThunk());
+    }, [dispatch]);
+
+    return null;
+}
 
 export default function RootLayout() {
     const colorScheme = useColorScheme();
-    const [loaded] = useFonts({
-        SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-    });
-
-    useEffect(() => {
-        if (loaded) {
-            SplashScreen.hideAsync();
-        }
-    }, [loaded]);
-
-    if (!loaded) {
-        return null;
-    }
 
     return (
         <Provider store={store}>
-            <SafeAreaView style={styles.safeArea}>
-                <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-                    <ThemedView style={styles.header}>
-                        <Header/>
-                    </ThemedView>
-                    <ThemedView style={styles.content}>
+            <PersistGate
+                loading={
+                    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+                        <ActivityIndicator size="large" />
+                    </View>
+                }
+                persistor={persistor}
+            >
+                <SessionInitializer />
+                <AlertProvider>
+                    <ThemeProvider value={DefaultTheme}>
                         <Stack>
                             <Stack.Screen name="(tabs)" options={{headerShown: false}}/>
-                            <Stack.Screen name="(stack)" options={{headerShown: false,}}/>
-                            <Stack.Screen name="+not-found"/>
+                            <Stack.Screen name="(auth)" options={{headerShown: false}}/>
+                            <Stack.Screen name="modal" options={{presentation: 'modal', title: 'Modal'}}/>
                         </Stack>
-                    </ThemedView>
-                </ThemeProvider>
-            </SafeAreaView>
+                        <StatusBar style="dark"/>
+                        <Alert />
+                    </ThemeProvider>
+                </AlertProvider>
+            </PersistGate>
         </Provider>
+
     );
 }
-
-const styles = StyleSheet.create({
-    safeArea: {
-        display: 'flex',
-        flex: 1,
-    },
-    header: {
-        height: '10%',
-        backgroundColor: 'blue',
-    },
-    content: {
-        flex: 1,
-    }
-});
-
-/*
-
-<Stack>
-                        <Stack.Screen name="(tabs)" options={{headerShown: false}}/>
-                        <Stack.Screen name="+not-found"/>
-                    </Stack>
-                    <StatusBar style="auto"/>
-
- */

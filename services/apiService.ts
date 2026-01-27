@@ -1,7 +1,9 @@
 import axios, {AxiosRequestConfig, AxiosResponse} from "axios";
 import {store} from "@/store";
-// const BASE_URL = 'http://127.0.0.1:3000';
-const BASE_URL = 'http://192.168.1.107:3000'; // Utiliser l'adresse IP de la machine car localhost ne fonctionne pas sur mobile
+import {getAccessToken} from "@/lib/secureToken";
+//const BASE_URL = 'http://127.0.0.1:3000/v1';
+const BASE_URL = 'http://158.69.200.150:3000/v1';
+//const BASE_URL = 'http://192.168.1.107:3000'; // Utiliser l'adresse IP de la machine car localhost ne fonctionne pas sur mobile
 
 const apiInstance = axios.create({
     baseURL: BASE_URL,
@@ -14,8 +16,7 @@ const apiInstance = axios.create({
 
 apiInstance.interceptors.request.use(
     (config) => {
-        const token = store.getState().auth.access_token;
-        console.log('token', token);
+        const token = getAccessToken();
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
@@ -27,7 +28,16 @@ apiInstance.interceptors.request.use(
 apiInstance.interceptors.response.use(
     (response: AxiosResponse) => response,
     (error) => {
-        console.error("API Error:", error?.response || error);
+        if (error.response) {
+            console.error("API Error:", {
+                url: error.config?.url,
+                status: error.response.status,
+                data: error.response.data,
+            })
+        } else {
+            console.error("API Error:", error?.message || error);
+        }
+
         return Promise.reject(error);
     }
 );

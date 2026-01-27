@@ -1,12 +1,10 @@
 import {Tabs} from 'expo-router';
 import React from 'react';
-import {Platform} from 'react-native';
 
-import {HapticTab} from '@/components/HapticTab';
-import {IconSymbol} from '@/components/ui/IconSymbol';
-import TabBarBackground from '@/components/ui/TabBarBackground';
-import {Colors} from '@/constants/Colors';
-import {useColorScheme} from '@/hooks/useColorScheme';
+import {HapticTab} from '@/components/haptic-tab';
+import {IconSymbol} from '@/components/ui/icon-symbol';
+import {Colors} from '@/constants/theme';
+import {useColorScheme} from '@/hooks/use-color-scheme';
 
 export default function TabLayout() {
     const colorScheme = useColorScheme();
@@ -14,44 +12,49 @@ export default function TabLayout() {
     return (
         <Tabs
             screenOptions={{
-                tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+                tabBarActiveTintColor: '#000000', // Noir pour l'onglet actif
+                tabBarInactiveTintColor: '#8E8E93', // Gris pour les onglets inactifs
                 headerShown: false,
                 tabBarButton: HapticTab,
-                tabBarBackground: TabBarBackground,
-                tabBarStyle: Platform.select({
-                    ios: {
-                        // Use a transparent background on iOS to show the blur effect
-                        position: 'absolute',
-                    },
-                    default: {},
-                }),
+                tabBarStyle: {
+                    backgroundColor: 'rgb(255, 255, 255)',
+                },
             }}>
             <Tabs.Screen
-                name="index"
+                name="(found)"
                 options={{
-                    title: 'Home',
-                    tabBarIcon: ({color}) => <IconSymbol size={28} name="house.fill" color={color}/>,
+                    title: 'Trouver',
+                    tabBarIcon: ({color}) => <IconSymbol size={28} name="magnifyingglass" color={color}/>,
                 }}
             />
             <Tabs.Screen
-                name="search"
+                name="(events)"
                 options={{
-                    title: 'Search',
-                    tabBarIcon: ({color}) => <IconSymbol size={28} name="magnifyingglass.circle.fill" color={color}/>,
+                    title: 'Mes évènements',
+                    tabBarIcon: ({ color }) => <IconSymbol size={28} name="heart" color={color} />,
                 }}
             />
             <Tabs.Screen
-                name="create"
+                name="(groupes)"
                 options={{
-                    title: 'Ajouter',
-                    tabBarIcon: ({color}) => <IconSymbol size={28} name="plus.circle.fill" color={color}/>,
+                    title: 'Groupes',
+                    tabBarIcon: ({ color }) => <IconSymbol size={28} name="airplane.circle" color={color} />,
                 }}
             />
-            <Tabs.Screen
-                name="settings"
+            {/*<Tabs.Screen
+                name="(messages)"
                 options={{
-                    title: 'Paramètres',
-                    tabBarIcon: ({color}) => <IconSymbol size={28} name="gearshape.fill" color={color}/>,
+                    title: 'Messages',
+                    headerShown: false,
+                    tabBarIcon: ({ color }) => <IconSymbol size={28} name="message" color={color} />,
+                }}
+            />*/}
+            <Tabs.Screen
+                name="(compte)"
+                options={{
+                    title: 'Compte',
+                    headerShown: false,
+                    tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.crop.circle" color={color} />,
                 }}
             />
         </Tabs>
