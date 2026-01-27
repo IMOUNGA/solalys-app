@@ -47,11 +47,10 @@ const SignIn = () => {
         try {
             await dispatch(setCredentialsThunk({ email, password })).unwrap();
             // Navigation gérée par le redirect après succès
-            router.replace('/(tabs)/(explorer)');
+            router.replace('/(tabs)/(trouver)');
         } catch (err: any) {
-            console.log(err)
             showErrorAlert(
-                'Une erreur est survenue lors de la connexion',
+                err.message || 'Une erreur est survenue lors de la connexion',
                 'Erreur de connexion'
             );
         }

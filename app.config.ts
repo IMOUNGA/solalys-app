@@ -9,20 +9,17 @@ export default (): ExpoConfig => {
     const CURRENT_API = APP_ENV === 'prod' ? API_PROD : API_DEV;
 
     return {
-        name: 'pillowa',
-        slug: 'pillowa',
+        name: 'solalys',
+        slug: 'solalys',
         version: "1.3.0",
         orientation: "portrait",
         icon: "./assets/images/icon.png",
-        scheme: "pillowaapp",
+        scheme: "solalysapp",
         userInterfaceStyle: "automatic",
         newArchEnabled: true,
-        web: {
-            bundler: "metro"
-        },
         ios: {
             supportsTablet: true,
-            bundleIdentifier: "com.lilvinssou.pillowaapp",
+            bundleIdentifier: "com.lilvinssou.solalysapp",
             infoPlist: {
                 ITSAppUsesNonExemptEncryption: false,
                 // Only DEV
@@ -40,7 +37,7 @@ export default (): ExpoConfig => {
             },
             edgeToEdgeEnabled: true,
             predictiveBackGestureEnabled: false,
-            package: "com.lilvinssou.pillowaapp"
+            package: "com.lilvinssou.solalysapp"
         },
         web: {
             output: "static",

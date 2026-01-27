@@ -21,7 +21,7 @@ export default function TabLayout() {
                 },
             }}>
             <Tabs.Screen
-                name="(found)"
+                name="(trouver)"
                 options={{
                     title: 'Trouver',
                     tabBarIcon: ({color}) => <IconSymbol size={28} name="magnifyingglass" color={color}/>,
@@ -31,7 +31,7 @@ export default function TabLayout() {
                 name="(events)"
                 options={{
                     title: 'Mes évènements',
-                    tabBarIcon: ({ color }) => <IconSymbol size={28} name="heart" color={color} />,
+                    tabBarIcon: ({ color }) => <IconSymbol size={28} name="calendar" color={color} />,
                 }}
             />
             <Tabs.Screen

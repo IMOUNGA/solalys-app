@@ -21,10 +21,10 @@ const AuthLandingScreen = () => {
                 {/* Logo et titre */}
                 <View className="gap-4 items-center">
                     <ThemedText type="bigTitle" className="text-center">
-                        Bienvenue sur Pillowa
+                        Bienvenue sur Solalys
                     </ThemedText>
                     <Text className="text-gray-500 text-lg text-center">
-                        Trouvez et réservez votre logement idéal
+                        Rejoignez des événements et des groupes près de chez vous
                     </Text>
                 </View>
 
@@ -74,7 +74,7 @@ const AuthLandingScreen = () => {
                 {/* Bouton Continuer en tant qu'invité */}
                 <Pressable
                     className="py-4 px-6 active:opacity-60"
-                    onPress={() => router.push('/(tabs)/(explorer)')}
+                    onPress={() => router.push('/(tabs)/(trouver)')}
                 >
                     <Text className="text-black text-center font-medium text-base">
                         Continuer sans compte

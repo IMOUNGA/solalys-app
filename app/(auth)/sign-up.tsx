@@ -67,9 +67,8 @@ const SignUp = () => {
         try {
             await dispatch(registerThunk({ firstName, lastName, email, password })).unwrap();
             // Navigation après succès
-            router.replace('/(tabs)/(explorer)');
+            router.replace('/(tabs)/(trouver)');
         } catch (err: any) {
-            console.log(err);
             showErrorAlert(
                 err.message || 'Une erreur est survenue lors de la création du compte',
                 'Erreur'
@@ -97,7 +96,7 @@ const SignUp = () => {
                 <View className="gap-3">
                     <ThemedText type="bigTitle">Créer un compte</ThemedText>
                     <Text className="text-gray-500 text-lg">
-                        Rejoignez Pillowa et commencez à planifier vos voyages dès maintenant.
+                        Rejoignez Solalys et commencez à découvrir des événements et groupes dès maintenant.
                     </Text>
                 </View>
 

@@ -1,5 +1,5 @@
 /**
- * Types pour la gestion des images dans l'application Pillowa
+ * Types pour la gestion des images dans l'application Solalys
  */
 
 /**
@@ -65,7 +65,7 @@ export interface ImageConstraints {
 }
 
 /**
- * Contraintes par défaut pour les images d'annonces Pillowa
+ * Contraintes par défaut pour les images d'annonces Solalys
  */
 export const DEFAULT_IMAGE_CONSTRAINTS: ImageConstraints = {
     minImages: 3,

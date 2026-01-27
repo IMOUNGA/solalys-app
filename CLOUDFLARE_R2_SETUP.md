@@ -1,6 +1,6 @@
-# Configuration de Cloudflare R2 pour Pillowa
+# Configuration de Cloudflare R2 pour Solalys
 
-Ce guide vous explique comment configurer Cloudflare R2 pour l'upload d'images dans l'application Pillowa.
+Ce guide vous explique comment configurer Cloudflare R2 pour l'upload d'images dans l'application Solalys.
 
 ## 📋 Prérequis
 
@@ -14,7 +14,7 @@ Ce guide vous explique comment configurer Cloudflare R2 pour l'upload d'images d
 1. Connectez-vous à votre [dashboard Cloudflare](https://dash.cloudflare.com)
 2. Dans la barre latérale, cliquez sur **R2**
 3. Cliquez sur **Create bucket**
-4. Nommez votre bucket : `pillowa-images` (ou un autre nom de votre choix)
+4. Nommez votre bucket : `solalys-images` (ou un autre nom de votre choix)
 5. Choisissez la région (laisser **Automatic** est recommandé)
 6. Cliquez sur **Create bucket**
 
@@ -22,10 +22,10 @@ Ce guide vous explique comment configurer Cloudflare R2 pour l'upload d'images d
 
 1. Dans la page R2, cliquez sur **Manage R2 API Tokens**
 2. Cliquez sur **Create API Token**
-3. Donnez un nom à votre token : `pillowa-upload-token`
+3. Donnez un nom à votre token : `solalys-upload-token`
 4. **Permissions** :
    - Sélectionnez **Object Read & Write**
-   - Appliquez à : **Specific bucket** → sélectionnez `pillowa-images`
+   - Appliquez à : **Specific bucket** → sélectionnez `solalys-images`
 5. **TTL** : Laisser vide pour un token permanent
 6. Cliquez sur **Create API Token**
 
@@ -53,7 +53,7 @@ Ce guide vous explique comment configurer Cloudflare R2 pour l'upload d'images d
    EXPO_PUBLIC_R2_ACCOUNT_ID=votre_account_id_ici
    EXPO_PUBLIC_R2_ACCESS_KEY_ID=votre_access_key_id_ici
    EXPO_PUBLIC_R2_SECRET_ACCESS_KEY=votre_secret_access_key_ici
-   EXPO_PUBLIC_R2_BUCKET_NAME=pillowa-images
+   EXPO_PUBLIC_R2_BUCKET_NAME=solalys-images
    EXPO_PUBLIC_R2_REGION=auto
    ```
 
@@ -70,11 +70,11 @@ Pour utiliser votre propre domaine au lieu de l'URL R2 par défaut :
 
 1. Dans votre bucket R2, allez dans **Settings**
 2. Cliquez sur **Connect Domain**
-3. Entrez votre domaine personnalisé (ex: `images.pillowa.com`)
+3. Entrez votre domaine personnalisé (ex: `images.solalys.com`)
 4. Suivez les instructions pour configurer le DNS
 5. Une fois configuré, ajoutez cette ligne à votre `.env` :
    ```env
-   EXPO_PUBLIC_R2_PUBLIC_URL=https://images.pillowa.com
+   EXPO_PUBLIC_R2_PUBLIC_URL=https://images.solalys.com
    ```
 
 ### 6. Tester la configuration
