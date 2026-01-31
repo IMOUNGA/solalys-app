@@ -4,19 +4,17 @@ import {AuthState} from "@/store/slices/authSlice";
 
 export const authHandleSessionCases = (builder: ActionReducerMapBuilder<AuthState>) => {
     builder
-        // LoadSession: vérifie juste le token, le user vient de redux-persist
+        // LoadSession: vérifie le token et récupère le user depuis l'API
         .addCase(loadSessionThunk.pending, (state) => {
-            // Ne rien faire, le state est déjà hydraté par redux-persist
+            state.status = 'loading'
         })
-        .addCase(loadSessionThunk.fulfilled, (state, action: PayloadAction<{ hasToken: boolean }>) => {
-            // Si pas de token et qu'on a un user en cache, on déconnecte
-            if (!action.payload.hasToken && state.user) {
+        .addCase(loadSessionThunk.fulfilled, (state, action: PayloadAction<{ hasToken: boolean; user: any }>) => {
+            if (action.payload.hasToken && action.payload.user) {
+                state.status = 'authenticated'
+                state.user = action.payload.user
+            } else {
                 state.status = 'idle'
                 state.user = null
-            }
-            // Si on a un token et un user en cache, on s'assure que le status est authenticated
-            if (action.payload.hasToken && state.user) {
-                state.status = 'authenticated'
             }
         })
         .addCase(loadSessionThunk.rejected, (state) => {

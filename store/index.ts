@@ -10,7 +10,7 @@ import groupsReducer from './slices/groupsSlice'
 const persistConfig = {
     key: 'auth',
     storage: AsyncStorage,
-    whitelist: ['user', 'status'], // On persiste seulement user et status
+    whitelist: ['user'], // On persiste seulement user, pas le status (déterminé par loadSessionThunk au démarrage)
 }
 
 const persistedAuthReducer = persistReducer(persistConfig, authReducer)

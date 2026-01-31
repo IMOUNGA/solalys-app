@@ -1,11 +1,9 @@
 import React, { useEffect } from 'react';
-import { View, Text, FlatList, Pressable, RefreshControl, ActivityIndicator, Dimensions } from 'react-native';
+import { View, Text, FlatList, Pressable, RefreshControl, ActivityIndicator, Dimensions, SafeAreaView } from 'react-native';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux';
 import { fetchMyParticipationsThunk } from '@/store/thunks/eventsThunks';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 
 const { width } = Dimensions.get('window');
@@ -13,16 +11,17 @@ const { width } = Dimensions.get('window');
 export default function MyEventsScreen() {
   const dispatch = useAppDispatch();
   const { myParticipations, status } = useAppSelector((state) => state.events);
-  const { user } = useAppSelector((state) => state.auth);
+  const { user, status: authStatus } = useAppSelector((state) => state.auth);
   const [refreshing, setRefreshing] = React.useState(false);
 
   useEffect(() => {
-    if (user) {
+    if (user && authStatus === 'authenticated') {
       dispatch(fetchMyParticipationsThunk());
     }
-  }, [user]);
+  }, [user, authStatus]);
 
   const onRefresh = async () => {
+    if (!user || authStatus !== 'authenticated') return;
     setRefreshing(true);
     await dispatch(fetchMyParticipationsThunk());
     setRefreshing(false);
@@ -41,158 +40,196 @@ export default function MyEventsScreen() {
 
   const renderEvent = ({ item }: any) => (
     <Pressable
-      className="bg-white dark:bg-gray-800 rounded-2xl p-4 mb-3 shadow-sm active:opacity-80 border border-gray-100 dark:border-gray-700"
+      className="bg-white p-5 mb-4 rounded-2xl active:opacity-70"
+      style={{
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 8,
+        elevation: 3,
+      }}
       onPress={() => router.push(`/(tabs)/(trouver)/${item.id}`)}
     >
-      <View className="flex-row items-start mb-3">
-        <View className="flex-1">
-          <Text className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+      <View className="flex-row justify-between items-start mb-3">
+        <View className="flex-1 pr-3">
+          <Text className="text-lg font-bold text-gray-900 mb-2">
             {item.name}
           </Text>
-          {item.group && (
-            <View className="bg-blue-100 dark:bg-blue-900 px-3 py-1 rounded-full self-start">
-              <Text className="text-xs font-semibold text-blue-700 dark:text-blue-300">
-                {item.group.name}
-              </Text>
-            </View>
-          )}
-        </View>
-      </View>
-
-      <View className="space-y-2">
-        <View className="flex-row items-center gap-2">
-          <View className="bg-blue-100 dark:bg-blue-900 rounded-full p-1.5">
-            <IconSymbol name="calendar" size={14} color="#3B82F6" />
-          </View>
-          <Text className="text-sm text-gray-600 dark:text-gray-400 flex-1">
-            {formatDate(item.hours)}
-          </Text>
-        </View>
-
-        <View className="flex-row items-center gap-2">
-          <View className="bg-red-100 dark:bg-red-900 rounded-full p-1.5">
-            <IconSymbol name="location.fill" size={14} color="#EF4444" />
-          </View>
-          <Text className="text-sm text-gray-600 dark:text-gray-400 flex-1">
-            {item.city}, {item.country}
-          </Text>
-        </View>
-
-        {item.participants && (
           <View className="flex-row items-center gap-2">
-            <View className="bg-purple-100 dark:bg-purple-900 rounded-full p-1.5">
-              <IconSymbol name="person.2.fill" size={14} color="#8B5CF6" />
+            <View className="bg-violet-50 rounded-full p-1.5">
+              <IconSymbol name="calendar" size={16} color="#8B5CF6" />
             </View>
-            <Text className="text-sm text-gray-600 dark:text-gray-400">
-              {item.participants.length} participant{item.participants.length > 1 ? 's' : ''}
+            <Text className="text-sm text-gray-600 font-medium">
+              {formatDate(item.hours)}
+            </Text>
+          </View>
+        </View>
+        {item.group && (
+          <View className="bg-gradient-to-r from-violet-500 to-pink-500 px-3 py-1.5 rounded-full">
+            <LinearGradient
+              colors={['#8B5CF6', '#EC4899']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 100 }}
+            />
+            <Text className="text-xs font-bold text-white relative z-10">
+              {item.group.name}
             </Text>
           </View>
         )}
       </View>
+
+      <View className="flex-row items-center gap-2 mb-3">
+        <View className="bg-gray-50 rounded-full p-1.5">
+          <IconSymbol name="location.fill" size={16} color="#6B7280" />
+        </View>
+        <Text className="text-sm text-gray-600">
+          {item.city}, {item.country}
+        </Text>
+      </View>
+
+      {item.participants && item.participants.length > 0 && (
+        <View className="flex-row items-center gap-2 pt-3 border-t border-gray-100">
+          <View className="bg-violet-50 rounded-full p-1.5">
+            <IconSymbol name="person.2.fill" size={16} color="#8B5CF6" />
+          </View>
+          <Text className="text-sm text-gray-700 font-medium">
+            {item.participants.length} participant{item.participants.length > 1 ? 's' : ''}
+          </Text>
+        </View>
+      )}
     </Pressable>
   );
 
   if (!user) {
     return (
-      <ThemedView className="flex-1">
+      <View className="flex-1 bg-white">
         <LinearGradient
-          colors={['#3B82F6', '#8B5CF6']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
+          colors={['#8B5CF6', '#EC4899', '#FFFFFF']}
+          locations={[0, 0.5, 1]}
           style={{ flex: 1 }}
         >
-          <View className="flex-1 items-center justify-center px-6">
-            <View className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 items-center" style={{ width: width - 48 }}>
-              <View className="bg-white/20 rounded-full p-6 mb-6">
-                <IconSymbol name="calendar.badge.clock" size={80} color="#fff" />
+          <SafeAreaView className="flex-1">
+            <View className="flex-1 items-center justify-center px-6">
+              <View className="bg-white/20 backdrop-blur-xl rounded-full p-6 mb-6">
+                <IconSymbol name="calendar.badge.clock" size={64} color="#fff" />
               </View>
-              <Text className="text-white text-3xl font-bold mb-3 text-center">
+              <Text className="text-white text-2xl font-bold text-center mb-3">
                 Vos événements
               </Text>
-              <Text className="text-white/80 text-center text-base mb-8 leading-6">
-                Connectez-vous pour voir les événements auxquels vous participez et ne manquez aucune occasion de faire de nouvelles rencontres
+              <Text className="text-white/90 text-center text-base mb-8 leading-6">
+                Connectez-vous pour voir vos participations et ne manquez aucune occasion
               </Text>
               <Pressable
-                className="bg-white py-4 px-8 rounded-2xl w-full active:opacity-80"
+                className="px-8 py-4 rounded-2xl active:opacity-80"
                 onPress={() => router.push('/(auth)')}
               >
-                <Text className="text-blue-600 text-center font-bold text-lg">
+                <LinearGradient
+                  colors={['#FFFFFF', '#F3F4F6']}
+                  style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 16 }}
+                />
+                <Text className="text-violet-600 font-bold text-lg relative z-10">
                   Se connecter
                 </Text>
               </Pressable>
             </View>
-          </View>
+          </SafeAreaView>
         </LinearGradient>
-      </ThemedView>
+      </View>
     );
   }
 
   if (status === 'loading' && myParticipations.length === 0) {
     return (
-      <ThemedView className="flex-1 items-center justify-center">
-        <ActivityIndicator size="large" />
-        <Text className="text-gray-500 mt-4">Chargement...</Text>
-      </ThemedView>
+      <View className="flex-1 bg-white">
+        <LinearGradient
+          colors={['#8B5CF6', '#EC4899', '#FFFFFF']}
+          locations={[0, 0.3, 0.7]}
+          style={{ flex: 1 }}
+        >
+          <SafeAreaView className="flex-1">
+            <View className="flex-1 items-center justify-center">
+              <ActivityIndicator size="large" color="#fff" />
+              <Text className="text-white font-medium mt-4">Chargement de vos événements...</Text>
+            </View>
+          </SafeAreaView>
+        </LinearGradient>
+      </View>
     );
   }
 
   return (
-    <View className="flex-1 bg-gray-50 dark:bg-gray-900">
-      {/* Header with gradient */}
+    <View className="flex-1 bg-white">
       <LinearGradient
-        colors={['#3B82F6', '#8B5CF6']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={{ paddingTop: 60, paddingBottom: 40, paddingHorizontal: 20 }}
-      >
-        <View className="flex-row items-center justify-between mb-4">
-          <View className="flex-1">
-            <Text className="text-white text-3xl font-bold mb-2">
-              Mes événements
-            </Text>
-            <Text className="text-white/80 text-base">
-              {myParticipations.length} participation{myParticipations.length > 1 ? 's' : ''}
-            </Text>
-          </View>
-          <View className="bg-white/20 rounded-full p-4">
-            <IconSymbol name="calendar.badge.clock" size={40} color="#fff" />
-          </View>
-        </View>
-      </LinearGradient>
+        colors={['#8B5CF6', '#EC4899', '#FFFFFF']}
+        locations={[0, 0.4, 0.8]}
+        style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 280 }}
+      />
 
-      {myParticipations.length === 0 ? (
-        <View className="flex-1 items-center justify-center px-6 -mt-20">
-          <View className="bg-white dark:bg-gray-800 rounded-3xl p-8 items-center shadow-lg" style={{ width: width - 48 }}>
-            <View className="bg-blue-100 dark:bg-blue-900 rounded-full p-6 mb-4">
-              <IconSymbol name="calendar.badge.exclamationmark" size={64} color="#3B82F6" />
-            </View>
-            <Text className="text-xl font-bold text-gray-900 dark:text-white mb-2 text-center">
-              Aucun événement
-            </Text>
-            <Text className="text-gray-500 dark:text-gray-400 text-center mb-6 leading-6">
-              Vous ne participez à aucun événement pour le moment. Découvrez des événements passionnants autour de vous !
-            </Text>
-            <Pressable
-              className="bg-blue-500 py-4 px-8 rounded-2xl w-full active:opacity-80"
-              onPress={() => router.push('/(tabs)/(trouver)')}
-            >
-              <Text className="text-white text-center font-bold text-lg">
-                Découvrir des événements
-              </Text>
-            </Pressable>
-          </View>
+      <SafeAreaView className="flex-1">
+        {/* Header */}
+        <View className="px-6 pt-4 pb-6">
+          <Text className="text-white text-3xl font-bold mb-2">
+            Mes événements
+          </Text>
+          <Text className="text-white/90 text-base">
+            {myParticipations.length} participation{myParticipations.length > 1 ? 's' : ''}
+          </Text>
         </View>
-      ) : (
-        <FlatList
-          data={myParticipations}
-          renderItem={renderEvent}
-          keyExtractor={(item) => item.id.toString()}
-          contentContainerStyle={{ padding: 20, paddingTop: 10 }}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }
-        />
-      )}
+
+        {myParticipations.length === 0 ? (
+          <View className="flex-1 items-center justify-center px-6">
+            <View className="bg-white p-8 rounded-3xl items-center"
+              style={{
+                width: width - 48,
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.1,
+                shadowRadius: 12,
+                elevation: 5,
+              }}
+            >
+              <View className="bg-violet-100 rounded-full p-6 mb-4">
+                <IconSymbol name="calendar.badge.exclamationmark" size={56} color="#8B5CF6" />
+              </View>
+              <Text className="text-xl font-bold text-gray-900 mb-2 text-center">
+                Aucun événement
+              </Text>
+              <Text className="text-gray-600 text-center mb-6 leading-6">
+                Vous ne participez à aucun événement. Découvrez-en autour de vous !
+              </Text>
+              <Pressable
+                className="py-4 px-8 rounded-2xl w-full active:opacity-80"
+                onPress={() => router.push('/(tabs)/(trouver)')}
+              >
+                <LinearGradient
+                  colors={['#8B5CF6', '#EC4899']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 16 }}
+                />
+                <Text className="text-white text-center font-bold text-lg relative z-10">
+                  Découvrir des événements
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+        ) : (
+          <FlatList
+            data={myParticipations}
+            renderItem={renderEvent}
+            keyExtractor={(item) => item.id.toString()}
+            contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 8, paddingBottom: 100 }}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                tintColor="#fff"
+              />
+            }
+          />
+        )}
+      </SafeAreaView>
     </View>
   );
 }

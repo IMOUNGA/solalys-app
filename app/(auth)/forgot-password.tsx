@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { Pressable, Text, View, ActivityIndicator } from 'react-native';
-import ScreenScroll from '@/components/ux/ScreenScroll';
-import { ThemedText } from '@/components/themed-text';
+import { Pressable, Text, View, ActivityIndicator, ScrollView, KeyboardAvoidingView, Platform, Dimensions } from 'react-native';
 import { router } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { TextInput } from '@/components/ui/text-input';
 import { validateEmail } from '@/utils/validation';
@@ -10,6 +9,8 @@ import { ApiService } from '@/services/apiService';
 import { URLS } from '@/constants/urls/apiUrls';
 import { useErrorAlert } from '@/hooks/useAlert';
 import * as Clipboard from 'expo-clipboard';
+
+const { width } = Dimensions.get('window');
 
 const ForgotPasswordScreen = () => {
     const showErrorAlert = useErrorAlert();
@@ -51,149 +52,194 @@ const ForgotPasswordScreen = () => {
 
     if (emailSent) {
         return (
-            <ScreenScroll className="" contentClassName="flex-1 px-5 justify-center py-12">
-                <View className="gap-8 items-center">
-                    <IconSymbol name="checkmark.circle.fill" size={80} color="#10b981" />
-                    <View className="gap-3">
-                        <ThemedText type="bigTitle" className="text-center">
-                            Email envoyé !
-                        </ThemedText>
-                        <Text className="text-gray-500 text-lg text-center">
-                            Si un compte existe avec cette adresse, vous recevrez un email avec les instructions pour réinitialiser votre mot de passe.
-                        </Text>
-                        <Text className="text-gray-400 text-sm text-center mt-4">
-                            Vérifiez également vos spams si vous ne le trouvez pas.
-                        </Text>
-                    </View>
-                    <Pressable
-                        className="bg-black py-4 px-6 rounded-xl active:opacity-80 w-full mt-4"
-                        onPress={() => router.push('/(auth)/sign-in')}
-                    >
-                        <Text className="text-white text-center font-semibold text-lg">
-                            Retour à la connexion
-                        </Text>
-                    </Pressable>
-
-                    {/* Mode dev: afficher le token et lien vers reset password */}
-                    {__DEV__ && devToken && (
-                        <View className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                            <Text className="text-yellow-800 text-sm font-semibold mb-2">
-                                🔧 Mode Développement
-                            </Text>
-                            <Text className="text-yellow-700 text-xs mb-2">
-                                Voici le token de réinitialisation :
-                            </Text>
-
-                            {/* Token avec bouton de copie */}
-                            <View className="bg-white p-3 rounded border border-yellow-300 mb-3 flex-row items-center justify-between gap-2">
-                                <Text className="text-xs font-mono text-gray-800 flex-1" numberOfLines={1} ellipsizeMode="middle">
-                                    {devToken}
-                                </Text>
-                                <Pressable
-                                    className={`px-3 py-2 rounded-lg flex-row items-center gap-1 ${
-                                        isCopied ? 'bg-green-500' : 'bg-yellow-600'
-                                    } active:opacity-80`}
-                                    onPress={async () => {
-                                        await Clipboard.setStringAsync(devToken);
-                                        setIsCopied(true);
-                                        setTimeout(() => setIsCopied(false), 2000);
-                                    }}
-                                >
-                                    <IconSymbol
-                                        name={isCopied ? "checkmark" : "doc.on.doc"}
-                                        size={16}
-                                        color="#fff"
-                                    />
-                                    <Text className="text-white text-xs font-semibold">
-                                        {isCopied ? 'Copié !' : 'Copier'}
-                                    </Text>
-                                </Pressable>
+            <View className="flex-1 bg-white">
+                <LinearGradient
+                    colors={['#10B981', '#3B82F6']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={{ flex: 1 }}
+                >
+                    <View className="flex-1 items-center justify-center px-6">
+                        <View className="bg-white/95 backdrop-blur-xl rounded-3xl p-8 items-center shadow-2xl" style={{ width: width - 48, maxWidth: 480 }}>
+                            <View className="bg-green-100 rounded-full p-6 mb-6">
+                                <IconSymbol name="checkmark.circle.fill" size={64} color="#10B981" />
                             </View>
 
-                            <Text className="text-yellow-700 text-xs mb-3">
-                                Cliquez sur "Copier" puis utilisez-le sur la page de réinitialisation.
+                            <Text className="text-gray-900 text-3xl font-bold mb-3 text-center">
+                                Email envoyé !
                             </Text>
+                            <Text className="text-gray-600 text-center text-base mb-4 leading-6">
+                                Si un compte existe avec cette adresse, vous recevrez un email avec les instructions pour réinitialiser votre mot de passe.
+                            </Text>
+                            <Text className="text-gray-500 text-sm text-center mb-6">
+                                Vérifiez également vos spams si vous ne le trouvez pas.
+                            </Text>
+
                             <Pressable
-                                className="bg-yellow-600 py-3 px-4 rounded-lg active:opacity-80"
-                                onPress={() => router.push('/(auth)/reset-password')}
+                                className="py-4 px-6 rounded-2xl w-full active:opacity-80 mt-2"
+                                onPress={() => router.push('/(auth)/sign-in')}
                             >
-                                <Text className="text-white text-center font-semibold text-sm">
-                                    Aller à Reset Password →
+                                <LinearGradient
+                                    colors={['#10B981', '#3B82F6']}
+                                    start={{ x: 0, y: 0 }}
+                                    end={{ x: 1, y: 0 }}
+                                    style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 16 }}
+                                />
+                                <Text className="text-white text-center font-bold text-lg">
+                                    Retour à la connexion
                                 </Text>
                             </Pressable>
+
+                            {/* Mode dev: afficher le token et lien vers reset password */}
+                            {__DEV__ && devToken && (
+                                <View className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-2xl w-full">
+                                    <Text className="text-blue-800 text-sm font-semibold mb-2">
+                                        🔧 Mode Développement
+                                    </Text>
+                                    <Text className="text-blue-600 text-xs mb-2">
+                                        Voici le token de réinitialisation :
+                                    </Text>
+
+                                    {/* Token avec bouton de copie */}
+                                    <View className="bg-white p-3 rounded-xl border border-blue-300 mb-3 flex-row items-center justify-between gap-2">
+                                        <Text className="text-xs font-mono text-gray-800 flex-1" numberOfLines={1} ellipsizeMode="middle">
+                                            {devToken}
+                                        </Text>
+                                        <Pressable
+                                            className="px-3 py-2 rounded-lg flex-row items-center gap-1 active:opacity-80"
+                                            style={{ backgroundColor: isCopied ? '#10b981' : '#3B82F6' }}
+                                            onPress={async () => {
+                                                await Clipboard.setStringAsync(devToken);
+                                                setIsCopied(true);
+                                                setTimeout(() => setIsCopied(false), 2000);
+                                            }}
+                                        >
+                                            <IconSymbol
+                                                name={isCopied ? "checkmark" : "doc.on.doc"}
+                                                size={16}
+                                                color="#fff"
+                                            />
+                                            <Text className="text-white text-xs font-semibold">
+                                                {isCopied ? 'Copié !' : 'Copier'}
+                                            </Text>
+                                        </Pressable>
+                                    </View>
+
+                                    <Text className="text-blue-600 text-xs mb-3">
+                                        Cliquez sur "Copier" puis utilisez-le sur la page de réinitialisation.
+                                    </Text>
+                                    <Pressable
+                                        className="bg-blue-600 py-3 px-4 rounded-xl active:opacity-80"
+                                        onPress={() => router.push('/(auth)/reset-password')}
+                                    >
+                                        <Text className="text-white text-center font-semibold text-sm">
+                                            Aller à Reset Password →
+                                        </Text>
+                                    </Pressable>
+                                </View>
+                            )}
                         </View>
-                    )}
-                </View>
-            </ScreenScroll>
+                    </View>
+                </LinearGradient>
+            </View>
         );
     }
 
     return (
-        <ScreenScroll className="" contentClassName="flex-1 px-5 justify-between py-12">
-            {/* Bouton retour en haut */}
-            <Pressable
-                className="flex-row items-center gap-2 active:opacity-60"
-                onPress={() => router.back()}
-                disabled={isLoading}
+        <View className="flex-1">
+            <LinearGradient
+                colors={['#3B82F6', '#8B5CF6']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={{ flex: 1 }}
             >
-                <IconSymbol name="chevron.left" size={20} color="#000" />
-                <Text className="text-base">Retour</Text>
-            </Pressable>
-
-            {/* Contenu centré */}
-            <View className="gap-8 flex-1 justify-center">
-                {/* Titre et description */}
-                <View className="gap-3">
-                    <ThemedText type="bigTitle">Mot de passe oublié ?</ThemedText>
-                    <Text className="text-gray-500 text-lg">
-                        Entrez votre adresse email et nous vous enverrons un lien pour réinitialiser votre mot de passe.
-                    </Text>
-                </View>
-
-                {/* Formulaire */}
-                <View className="gap-6">
-                    <TextInput
-                        label="Email"
-                        placeholder="exemple@email.com"
-                        value={email}
-                        onChangeText={(text) => {
-                            setEmail(text);
-                            if (emailError) setEmailError(undefined);
-                        }}
-                        error={emailError}
-                        keyboardType="email-address"
-                        autoCapitalize="none"
-                        autoComplete="email"
-                        icon="envelope"
-                        editable={!isLoading}
-                    />
-
-                    <Pressable
-                        className={`py-4 px-6 rounded-xl flex-row items-center justify-center gap-2 ${
-                            isLoading ? 'bg-gray-400' : 'bg-black active:opacity-80'
-                        }`}
-                        onPress={handleSubmit}
-                        disabled={isLoading}
+                <KeyboardAvoidingView
+                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                    className="flex-1"
+                >
+                    <ScrollView
+                        className="flex-1"
+                        contentContainerStyle={{ flexGrow: 1, paddingTop: 60, paddingHorizontal: 20, paddingBottom: 20 }}
+                        keyboardShouldPersistTaps="handled"
                     >
-                        {isLoading ? (
-                            <>
-                                <ActivityIndicator color="#fff" />
-                                <Text className="text-white text-center font-semibold text-lg">
-                                    Envoi en cours...
-                                </Text>
-                            </>
-                        ) : (
-                            <Text className="text-white text-center font-semibold text-lg">
-                                Envoyer le lien
-                            </Text>
-                        )}
-                    </Pressable>
-                </View>
-            </View>
+                        {/* Bouton retour */}
+                        <Pressable
+                            className="flex-row items-center gap-2 active:opacity-60 mb-8"
+                            onPress={() => router.back()}
+                            disabled={isLoading}
+                        >
+                            <View className="bg-white/20 rounded-full p-2">
+                                <IconSymbol name="chevron.left" size={20} color="#fff" />
+                            </View>
+                            <Text className="text-white font-semibold text-base">Retour</Text>
+                        </Pressable>
 
-            {/* Espace vide en bas pour équilibrer */}
-            <View />
-        </ScreenScroll>
+                        {/* Header */}
+                        <View className="items-center mb-8">
+                            <View className="bg-white/20 rounded-full p-5 mb-4">
+                                <IconSymbol name="lock.rotation" size={48} color="#fff" />
+                            </View>
+                            <Text className="text-white text-3xl font-bold mb-2">
+                                Mot de passe oublié ?
+                            </Text>
+                            <Text className="text-white/90 text-center text-base">
+                                Entrez votre email pour recevoir un lien de réinitialisation
+                            </Text>
+                        </View>
+
+                        {/* Form Card */}
+                        <View className="bg-white/95 backdrop-blur-xl rounded-3xl p-6 shadow-xl">
+                            <View className="gap-5">
+                                <TextInput
+                                    label="Email"
+                                    placeholder="exemple@email.com"
+                                    value={email}
+                                    onChangeText={(text: string) => {
+                                        setEmail(text);
+                                        if (emailError) setEmailError(undefined);
+                                    }}
+                                    error={emailError}
+                                    keyboardType="email-address"
+                                    autoCapitalize="none"
+                                    autoComplete="email"
+                                    icon="envelope"
+                                />
+
+                                <Pressable
+                                    className={`py-4 px-6 rounded-2xl flex-row items-center justify-center gap-2 mt-2 ${
+                                        isLoading ? 'opacity-70' : 'active:opacity-80'
+                                    }`}
+                                    onPress={handleSubmit}
+                                    disabled={isLoading}
+                                >
+                                    <LinearGradient
+                                        colors={isLoading ? ['#9ca3af', '#9ca3af'] : ['#3B82F6', '#8B5CF6']}
+                                        start={{ x: 0, y: 0 }}
+                                        end={{ x: 1, y: 0 }}
+                                        style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 16 }}
+                                    />
+                                    {isLoading ? (
+                                        <>
+                                            <ActivityIndicator color="#fff" />
+                                            <Text className="text-white text-center font-bold text-lg">
+                                                Envoi en cours...
+                                            </Text>
+                                        </>
+                                    ) : (
+                                        <Text className="text-white text-center font-bold text-lg">
+                                            Envoyer le lien
+                                        </Text>
+                                    )}
+                                </Pressable>
+                            </View>
+                        </View>
+
+                        {/* Spacer */}
+                        <View className="flex-1" />
+                    </ScrollView>
+                </KeyboardAvoidingView>
+            </LinearGradient>
+        </View>
     );
 };
 

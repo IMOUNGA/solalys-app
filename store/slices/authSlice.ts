@@ -12,7 +12,7 @@ export interface AuthState {
 
 const initialState: AuthState = {
     user: null,
-    status: 'idle',
+    status: 'loading', // Commence en 'loading' car loadSessionThunk est appelé au démarrage
     error: null,
 }
 

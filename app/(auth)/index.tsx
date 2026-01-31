@@ -1,10 +1,12 @@
 import React, { useEffect } from 'react';
-import {Pressable, Text, View} from 'react-native';
-import {Link, router} from 'expo-router';
-import ScreenScroll from '@/components/ux/ScreenScroll';
-import {ThemedText} from '@/components/themed-text';
-import {IconSymbol} from '@/components/ui/icon-symbol';
-import {useAppSelector} from '@/hooks/useRedux';
+import { Pressable, Text, View, Dimensions } from 'react-native';
+import { Link, router } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
+import { ThemedText } from '@/components/themed-text';
+import { IconSymbol } from '@/components/ui/icon-symbol';
+import { useAppSelector } from '@/hooks/useRedux';
+
+const { width } = Dimensions.get('window');
 
 const AuthLandingScreen = () => {
     const { user, status } = useAppSelector((state) => state.auth);
@@ -15,89 +17,120 @@ const AuthLandingScreen = () => {
             router.replace('/(tabs)/(compte)');
         }
     }, [status, user]);
+
     return (
-        <ScreenScroll className="" contentClassName="pt-24 flex-1 px-5">
-            <View className="gap-10 flex-1 justify-center">
-                {/* Logo et titre */}
-                <View className="gap-4 items-center">
-                    <ThemedText type="bigTitle" className="text-center">
-                        Bienvenue sur Solalys
-                    </ThemedText>
-                    <Text className="text-gray-500 text-lg text-center">
-                        Rejoignez des événements et des groupes près de chez vous
-                    </Text>
-                </View>
+        <View className="flex-1 bg-white">
+            <LinearGradient
+                colors={['#3B82F6', '#8B5CF6']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={{ flex: 1 }}
+            >
+                <View className="flex-1 items-center justify-center px-6">
+                    {/* Main Card */}
+                    <View className="bg-white/95 backdrop-blur-xl rounded-3xl p-8 items-center shadow-2xl" style={{ width: width - 48, maxWidth: 480 }}>
+                        {/* Icon */}
+                        <View className="rounded-full p-6 mb-6 shadow-lg">
+                            <LinearGradient
+                                colors={['#3B82F6', '#8B5CF6']}
+                                start={{ x: 0, y: 0 }}
+                                end={{ x: 1, y: 1 }}
+                                style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 100 }}
+                            />
+                            <IconSymbol name="sparkles" size={64} color="#fff" />
+                        </View>
 
-                {/* Boutons d'authentification */}
-                <View className="gap-4 w-full">
-                    {/* Bouton Se connecter */}
-                    <Link href="/(auth)/sign-in" asChild>
-                        <Pressable className="bg-black py-4 px-6 rounded-xl active:opacity-80">
-                            <View className="flex-row items-center justify-center gap-3">
-                                <IconSymbol name="person.circle" size={24} color="#fff" />
-                                <Text className="text-white text-center font-semibold text-lg">
-                                    Se connecter
-                                </Text>
-                            </View>
-                        </Pressable>
-                    </Link>
+                        {/* Titre */}
+                        <Text className="text-gray-900 text-4xl font-bold mb-3 text-center">
+                            Bienvenue sur Solalys
+                        </Text>
+                        <Text className="text-gray-600 text-center text-base mb-8 leading-6">
+                            Rejoignez des événements et des groupes près de chez vous
+                        </Text>
 
-                    {/* Bouton Créer un compte */}
-                    <Link href="/(auth)/sign-up" asChild>
-                        <Pressable className="bg-white border-2 border-black py-4 px-6 rounded-xl active:bg-gray-50">
-                            <View className="flex-row items-center justify-center gap-3">
-                                <IconSymbol name="person.badge.plus" size={24} color="#000" />
-                                <Text className="text-black text-center font-semibold text-lg">
-                                    Créer un compte
-                                </Text>
-                            </View>
-                        </Pressable>
-                    </Link>
+                        {/* Boutons d'authentification */}
+                        <View className="gap-4 w-full">
+                            {/* Bouton Se connecter */}
+                            <Link href="/(auth)/sign-in" asChild>
+                                <Pressable className="py-4 px-6 rounded-2xl active:opacity-80 shadow-lg">
+                                    <LinearGradient
+                                        colors={['#3B82F6', '#8B5CF6']}
+                                        start={{ x: 0, y: 0 }}
+                                        end={{ x: 1, y: 0 }}
+                                        style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 16 }}
+                                    />
+                                    <View className="flex-row items-center justify-center gap-3">
+                                        <IconSymbol name="person.circle.fill" size={24} color="#fff" />
+                                        <Text className="text-white text-center font-bold text-lg">
+                                            Se connecter
+                                        </Text>
+                                    </View>
+                                </Pressable>
+                            </Link>
 
-                    {/* Lien Mot de passe oublié */}
-                    <Link href="/(auth)/forgot-password" asChild>
-                        <Pressable className="py-3 active:opacity-60">
-                            <Text className="text-gray-600 text-center text-base underline">
-                                Mot de passe oublié ?
+                            {/* Bouton Créer un compte */}
+                            <Link href="/(auth)/sign-up" asChild>
+                                <Pressable className="bg-white border-2 border-blue-500 py-4 px-6 rounded-2xl active:bg-blue-50 shadow-md">
+                                    <View className="flex-row items-center justify-center gap-3">
+                                        <IconSymbol name="person.badge.plus.fill" size={24} color="#3B82F6" />
+                                        <Text className="text-blue-600 text-center font-bold text-lg">
+                                            Créer un compte
+                                        </Text>
+                                    </View>
+                                </Pressable>
+                            </Link>
+
+                            {/* Lien Mot de passe oublié */}
+                            <Link href="/(auth)/forgot-password" asChild>
+                                <Pressable className="py-3 active:opacity-60">
+                                    <Text className="text-gray-600 text-center text-sm underline">
+                                        Mot de passe oublié ?
+                                    </Text>
+                                </Pressable>
+                            </Link>
+                        </View>
+
+                        {/* Séparateur */}
+                        <View className="flex-row items-center gap-4 w-full my-6">
+                            <View className="flex-1 h-[1px] bg-gray-300" />
+                            <Text className="text-gray-500 text-sm">ou</Text>
+                            <View className="flex-1 h-[1px] bg-gray-300" />
+                        </View>
+
+                        {/* Bouton Continuer en tant qu'invité */}
+                        <Pressable
+                            className="py-3 px-6 active:opacity-60 w-full"
+                            onPress={() => router.push('/(tabs)/(trouver)')}
+                        >
+                            <Text className="text-gray-700 text-center font-semibold text-base">
+                                Continuer sans compte
                             </Text>
                         </Pressable>
-                    </Link>
-                </View>
 
-                {/* Séparateur */}
-                <View className="flex-row items-center gap-4">
-                    <View className="flex-1 h-[1px] bg-gray-300" />
-                    <Text className="text-gray-500 text-sm">ou</Text>
-                    <View className="flex-1 h-[1px] bg-gray-300" />
-                </View>
-
-                {/* Bouton Continuer en tant qu'invité */}
-                <Pressable
-                    className="py-4 px-6 active:opacity-60"
-                    onPress={() => router.push('/(tabs)/(trouver)')}
-                >
-                    <Text className="text-black text-center font-medium text-base">
-                        Continuer sans compte
-                    </Text>
-                </Pressable>
-
-                {/* Zone de développement - À retirer en production */}
-                {__DEV__ && (
-                    <View className="mt-8 pt-6 border-t border-gray-300">
-                        <Text className="text-xs text-gray-400 text-center mb-3">
-                            🔧 DEV MODE
-                        </Text>
-                        <Link href="/(auth)/reset-password" asChild>
-                            <Pressable className="py-2 active:opacity-60">
-                                <Text className="text-gray-500 text-center text-sm underline">
-                                    Tester Reset Password
+                        {/* Zone de développement - À retirer en production */}
+                        {__DEV__ && (
+                            <View className="mt-6 pt-6 border-t border-gray-200 w-full">
+                                <Text className="text-xs text-gray-400 text-center mb-3">
+                                    🔧 DEV MODE
                                 </Text>
-                            </Pressable>
-                        </Link>
+                                <Link href="/(auth)/reset-password" asChild>
+                                    <Pressable className="py-2 active:opacity-60">
+                                        <Text className="text-gray-500 text-center text-xs underline">
+                                            Tester Reset Password
+                                        </Text>
+                                    </Pressable>
+                                </Link>
+                            </View>
+                        )}
                     </View>
-                )}
-            </View>
-        </ScreenScroll>
+
+                    {/* Footer */}
+                    <Text className="text-white/80 text-center text-xs mt-8">
+                        Solalys v1.0.0 • Made with ❤️
+                    </Text>
+                </View>
+            </LinearGradient>
+        </View>
     );
 };
 

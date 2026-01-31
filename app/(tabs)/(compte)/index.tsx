@@ -1,9 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Pressable, Text, View, RefreshControl, ScrollView, Dimensions } from "react-native";
+import { Pressable, Text, View, RefreshControl, ScrollView, Dimensions, SafeAreaView } from "react-native";
 import { Link, router } from "expo-router";
 import { LinearGradient } from 'expo-linear-gradient';
-import { ThemedText } from "@/components/themed-text";
-import { ThemedView } from "@/components/themed-view";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux';
 import { logoutThunk, refreshUserThunk } from '@/store/thunks/authThunks';
@@ -41,208 +39,265 @@ const CompteScreen = () => {
 
     if (!isAuthenticated) {
         return (
-            <ThemedView className="flex-1">
+            <View className="flex-1 bg-white">
                 <LinearGradient
-                    colors={['#667eea', '#764ba2']}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
+                    colors={['#3B82F6', '#8B5CF6', '#FFFFFF']}
+                    locations={[0, 0.5, 1]}
                     style={{ flex: 1 }}
                 >
-                    <View className="flex-1 items-center justify-center px-6">
-                        <View className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 items-center" style={{ width: width - 48 }}>
-                            <View className="bg-white/20 rounded-full p-6 mb-6">
-                                <IconSymbol name="person.crop.circle.fill" size={80} color="#fff" />
+                    <SafeAreaView className="flex-1">
+                        <View className="flex-1 items-center justify-center px-6">
+                            <View className="bg-white/20 backdrop-blur-xl rounded-full p-6 mb-6">
+                                <IconSymbol name="person.crop.circle.fill" size={64} color="#fff" />
                             </View>
-                            <Text className="text-white text-3xl font-bold mb-3 text-center">
+                            <Text className="text-white text-2xl font-bold text-center mb-3">
                                 Bienvenue sur Solalys
                             </Text>
-                            <Text className="text-white/80 text-center text-base mb-8 leading-6">
-                                Connectez-vous pour découvrir des événements locaux et rejoindre des groupes passionnants
+                            <Text className="text-white/90 text-center text-base mb-8 leading-6">
+                                Connectez-vous pour découvrir des événements locaux et rejoindre des groupes
                             </Text>
                             <Link href="/(auth)" asChild>
                                 <Pressable
-                                    className="bg-white py-4 px-8 rounded-2xl w-full active:opacity-80"
+                                    className="px-8 py-4 rounded-2xl active:opacity-80"
                                     accessibilityLabel="connexion or subscription button"
                                 >
-                                    <Text className="text-purple-600 text-center font-bold text-lg">
+                                    <LinearGradient
+                                        colors={['#FFFFFF', '#F3F4F6']}
+                                        style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 16 }}
+                                    />
+                                    <Text className="text-blue-600 font-bold text-lg relative z-10">
                                         Se connecter
                                     </Text>
                                 </Pressable>
                             </Link>
                         </View>
-                    </View>
+                    </SafeAreaView>
                 </LinearGradient>
-            </ThemedView>
+            </View>
         );
     }
 
     return (
-        <ScrollView
-            className="flex-1 bg-gray-50 dark:bg-gray-900"
-            refreshControl={
-                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-            }
-        >
-            {/* Header with gradient */}
+        <View className="flex-1 bg-white">
             <LinearGradient
-                colors={['#667eea', '#764ba2']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={{ paddingTop: 60, paddingBottom: 80, paddingHorizontal: 20 }}
-            >
-                <View className="flex-row items-center mb-6">
-                    <View className="bg-white/20 rounded-full p-3 mr-4">
-                        <IconSymbol name="person.crop.circle.fill" size={60} color="#fff" />
-                    </View>
-                    <View className="flex-1">
-                        <Text className="text-white text-2xl font-bold">
-                            {user.firstname} {user.lastname}
-                        </Text>
-                        <Text className="text-white/80 text-base mt-1">
-                            {user.email}
-                        </Text>
-                    </View>
-                </View>
-            </LinearGradient>
+                colors={['#3B82F6', '#8B5CF6', '#FFFFFF']}
+                locations={[0, 0.4, 0.8]}
+                style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 300 }}
+            />
 
-            {/* Stats Cards */}
-            <View className="px-5 -mt-12 mb-6">
-                <View className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden">
-                    <View className="flex-row">
-                        <Pressable
-                            className="flex-1 p-5 items-center border-r border-gray-100 dark:border-gray-700 active:bg-gray-50 dark:active:bg-gray-700"
-                            onPress={() => router.push('/(tabs)/(events)')}
-                        >
-                            <View className="bg-blue-100 dark:bg-blue-900 rounded-full p-3 mb-3">
-                                <IconSymbol name="calendar" size={28} color="#3B82F6" />
+            <SafeAreaView className="flex-1">
+                <ScrollView
+                    className="flex-1"
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={refreshing}
+                            onRefresh={onRefresh}
+                            tintColor="#fff"
+                        />
+                    }
+                >
+                    {/* Header */}
+                    <View className="px-6 pt-4 pb-8">
+                        <View className="flex-row items-center">
+                            <View className="bg-white/20 backdrop-blur-xl rounded-full p-3 mr-4">
+                                <IconSymbol name="person.crop.circle.fill" size={56} color="#fff" />
                             </View>
-                            <Text className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
-                                {myParticipations?.length || 0}
-                            </Text>
-                            <Text className="text-sm text-gray-500 dark:text-gray-400 text-center">
-                                Événements
-                            </Text>
-                        </Pressable>
-
-                        <Pressable
-                            className="flex-1 p-5 items-center active:bg-gray-50 dark:active:bg-gray-700"
-                            onPress={() => router.push('/(tabs)/(groupes)')}
-                        >
-                            <View className="bg-purple-100 dark:bg-purple-900 rounded-full p-3 mb-3">
-                                <IconSymbol name="person.2.fill" size={28} color="#8B5CF6" />
+                            <View className="flex-1">
+                                <Text className="text-white text-2xl font-bold">
+                                    {user.firstname} {user.lastname}
+                                </Text>
+                                <Text className="text-white/90 text-base mt-1">
+                                    {user.email}
+                                </Text>
                             </View>
-                            <Text className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
-                                {myGroups?.length || 0}
-                            </Text>
-                            <Text className="text-sm text-gray-500 dark:text-gray-400 text-center">
-                                Groupes
-                            </Text>
-                        </Pressable>
+                        </View>
                     </View>
-                </View>
-            </View>
 
-            {/* Menu Items */}
-            <View className="px-5 space-y-3 mb-6">
-                <Text className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2 ml-1">
-                    Paramètres
-                </Text>
+                    {/* Stats Cards */}
+                    <View className="px-6 mb-6">
+                        <View className="bg-white rounded-2xl overflow-hidden"
+                            style={{
+                                shadowColor: '#000',
+                                shadowOffset: { width: 0, height: 4 },
+                                shadowOpacity: 0.1,
+                                shadowRadius: 12,
+                                elevation: 5,
+                            }}
+                        >
+                            <View className="flex-row">
+                                <Pressable
+                                    className="flex-1 p-5 items-center border-r border-gray-100 active:bg-gray-50"
+                                    onPress={() => router.push('/(tabs)/(events)')}
+                                >
+                                    <View className="bg-violet-100 rounded-full p-3 mb-3">
+                                        <IconSymbol name="calendar" size={28} color="#8B5CF6" />
+                                    </View>
+                                    <Text className="text-2xl font-bold text-gray-900 mb-1">
+                                        {myParticipations?.length || 0}
+                                    </Text>
+                                    <Text className="text-sm text-gray-600 text-center">
+                                        Événements
+                                    </Text>
+                                </Pressable>
 
-                <Pressable
-                    className="bg-white dark:bg-gray-800 rounded-2xl p-4 flex-row items-center shadow-sm active:bg-gray-50 dark:active:bg-gray-700"
-                    onPress={() => router.push('/(tabs)/(compte)/account-settings')}
-                >
-                    <View className="bg-blue-100 dark:bg-blue-900 rounded-full p-3 mr-4">
-                        <IconSymbol name="person.circle" size={24} color="#3B82F6" />
+                                <Pressable
+                                    className="flex-1 p-5 items-center active:bg-gray-50"
+                                    onPress={() => router.push('/(tabs)/(groupes)')}
+                                >
+                                    <View className="bg-green-100 rounded-full p-3 mb-3">
+                                        <IconSymbol name="person.2.fill" size={28} color="#10B981" />
+                                    </View>
+                                    <Text className="text-2xl font-bold text-gray-900 mb-1">
+                                        {myGroups?.length || 0}
+                                    </Text>
+                                    <Text className="text-sm text-gray-600 text-center">
+                                        Groupes
+                                    </Text>
+                                </Pressable>
+                            </View>
+                        </View>
                     </View>
-                    <View className="flex-1">
-                        <Text className="text-base font-semibold text-gray-900 dark:text-white">
-                            Gestion du compte
-                        </Text>
-                        <Text className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-                            Modifier vos informations
-                        </Text>
-                    </View>
-                    <IconSymbol name="chevron.right" size={20} color="#9CA3AF" />
-                </Pressable>
 
-                <Pressable
-                    className="bg-white dark:bg-gray-800 rounded-2xl p-4 flex-row items-center shadow-sm active:bg-gray-50 dark:active:bg-gray-700"
-                    onPress={() => router.push('/(tabs)/(compte)/support')}
-                >
-                    <View className="bg-green-100 dark:bg-green-900 rounded-full p-3 mr-4">
-                        <IconSymbol name="questionmark.circle" size={24} color="#10B981" />
-                    </View>
-                    <View className="flex-1">
-                        <Text className="text-base font-semibold text-gray-900 dark:text-white">
-                            Assistance
+                    {/* Menu Items */}
+                    <View className="px-6 mb-6">
+                        <Text className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3 ml-1">
+                            Paramètres
                         </Text>
-                        <Text className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-                            Besoin d'aide ?
-                        </Text>
-                    </View>
-                    <IconSymbol name="chevron.right" size={20} color="#9CA3AF" />
-                </Pressable>
 
-                <Pressable
-                    className="bg-white dark:bg-gray-800 rounded-2xl p-4 flex-row items-center shadow-sm active:bg-gray-50 dark:active:bg-gray-700"
-                    onPress={() => router.push('/(tabs)/(compte)/privacy')}
-                >
-                    <View className="bg-yellow-100 dark:bg-yellow-900 rounded-full p-3 mr-4">
-                        <IconSymbol name="lock.shield" size={24} color="#F59E0B" />
-                    </View>
-                    <View className="flex-1">
-                        <Text className="text-base font-semibold text-gray-900 dark:text-white">
-                            Confidentialité
-                        </Text>
-                        <Text className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-                            Vos données en sécurité
-                        </Text>
-                    </View>
-                    <IconSymbol name="chevron.right" size={20} color="#9CA3AF" />
-                </Pressable>
+                        <View className="space-y-3">
+                            <Pressable
+                                className="bg-white rounded-2xl p-4 flex-row items-center active:opacity-70"
+                                style={{
+                                    shadowColor: '#000',
+                                    shadowOffset: { width: 0, height: 2 },
+                                    shadowOpacity: 0.05,
+                                    shadowRadius: 8,
+                                    elevation: 2,
+                                }}
+                                onPress={() => router.push('/(tabs)/(compte)/account-settings')}
+                            >
+                                <View className="bg-blue-50 rounded-full p-3 mr-4">
+                                    <IconSymbol name="person.circle" size={24} color="#3B82F6" />
+                                </View>
+                                <View className="flex-1">
+                                    <Text className="text-base font-semibold text-gray-900">
+                                        Gestion du compte
+                                    </Text>
+                                    <Text className="text-sm text-gray-600 mt-0.5">
+                                        Modifier vos informations
+                                    </Text>
+                                </View>
+                                <IconSymbol name="chevron.right" size={20} color="#9CA3AF" />
+                            </Pressable>
 
-                <Pressable
-                    className="bg-white dark:bg-gray-800 rounded-2xl p-4 flex-row items-center shadow-sm active:bg-gray-50 dark:active:bg-gray-700"
-                    onPress={() => router.push('/(tabs)/(compte)/legal')}
-                >
-                    <View className="bg-gray-100 dark:bg-gray-700 rounded-full p-3 mr-4">
-                        <IconSymbol name="doc.text" size={24} color="#6B7280" />
-                    </View>
-                    <View className="flex-1">
-                        <Text className="text-base font-semibold text-gray-900 dark:text-white">
-                            Mentions légales
-                        </Text>
-                        <Text className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-                            CGU et CGV
-                        </Text>
-                    </View>
-                    <IconSymbol name="chevron.right" size={20} color="#9CA3AF" />
-                </Pressable>
+                            <Pressable
+                                className="bg-white rounded-2xl p-4 flex-row items-center active:opacity-70"
+                                style={{
+                                    shadowColor: '#000',
+                                    shadowOffset: { width: 0, height: 2 },
+                                    shadowOpacity: 0.05,
+                                    shadowRadius: 8,
+                                    elevation: 2,
+                                }}
+                                onPress={() => router.push('/(tabs)/(compte)/support')}
+                            >
+                                <View className="bg-green-50 rounded-full p-3 mr-4">
+                                    <IconSymbol name="questionmark.circle" size={24} color="#10B981" />
+                                </View>
+                                <View className="flex-1">
+                                    <Text className="text-base font-semibold text-gray-900">
+                                        Assistance
+                                    </Text>
+                                    <Text className="text-sm text-gray-600 mt-0.5">
+                                        Besoin d'aide ?
+                                    </Text>
+                                </View>
+                                <IconSymbol name="chevron.right" size={20} color="#9CA3AF" />
+                            </Pressable>
 
-                {/* Logout Button */}
-                <Pressable
-                    onPress={handleLogout}
-                    className="bg-red-50 dark:bg-red-900/20 rounded-2xl p-4 flex-row items-center mt-4 active:bg-red-100 dark:active:bg-red-900/30"
-                    accessibilityLabel="Déconnexion"
-                >
-                    <View className="bg-red-100 dark:bg-red-900 rounded-full p-3 mr-4">
-                        <IconSymbol name="arrow.right.square" size={24} color="#EF4444" />
-                    </View>
-                    <Text className="flex-1 text-base font-semibold text-red-600 dark:text-red-400">
-                        Déconnexion
-                    </Text>
-                    <IconSymbol name="chevron.right" size={20} color="#EF4444" />
-                </Pressable>
-            </View>
+                            <Pressable
+                                className="bg-white rounded-2xl p-4 flex-row items-center active:opacity-70"
+                                style={{
+                                    shadowColor: '#000',
+                                    shadowOffset: { width: 0, height: 2 },
+                                    shadowOpacity: 0.05,
+                                    shadowRadius: 8,
+                                    elevation: 2,
+                                }}
+                                onPress={() => router.push('/(tabs)/(compte)/privacy')}
+                            >
+                                <View className="bg-amber-50 rounded-full p-3 mr-4">
+                                    <IconSymbol name="lock.shield" size={24} color="#F59E0B" />
+                                </View>
+                                <View className="flex-1">
+                                    <Text className="text-base font-semibold text-gray-900">
+                                        Confidentialité
+                                    </Text>
+                                    <Text className="text-sm text-gray-600 mt-0.5">
+                                        Vos données en sécurité
+                                    </Text>
+                                </View>
+                                <IconSymbol name="chevron.right" size={20} color="#9CA3AF" />
+                            </Pressable>
 
-            {/* App Version */}
-            <View className="px-5 pb-8 items-center">
-                <Text className="text-xs text-gray-400 dark:text-gray-600">
-                    Solalys v1.0.0 • Made with ❤️
-                </Text>
-            </View>
-        </ScrollView>
+                            <Pressable
+                                className="bg-white rounded-2xl p-4 flex-row items-center active:opacity-70"
+                                style={{
+                                    shadowColor: '#000',
+                                    shadowOffset: { width: 0, height: 2 },
+                                    shadowOpacity: 0.05,
+                                    shadowRadius: 8,
+                                    elevation: 2,
+                                }}
+                                onPress={() => router.push('/(tabs)/(compte)/legal')}
+                            >
+                                <View className="bg-gray-100 rounded-full p-3 mr-4">
+                                    <IconSymbol name="doc.text" size={24} color="#6B7280" />
+                                </View>
+                                <View className="flex-1">
+                                    <Text className="text-base font-semibold text-gray-900">
+                                        Mentions légales
+                                    </Text>
+                                    <Text className="text-sm text-gray-600 mt-0.5">
+                                        CGU et CGV
+                                    </Text>
+                                </View>
+                                <IconSymbol name="chevron.right" size={20} color="#9CA3AF" />
+                            </Pressable>
+
+                            {/* Logout Button */}
+                            <Pressable
+                                onPress={handleLogout}
+                                className="bg-red-50 rounded-2xl p-4 flex-row items-center mt-2 active:opacity-70"
+                                style={{
+                                    shadowColor: '#EF4444',
+                                    shadowOffset: { width: 0, height: 2 },
+                                    shadowOpacity: 0.1,
+                                    shadowRadius: 8,
+                                    elevation: 2,
+                                }}
+                                accessibilityLabel="Déconnexion"
+                            >
+                                <View className="bg-red-100 rounded-full p-3 mr-4">
+                                    <IconSymbol name="arrow.right.square" size={24} color="#EF4444" />
+                                </View>
+                                <Text className="flex-1 text-base font-semibold text-red-600">
+                                    Déconnexion
+                                </Text>
+                                <IconSymbol name="chevron.right" size={20} color="#EF4444" />
+                            </Pressable>
+                        </View>
+                    </View>
+
+                    {/* App Version */}
+                    <View className="px-6 pb-8 items-center">
+                        <Text className="text-xs text-gray-400">
+                            Solalys v1.0.0
+                        </Text>
+                    </View>
+                </ScrollView>
+            </SafeAreaView>
+        </View>
     );
 };
 

@@ -1,6 +1,8 @@
 import axios, {AxiosRequestConfig, AxiosResponse} from "axios";
 import {store} from "@/store";
-import {getAccessToken} from "@/lib/secureToken";
+import {getAccessToken, getRefreshToken, saveTokens, clearTokens} from "@/lib/secureToken";
+import {logoutState} from "@/store/slices/authSlice";
+
 const BASE_URL = 'http://127.0.0.1:3000/v1';
 // const BASE_URL = 'http://158.69.200.150:3000/v1';
 //const BASE_URL = 'http://192.168.1.107:3000'; // Utiliser l'adresse IP de la machine car localhost ne fonctionne pas sur mobile
@@ -14,9 +16,25 @@ const apiInstance = axios.create({
     timeout: 10000, // 10 seconds
 });
 
+// Variable pour éviter les appels multiples simultanés de refresh
+let isRefreshing = false;
+let failedQueue: any[] = [];
+
+const processQueue = (error: any, token: string | null = null) => {
+    failedQueue.forEach(prom => {
+        if (error) {
+            prom.reject(error);
+        } else {
+            prom.resolve(token);
+        }
+    });
+    failedQueue = [];
+};
+
 apiInstance.interceptors.request.use(
     (config) => {
         const token = getAccessToken();
+        console.log('🔐 [Request Interceptor]', config.url, 'Token:', token ? `${token.substring(0, 20)}...` : 'NO TOKEN');
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
@@ -27,7 +45,79 @@ apiInstance.interceptors.request.use(
 
 apiInstance.interceptors.response.use(
     (response: AxiosResponse) => response,
-    (error) => {
+    async (error) => {
+        const originalRequest = error.config;
+
+        // Si erreur 401 et qu'on n'a pas encore essayé de refresh
+        if (error.response?.status === 401 && !originalRequest._retry) {
+            console.log('🔄 [401 Interceptor] Received 401, attempting refresh...');
+
+            if (isRefreshing) {
+                console.log('⏳ [401 Interceptor] Refresh already in progress, queuing request');
+                // Si un refresh est déjà en cours, on met la requête en attente
+                return new Promise((resolve, reject) => {
+                    failedQueue.push({ resolve, reject });
+                }).then(token => {
+                    originalRequest.headers.Authorization = `Bearer ${token}`;
+                    return apiInstance(originalRequest);
+                }).catch(err => {
+                    return Promise.reject(err);
+                });
+            }
+
+            originalRequest._retry = true;
+            isRefreshing = true;
+
+            const refreshToken = getRefreshToken();
+            console.log('🔑 [401 Interceptor] Refresh token:', refreshToken ? 'EXISTS' : 'MISSING');
+
+            if (!refreshToken) {
+                console.log('❌ [401 Interceptor] No refresh token, logging out');
+                // Pas de refresh token, on déconnecte
+                await clearTokens();
+                store.dispatch(logoutState());
+                processQueue(error, null);
+                isRefreshing = false;
+                return Promise.reject(error);
+            }
+
+            try {
+                console.log('📡 [401 Interceptor] Calling /auth/refresh...');
+                // Appel au endpoint refresh avec le refresh token
+                const response = await axios.post(`${BASE_URL}/auth/refresh`, {}, {
+                    headers: {
+                        Authorization: `Bearer ${refreshToken}`
+                    }
+                });
+
+                const { accessToken, refreshToken: newRefreshToken } = response.data;
+                console.log('✅ [401 Interceptor] New tokens received');
+
+                // Sauvegarder les nouveaux tokens
+                await saveTokens(accessToken, newRefreshToken);
+
+                // Mettre à jour l'en-tête de la requête originale
+                originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+
+                // Traiter les requêtes en attente
+                processQueue(null, accessToken);
+                isRefreshing = false;
+
+                console.log('🔄 [401 Interceptor] Retrying original request');
+                // Réessayer la requête originale
+                return apiInstance(originalRequest);
+            } catch (refreshError: any) {
+                console.log('❌ [401 Interceptor] Refresh failed:', refreshError?.response?.status);
+                // Le refresh a échoué, on déconnecte l'utilisateur
+                processQueue(refreshError, null);
+                isRefreshing = false;
+                await clearTokens();
+                store.dispatch(logoutState());
+                return Promise.reject(refreshError);
+            }
+        }
+
+        // Autres erreurs
         if (error.response) {
             console.error("API Error:", {
                 url: error.config?.url,

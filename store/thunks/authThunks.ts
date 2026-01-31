@@ -40,14 +40,35 @@ export const setCredentialsThunk = createAsyncThunk(
 )
 
 /**
- * Bootstrap de session au démarrage : vérifie juste si un token existe.
- * Le user est chargé depuis redux-persist, pas besoin d'appel API.
+ * Bootstrap de session au démarrage : charge les tokens et vérifie l'utilisateur
+ * L'interceptor axios gère automatiquement le refresh si le token est expiré
  */
 export const loadSessionThunk = createAsyncThunk('auth/loadSession', async () => {
+    console.log('🔄 [loadSessionThunk] Starting...')
     const tokens = await loadTokens()
-    // On retourne juste si le token existe
-    // Le state user est déjà chargé par redux-persist
-    return { hasToken: !!tokens.access }
+    console.log('🔑 [loadSessionThunk] Tokens loaded:', {
+        hasAccess: !!tokens.access,
+        hasRefresh: !!tokens.refresh
+    })
+
+    if (!tokens.access) {
+        console.log('❌ [loadSessionThunk] No access token, returning null')
+        return { hasToken: false, user: null }
+    }
+
+    try {
+        console.log('📡 [loadSessionThunk] Calling /auth/me...')
+        // Vérifie que le token est valide en appelant /auth/me
+        // Si le token est expiré, l'interceptor le refresh automatiquement
+        const { data } = await ApiService.get(URLS.AUTH.ME)
+        console.log('✅ [loadSessionThunk] User loaded:', data?.email)
+        return { hasToken: true, user: data }
+    } catch (error: any) {
+        console.log('❌ [loadSessionThunk] Error:', error?.response?.status, error?.message)
+        // Si même après refresh on a une erreur, alors on déconnecte
+        // (cela veut dire que le refresh token aussi est expiré)
+        return { hasToken: false, user: null }
+    }
 })
 
 /**
