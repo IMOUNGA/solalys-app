@@ -174,6 +174,10 @@ export const apiService = {
             const params = buildQueryParams({ latitude, longitude, radius, page, limit });
             return apiInstance.get(`/events/nearby?${params}`);
         },
+        search: (query?: string, latitude?: number, longitude?: number, radius = 10, page = 1, limit = 20) => {
+            const params = buildQueryParams({ query, latitude, longitude, radius, page, limit });
+            return apiInstance.get(`/events/search?${params}`);
+        },
         getMyEvents: () => apiInstance.get('/events/me'),
         getMyParticipations: () => apiInstance.get('/events/me/participations'),
         create: (data: any) => apiInstance.post('/events', data),

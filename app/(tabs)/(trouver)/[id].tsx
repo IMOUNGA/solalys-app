@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, Pressable, ActivityIndicator, Linking, SafeAreaView } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
+import * as Location from 'expo-location';
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux';
 import { fetchEventByIdThunk, joinEventThunk, leaveEventThunk } from '@/store/thunks/eventsThunks';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useSuccessAlert, useErrorAlert } from '@/hooks/useAlert';
+import { calculateDistance, formatDistance } from '@/utils/distance';
 
 export default function EventDetailScreen() {
   const { id } = useLocalSearchParams();
@@ -15,6 +17,7 @@ export default function EventDetailScreen() {
   const { user } = useAppSelector((state) => state.auth);
   const [isParticipating, setIsParticipating] = useState(false);
   const [isJoining, setIsJoining] = useState(false);
+  const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const showSuccess = useSuccessAlert();
   const showError = useErrorAlert();
 
@@ -32,6 +35,26 @@ export default function EventDetailScreen() {
       setIsParticipating(participating || false);
     }
   }, [currentEvent, user]);
+
+  // Obtenir la position de l'utilisateur au chargement
+  useEffect(() => {
+    const getUserLocation = async () => {
+      try {
+        const { status } = await Location.getForegroundPermissionsAsync();
+        if (status === 'granted') {
+          const location = await Location.getCurrentPositionAsync({});
+          setUserLocation({
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
+          });
+        }
+      } catch (error) {
+        console.log('Could not get location:', error);
+      }
+    };
+
+    getUserLocation();
+  }, []);
 
   const handleJoinLeave = async () => {
     if (!currentEvent || !user) return;
@@ -121,6 +144,22 @@ export default function EventDetailScreen() {
               <Text className="text-base text-gray-900 dark:text-white font-medium">
                 {currentEvent.adress || `${currentEvent.city}, ${currentEvent.country}`}
               </Text>
+              {userLocation && currentEvent.latitude && currentEvent.longitude && (() => {
+                const distance = calculateDistance(
+                  userLocation.latitude,
+                  userLocation.longitude,
+                  currentEvent.latitude,
+                  currentEvent.longitude
+                );
+                return (
+                  <View className="flex-row items-center gap-1 mt-1">
+                    <IconSymbol name="location.circle.fill" size={14} color="#3B82F6" />
+                    <Text className="text-sm text-blue-600 font-semibold">
+                      {formatDistance(distance)} de vous
+                    </Text>
+                  </View>
+                );
+              })()}
             </View>
           </View>
 
