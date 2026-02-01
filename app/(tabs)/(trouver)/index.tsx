@@ -202,6 +202,28 @@ export default function TrouverScreen() {
             </View>
           }
         />
+
+        {/* Floating Action Button */}
+        <Pressable
+          className="absolute bottom-6 right-6 w-16 h-16 rounded-full shadow-2xl active:opacity-80"
+          onPress={() => router.push('/(tabs)/(trouver)/create')}
+          style={{
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 8 },
+            shadowOpacity: 0.3,
+            shadowRadius: 16,
+            elevation: 8,
+          }}
+        >
+          <LinearGradient
+            colors={['#3B82F6', '#8B5CF6']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={{ width: 64, height: 64, borderRadius: 32, alignItems: 'center', justifyContent: 'center' }}
+          >
+            <IconSymbol name="plus" size={32} color="#fff" />
+          </LinearGradient>
+        </Pressable>
       </SafeAreaView>
     </View>
   );
