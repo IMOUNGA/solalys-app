@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, Pressable, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, Pressable, ActivityIndicator, SafeAreaView } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux';
 import { fetchGroupByIdThunk, joinGroupThunk, leaveGroupThunk } from '@/store/thunks/groupsThunks';
@@ -56,21 +56,24 @@ export default function GroupDetailScreen() {
 
   if (status === 'loading' || !currentGroup) {
     return (
-      <ThemedView className="flex-1 items-center justify-center">
-        <ActivityIndicator size="large" />
-        <Text className="text-gray-500 mt-4">Chargement...</Text>
-      </ThemedView>
+      <SafeAreaView style={{ flex: 1 }}>
+        <ThemedView className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" />
+          <Text className="text-gray-500 mt-4">Chargement...</Text>
+        </ThemedView>
+      </SafeAreaView>
     );
   }
 
   return (
-    <ThemedView className="flex-1">
-      <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 100 }}>
-        {/* Header */}
-        <View className="p-5 pb-6 border-b border-gray-200 dark:border-gray-800">
-          <Pressable onPress={() => router.back()} className="mb-4">
-            <IconSymbol name="chevron.left" size={24} color="#000" />
-          </Pressable>
+    <SafeAreaView style={{ flex: 1 }}>
+      <ThemedView className="flex-1">
+        <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 100 }}>
+          {/* Header */}
+          <View className="p-5 pb-6 border-b border-gray-200 dark:border-gray-800">
+            <Pressable onPress={() => router.back()} className="mb-4">
+              <IconSymbol name="chevron.left" size={24} color="#000" />
+            </Pressable>
 
           <ThemedText type="title" className="mb-2">
             {currentGroup.name}
@@ -184,6 +187,7 @@ export default function GroupDetailScreen() {
           </Text>
         </Pressable>
       </View>
-    </ThemedView>
+      </ThemedView>
+    </SafeAreaView>
   );
 }

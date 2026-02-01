@@ -6,6 +6,8 @@ import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux';
 import { logoutThunk, refreshUserThunk } from '@/store/thunks/authThunks';
 import { logoutState } from '@/store/slices/authSlice';
+import { fetchMyGroupsThunk } from '@/store/thunks/groupsThunks';
+import { fetchMyParticipationsThunk } from '@/store/thunks/eventsThunks';
 
 const { width } = Dimensions.get('window');
 
@@ -16,6 +18,14 @@ const CompteScreen = () => {
     const { myGroups } = useAppSelector((state) => state.groups);
     const isAuthenticated = status === 'authenticated' && user;
     const [refreshing, setRefreshing] = useState(false);
+
+    // Charger les données utilisateur au montage
+    useEffect(() => {
+        if (isAuthenticated) {
+            dispatch(fetchMyGroupsThunk());
+            dispatch(fetchMyParticipationsThunk());
+        }
+    }, [isAuthenticated, dispatch]);
 
     const handleLogout = async () => {
         try {
@@ -31,7 +41,11 @@ const CompteScreen = () => {
         if (!isAuthenticated) return;
         setRefreshing(true);
         try {
-            await dispatch(refreshUserThunk()).unwrap();
+            await Promise.all([
+                dispatch(refreshUserThunk()).unwrap(),
+                dispatch(fetchMyGroupsThunk()).unwrap(),
+                dispatch(fetchMyParticipationsThunk()).unwrap(),
+            ]);
         } finally {
             setRefreshing(false);
         }
@@ -164,9 +178,9 @@ const CompteScreen = () => {
                             Paramètres
                         </Text>
 
-                        <View className="space-y-3">
+                        <View>
                             <Pressable
-                                className="bg-white rounded-2xl p-4 flex-row items-center active:opacity-70"
+                                className="bg-white rounded-2xl p-4 flex-row items-center active:opacity-70 mb-3"
                                 style={{
                                     shadowColor: '#000',
                                     shadowOffset: { width: 0, height: 2 },
@@ -191,7 +205,7 @@ const CompteScreen = () => {
                             </Pressable>
 
                             <Pressable
-                                className="bg-white rounded-2xl p-4 flex-row items-center active:opacity-70"
+                                className="bg-white rounded-2xl p-4 flex-row items-center active:opacity-70 mb-3"
                                 style={{
                                     shadowColor: '#000',
                                     shadowOffset: { width: 0, height: 2 },
@@ -216,7 +230,7 @@ const CompteScreen = () => {
                             </Pressable>
 
                             <Pressable
-                                className="bg-white rounded-2xl p-4 flex-row items-center active:opacity-70"
+                                className="bg-white rounded-2xl p-4 flex-row items-center active:opacity-70 mb-3"
                                 style={{
                                     shadowColor: '#000',
                                     shadowOffset: { width: 0, height: 2 },
@@ -241,7 +255,7 @@ const CompteScreen = () => {
                             </Pressable>
 
                             <Pressable
-                                className="bg-white rounded-2xl p-4 flex-row items-center active:opacity-70"
+                                className="bg-white rounded-2xl p-4 flex-row items-center active:opacity-70 mb-3"
                                 style={{
                                     shadowColor: '#000',
                                     shadowOffset: { width: 0, height: 2 },
@@ -268,7 +282,7 @@ const CompteScreen = () => {
                             {/* Logout Button */}
                             <Pressable
                                 onPress={handleLogout}
-                                className="bg-red-50 rounded-2xl p-4 flex-row items-center mt-2 active:opacity-70"
+                                className="bg-red-50 rounded-2xl p-4 flex-row items-center mt-3 active:opacity-70"
                                 style={{
                                     shadowColor: '#EF4444',
                                     shadowOffset: { width: 0, height: 2 },

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, Pressable, ActivityIndicator, Linking } from 'react-native';
+import { View, Text, ScrollView, Pressable, ActivityIndicator, Linking, SafeAreaView } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux';
 import { fetchEventByIdThunk, joinEventThunk, leaveEventThunk } from '@/store/thunks/eventsThunks';
@@ -68,21 +68,24 @@ export default function EventDetailScreen() {
 
   if (status === 'loading' || !currentEvent) {
     return (
-      <ThemedView className="flex-1 items-center justify-center">
-        <ActivityIndicator size="large" />
-        <Text className="text-gray-500 mt-4">Chargement...</Text>
-      </ThemedView>
+      <SafeAreaView style={{ flex: 1 }}>
+        <ThemedView className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" />
+          <Text className="text-gray-500 mt-4">Chargement...</Text>
+        </ThemedView>
+      </SafeAreaView>
     );
   }
 
   return (
-    <ThemedView className="flex-1">
-      <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 100 }}>
-        {/* Header */}
-        <View className="p-5 pb-6 border-b border-gray-200 dark:border-gray-800">
-          <Pressable onPress={() => router.back()} className="mb-4">
-            <IconSymbol name="chevron.left" size={24} color="#000" />
-          </Pressable>
+    <SafeAreaView style={{ flex: 1 }}>
+      <ThemedView className="flex-1">
+        <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 100 }}>
+          {/* Header */}
+          <View className="p-5 pb-6 border-b border-gray-200 dark:border-gray-800">
+            <Pressable onPress={() => router.back()} className="mb-4">
+              <IconSymbol name="chevron.left" size={24} color="#000" />
+            </Pressable>
 
           <ThemedText type="title" className="mb-3">
             {currentEvent.name}
@@ -182,6 +185,7 @@ export default function EventDetailScreen() {
           </Text>
         </Pressable>
       </View>
-    </ThemedView>
+      </ThemedView>
+    </SafeAreaView>
   );
 }
