@@ -217,6 +217,14 @@ export const apiService = {
         forgotPassword: (email: string) => apiInstance.post('/auth/forgot-password', { email }),
         resetPassword: (token: string, newPassword: string) => apiInstance.post('/auth/reset-password', { token, newPassword }),
     },
+    // Upload
+    upload: {
+        image: (formData: FormData) => apiInstance.post('/upload/image', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        }),
+    },
 };
 
 

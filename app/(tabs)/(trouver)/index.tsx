@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, Pressable, RefreshControl, ActivityIndicator, SafeAreaView, TextInput, Switch, Alert } from 'react-native';
+import React, { useEffect, useState, useCallback } from 'react';
+import { View, Text, FlatList, Pressable, RefreshControl, ActivityIndicator, SafeAreaView, TextInput, Switch, Alert, Image } from 'react-native';
 import { router } from 'expo-router';
 import * as Location from 'expo-location';
 import Slider from '@react-native-community/slider';
@@ -25,6 +25,8 @@ export default function TrouverScreen() {
   const [isSearching, setIsSearching] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+  const [debouncedQuery, setDebouncedQuery] = useState('');
+  const [debouncedRadius, setDebouncedRadius] = useState(10);
 
   useEffect(() => {
     if (user && authStatus === 'authenticated') {
@@ -55,6 +57,58 @@ export default function TrouverScreen() {
 
     getInitialLocation();
   }, []);
+
+  // Debounce de la recherche textuelle (500ms)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(searchQuery);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Debounce du rayon (800ms pour laisser le temps de bouger le slider)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedRadius(radius);
+    }, 800);
+
+    return () => clearTimeout(timer);
+  }, [radius]);
+
+  // Recherche automatique dès 3 caractères ou si géolocalisation activée
+  useEffect(() => {
+    const performAutoSearch = async () => {
+      const shouldSearch =
+        (debouncedQuery.trim().length >= 3) ||
+        (useGeolocation && userLocation);
+
+      if (!shouldSearch || !user || authStatus !== 'authenticated') {
+        return;
+      }
+
+      setIsSearching(true);
+      try {
+        const response = await apiService.events.search(
+          debouncedQuery.trim() || undefined,
+          useGeolocation ? userLocation?.latitude : undefined,
+          useGeolocation ? userLocation?.longitude : undefined,
+          debouncedRadius,
+          1,
+          50
+        );
+
+        setSearchResults(response.data.data || []);
+        setHasSearched(true);
+      } catch (error: any) {
+        console.error('Auto search error:', error);
+      } finally {
+        setIsSearching(false);
+      }
+    };
+
+    performAutoSearch();
+  }, [debouncedQuery, useGeolocation, debouncedRadius, userLocation, user, authStatus]);
 
   // Demander permission géolocalisation
   const requestLocationPermission = async () => {
@@ -94,7 +148,7 @@ export default function TrouverScreen() {
   };
 
   // Recherche
-  const handleSearch = async () => {
+  const handleSearch = useCallback(async () => {
     if (!user || authStatus !== 'authenticated') return;
 
     setIsSearching(true);
@@ -117,7 +171,7 @@ export default function TrouverScreen() {
     } finally {
       setIsSearching(false);
     }
-  };
+  }, [user, authStatus, searchQuery, useGeolocation, userLocation, radius]);
 
   // Reset recherche
   const handleResetSearch = () => {
@@ -174,6 +228,8 @@ export default function TrouverScreen() {
       }
     }
 
+    const hasImage = item.images && item.images.length > 0;
+
     return (
       <Pressable
         className="bg-white p-5 mb-4 rounded-2xl active:opacity-70"
@@ -186,8 +242,9 @@ export default function TrouverScreen() {
         }}
         onPress={() => router.push(`/(tabs)/(trouver)/${item.id}`)}
       >
-        <View className="flex-row justify-between items-start mb-3">
-          <View className="flex-1 pr-3">
+        <View className="flex-row gap-3 mb-3">
+          {/* Contenu à gauche */}
+          <View className="flex-1">
             <Text className="text-lg font-bold text-gray-900 mb-2">
               {item.name}
             </Text>
@@ -205,19 +262,44 @@ export default function TrouverScreen() {
               </Text>
             </View>
           </View>
-          {item.group && (
-            <View className="bg-gradient-to-r from-blue-500 to-violet-500 px-3 py-1.5 rounded-full">
-              <LinearGradient
-                colors={['#3B82F6', '#8B5CF6']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 100 }}
+
+          {/* Image à droite */}
+          {hasImage ? (
+            <View className="w-20 h-20">
+              <Image
+                source={{ uri: item.images[0] }}
+                className="w-full h-full rounded-xl"
+                resizeMode="cover"
               />
-              <Text className="text-xs font-bold text-white relative z-10">
-                {item.group.name}
-              </Text>
+              {item.group && (
+                <View className="absolute -bottom-1 -right-1 bg-gradient-to-r from-blue-500 to-violet-500 px-2 py-0.5 rounded-full">
+                  <LinearGradient
+                    colors={['#3B82F6', '#8B5CF6']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 100 }}
+                  />
+                  <Text className="text-xs font-bold text-white relative z-10">
+                    {item.group.name}
+                  </Text>
+                </View>
+              )}
             </View>
-          )}
+          ) : item.group ? (
+            <View className="justify-start">
+              <View className="bg-gradient-to-r from-blue-500 to-violet-500 px-3 py-1.5 rounded-full">
+                <LinearGradient
+                  colors={['#3B82F6', '#8B5CF6']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 100 }}
+                />
+                <Text className="text-xs font-bold text-white relative z-10">
+                  {item.group.name}
+                </Text>
+              </View>
+            </View>
+          ) : null}
         </View>
 
         <View className="flex-row items-center gap-2 mb-3">
@@ -333,11 +415,15 @@ export default function TrouverScreen() {
           <View className="bg-white/95 rounded-2xl overflow-hidden" style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 3 }}>
             {/* Input recherche */}
             <View className="flex-row items-center px-4 py-3 border-b border-gray-100">
-              <IconSymbol name="magnifyingglass" size={20} color="#6B7280" />
+              {isSearching ? (
+                <ActivityIndicator size="small" color="#3B82F6" />
+              ) : (
+                <IconSymbol name="magnifyingglass" size={20} color="#6B7280" />
+              )}
               <TextInput
                 value={searchQuery}
                 onChangeText={setSearchQuery}
-                placeholder="Rechercher un événement, groupe ou ville..."
+                placeholder="Tapez au moins 3 lettres pour rechercher..."
                 placeholderTextColor="#9CA3AF"
                 className="flex-1 ml-3 text-base text-gray-900"
               />

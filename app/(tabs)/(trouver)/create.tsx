@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, Pressable, TextInput, Platform, SafeAreaView, KeyboardAvoidingView, ActivityIndicator, Modal, Switch } from 'react-native';
+import { View, Text, ScrollView, Pressable, TextInput, Platform, SafeAreaView, KeyboardAvoidingView, ActivityIndicator, Modal, Switch, Image, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Calendar } from 'react-native-calendars';
+import * as ImagePicker from 'expo-image-picker';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux';
 import { apiService } from '@/services/apiService';
@@ -29,8 +30,10 @@ export default function CreateEventScreen() {
   const [hasLimitedSeats, setHasLimitedSeats] = useState(false);
   const [maxSeats, setMaxSeats] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedImages, setSelectedImages] = useState<ImagePicker.ImagePickerAsset[]>([]);
 
   const MAX_DESCRIPTION_LENGTH = 500;
+  const MAX_IMAGES = 5;
 
   const formatDate = (date: Date) => {
     return date.toLocaleDateString('fr-FR', {
@@ -98,6 +101,32 @@ export default function CreateEventScreen() {
     return true;
   };
 
+  // Fonction pour sélectionner des images
+  const pickImages = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsMultipleSelection: true,
+        quality: 0.8,
+        selectionLimit: MAX_IMAGES,
+      });
+
+      if (!result.canceled && result.assets) {
+        // Limiter à 5 images max
+        const newImages = result.assets.slice(0, MAX_IMAGES - selectedImages.length);
+        setSelectedImages([...selectedImages, ...newImages]);
+      }
+    } catch (error) {
+      console.error('Error picking images:', error);
+      Alert.alert('Erreur', 'Impossible de sélectionner les images');
+    }
+  };
+
+  // Fonction pour retirer une image
+  const removeImage = (index: number) => {
+    setSelectedImages(selectedImages.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = async () => {
     if (!canSubmit()) return;
 
@@ -139,7 +168,48 @@ export default function CreateEventScreen() {
         eventData.maxParticipants = parseInt(maxSeats);
       }
 
-      await apiService.events.create(eventData);
+      const response = await apiService.events.create(eventData);
+      const createdEvent = response.data;
+
+      // Upload images if any
+      const uploadedImageUrls: string[] = [];
+      if (selectedImages.length > 0 && createdEvent.id) {
+        for (let i = 0; i < selectedImages.length; i++) {
+          const image = selectedImages[i];
+          try {
+            // Créer FormData pour l'upload
+            const formData = new FormData();
+
+            // Extraire l'URI et créer un objet file
+            const uriParts = image.uri.split('.');
+            const fileType = uriParts[uriParts.length - 1];
+
+            formData.append('file', {
+              uri: image.uri,
+              name: `photo-${i + 1}.${fileType}`,
+              type: `image/${fileType}`,
+            } as any);
+
+            formData.append('type', 'events');
+            formData.append('resourceId', createdEvent.id.toString());
+            formData.append('index', i.toString());
+
+            const uploadResponse = await apiService.upload.image(formData);
+            if (uploadResponse.data.url) {
+              uploadedImageUrls.push(uploadResponse.data.url);
+            }
+          } catch (uploadError) {
+            console.error(`Error uploading image ${i + 1}:`, uploadError);
+          }
+        }
+
+        // Mettre à jour l'événement avec les URLs des images
+        if (uploadedImageUrls.length > 0) {
+          await apiService.events.update(createdEvent.id, {
+            images: uploadedImageUrls,
+          });
+        }
+      }
 
       showSuccess('Événement créé avec succès !');
 
@@ -289,6 +359,64 @@ export default function CreateEventScreen() {
                 maxLength={MAX_DESCRIPTION_LENGTH}
                 textAlignVertical="top"
               />
+            </View>
+
+            {/* Photos */}
+            <View className="mb-5">
+              <View className="flex-row justify-between items-center mb-2">
+                <Text className="text-sm font-semibold text-gray-700">
+                  Photos (optionnel)
+                </Text>
+                <Text className="text-xs text-gray-400">
+                  {selectedImages.length}/{MAX_IMAGES}
+                </Text>
+              </View>
+
+              {/* Bouton ajouter des photos */}
+              {selectedImages.length < MAX_IMAGES && (
+                <Pressable
+                  onPress={pickImages}
+                  className="bg-gray-50 border border-gray-200 rounded-xl p-4 mb-3 active:opacity-70"
+                >
+                  <View className="flex-row items-center justify-center gap-2">
+                    <IconSymbol name="photo" size={20} color="#6B7280" />
+                    <Text className="text-gray-600 font-medium">
+                      Ajouter des photos ({MAX_IMAGES} max)
+                    </Text>
+                  </View>
+                  <Text className="text-xs text-gray-400 text-center mt-1">
+                    Max 10MB par photo
+                  </Text>
+                </Pressable>
+              )}
+
+              {/* Grille des images sélectionnées */}
+              {selectedImages.length > 0 && (
+                <View className="flex-row flex-wrap gap-2">
+                  {selectedImages.map((image, index) => (
+                    <View key={index} className="relative">
+                      <Image
+                        source={{ uri: image.uri }}
+                        className="w-20 h-20 rounded-lg"
+                        resizeMode="cover"
+                      />
+                      <Pressable
+                        onPress={() => removeImage(index)}
+                        className="absolute -top-1 -right-1 bg-red-500 rounded-full w-6 h-6 items-center justify-center"
+                        style={{
+                          shadowColor: '#000',
+                          shadowOffset: { width: 0, height: 2 },
+                          shadowOpacity: 0.25,
+                          shadowRadius: 3.84,
+                          elevation: 5,
+                        }}
+                      >
+                        <IconSymbol name="xmark" size={12} color="#fff" />
+                      </Pressable>
+                    </View>
+                  ))}
+                </View>
+              )}
             </View>
 
             {/* Date */}

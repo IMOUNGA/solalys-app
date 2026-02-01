@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, Pressable, ActivityIndicator, Linking, SafeAreaView } from 'react-native';
+import { View, Text, ScrollView, Pressable, ActivityIndicator, Linking, SafeAreaView, Image, Dimensions } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as Location from 'expo-location';
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux';
@@ -7,8 +7,11 @@ import { fetchEventByIdThunk, joinEventThunk, leaveEventThunk } from '@/store/th
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { Avatar } from '@/components/Avatar';
 import { useSuccessAlert, useErrorAlert } from '@/hooks/useAlert';
 import { calculateDistance, formatDistance } from '@/utils/distance';
+
+const { width } = Dimensions.get('window');
 
 export default function EventDetailScreen() {
   const { id } = useLocalSearchParams();
@@ -18,6 +21,7 @@ export default function EventDetailScreen() {
   const [isParticipating, setIsParticipating] = useState(false);
   const [isJoining, setIsJoining] = useState(false);
   const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const showSuccess = useSuccessAlert();
   const showError = useErrorAlert();
 
@@ -123,6 +127,48 @@ export default function EventDetailScreen() {
           )}
         </View>
 
+        {/* Images Carousel */}
+        {currentEvent.images && currentEvent.images.length > 0 && (
+          <View>
+            <ScrollView
+              horizontal
+              pagingEnabled
+              showsHorizontalScrollIndicator={false}
+              onScroll={(event) => {
+                const x = event.nativeEvent.contentOffset.x;
+                const index = Math.round(x / width);
+                setCurrentImageIndex(index);
+              }}
+              scrollEventThrottle={16}
+            >
+              {currentEvent.images.map((imageUrl: string, index: number) => (
+                <Image
+                  key={index}
+                  source={{ uri: imageUrl }}
+                  style={{ width, height: width * 0.6 }}
+                  resizeMode="cover"
+                />
+              ))}
+            </ScrollView>
+
+            {/* Indicateurs de pagination */}
+            {currentEvent.images.length > 1 && (
+              <View className="flex-row justify-center items-center py-3 gap-2">
+                {currentEvent.images.map((_: any, index: number) => (
+                  <View
+                    key={index}
+                    className={`h-2 rounded-full ${
+                      index === currentImageIndex
+                        ? 'w-6 bg-blue-600'
+                        : 'w-2 bg-gray-300'
+                    }`}
+                  />
+                ))}
+              </View>
+            )}
+          </View>
+        )}
+
         {/* Info */}
         <View className="p-5 space-y-4">
           {/* Date */}
@@ -165,8 +211,12 @@ export default function EventDetailScreen() {
 
           {/* Creator */}
           {currentEvent.user && (
-            <View className="flex-row items-start gap-3">
-              <IconSymbol name="person.fill" size={20} color="#10B981" />
+            <View className="flex-row items-center gap-3">
+              <Avatar
+                uri={currentEvent.user.avatar}
+                name={`${currentEvent.user.firstname} ${currentEvent.user.lastname}`}
+                size={48}
+              />
               <View className="flex-1">
                 <Text className="text-sm text-gray-500 dark:text-gray-400 mb-1">Organisateur</Text>
                 <Text className="text-base text-gray-900 dark:text-white font-medium">

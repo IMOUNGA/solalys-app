@@ -1,13 +1,17 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Pressable, Text, View, RefreshControl, ScrollView, Dimensions, SafeAreaView } from "react-native";
+import { Pressable, Text, View, RefreshControl, ScrollView, Dimensions, SafeAreaView, ActivityIndicator } from "react-native";
 import { Link, router } from "expo-router";
 import { LinearGradient } from 'expo-linear-gradient';
+import * as ImagePicker from 'expo-image-picker';
 import { IconSymbol } from "@/components/ui/icon-symbol";
+import { Avatar } from "@/components/Avatar";
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux';
 import { logoutThunk, refreshUserThunk } from '@/store/thunks/authThunks';
 import { logoutState } from '@/store/slices/authSlice';
 import { fetchMyGroupsThunk } from '@/store/thunks/groupsThunks';
 import { fetchMyParticipationsThunk } from '@/store/thunks/eventsThunks';
+import { useSuccessAlert, useErrorAlert } from '@/hooks/useAlert';
+import apiService from '@/services/apiService';
 
 const { width } = Dimensions.get('window');
 
@@ -18,6 +22,9 @@ const CompteScreen = () => {
     const { myGroups } = useAppSelector((state) => state.groups);
     const isAuthenticated = status === 'authenticated' && user;
     const [refreshing, setRefreshing] = useState(false);
+    const [uploadingAvatar, setUploadingAvatar] = useState(false);
+    const showSuccess = useSuccessAlert();
+    const showError = useErrorAlert();
 
     // Charger les données utilisateur au montage
     useEffect(() => {
@@ -50,6 +57,65 @@ const CompteScreen = () => {
             setRefreshing(false);
         }
     }, [dispatch, isAuthenticated]);
+
+    const pickAvatar = async () => {
+        if (!user) return;
+
+        try {
+            const result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                allowsEditing: true,
+                aspect: [1, 1],
+                quality: 0.8,
+            });
+
+            if (result.canceled || !result.assets || result.assets.length === 0) {
+                return;
+            }
+
+            const image = result.assets[0];
+
+            // Check file size (10MB max)
+            if (image.fileSize && image.fileSize > 10 * 1024 * 1024) {
+                showError('L\'image ne doit pas dépasser 10 Mo');
+                return;
+            }
+
+            setUploadingAvatar(true);
+
+            // Prepare FormData
+            const fileType = image.uri.split('.').pop()?.toLowerCase() || 'jpg';
+            const formData = new FormData();
+            formData.append('file', {
+                uri: image.uri,
+                name: `avatar.${fileType}`,
+                type: `image/${fileType}`,
+            } as any);
+            formData.append('type', 'users');
+            formData.append('resourceId', user.id.toString());
+
+            // Upload to Cloudflare R2
+            const uploadResponse = await apiService.upload.image(formData);
+
+            if (!uploadResponse.data.url) {
+                showError('Erreur lors de l\'upload de l\'image');
+                return;
+            }
+
+            // Update user profile with avatar URL
+            await apiService.users.updateMe({ avatar: uploadResponse.data.url });
+
+            // Refresh user data
+            await dispatch(refreshUserThunk()).unwrap();
+
+            showSuccess('Avatar mis à jour avec succès');
+        } catch (error: any) {
+            console.error('Error uploading avatar:', error);
+            showError(error.message || 'Erreur lors de la mise à jour de l\'avatar');
+        } finally {
+            setUploadingAvatar(false);
+        }
+    };
 
     if (!isAuthenticated) {
         return (
@@ -113,9 +179,27 @@ const CompteScreen = () => {
                     {/* Header */}
                     <View className="px-6 pt-4 pb-8">
                         <View className="flex-row items-center">
-                            <View className="bg-white/20 backdrop-blur-xl rounded-full p-3 mr-4">
-                                <IconSymbol name="person.crop.circle.fill" size={56} color="#fff" />
-                            </View>
+                            <Pressable
+                                onPress={pickAvatar}
+                                disabled={uploadingAvatar}
+                                className="relative mr-4 active:opacity-70"
+                            >
+                                <View className="bg-white/20 backdrop-blur-xl rounded-full overflow-hidden">
+                                    <Avatar
+                                        uri={user.avatar}
+                                        name={`${user.firstname} ${user.lastname}`}
+                                        size={80}
+                                    />
+                                </View>
+                                {uploadingAvatar && (
+                                    <View className="absolute inset-0 bg-black/50 rounded-full items-center justify-center">
+                                        <ActivityIndicator color="#fff" />
+                                    </View>
+                                )}
+                                <View className="absolute bottom-0 right-0 bg-blue-500 rounded-full p-2">
+                                    <IconSymbol name="camera.fill" size={16} color="#fff" />
+                                </View>
+                            </Pressable>
                             <View className="flex-1">
                                 <Text className="text-white text-2xl font-bold">
                                     {user.firstname} {user.lastname}
