@@ -36,6 +36,12 @@ export default function TrouverScreen() {
     });
   };
 
+  const truncateDescription = (text: string, maxLength: number = 120) => {
+    if (!text) return '';
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength).trim() + '...';
+  };
+
   const renderEvent = ({ item }: any) => (
     <Pressable
       className="bg-white p-5 mb-4 rounded-2xl active:opacity-70"
@@ -53,6 +59,11 @@ export default function TrouverScreen() {
           <Text className="text-lg font-bold text-gray-900 mb-2">
             {item.name}
           </Text>
+          {item.description && (
+            <Text className="text-sm text-gray-600 mb-2 leading-5">
+              {truncateDescription(item.description)}
+            </Text>
+          )}
           <View className="flex-row items-center gap-2">
             <View className="bg-blue-50 rounded-full p-1.5">
               <IconSymbol name="calendar" size={16} color="#3B82F6" />

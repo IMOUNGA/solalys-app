@@ -16,6 +16,7 @@ export default function CreateEventScreen() {
   const showError = useErrorAlert();
 
   const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
   const [date, setDate] = useState(new Date());
   const [showCalendar, setShowCalendar] = useState(false);
   const [startTime, setStartTime] = useState({ hours: 14, minutes: 0 });
@@ -28,6 +29,8 @@ export default function CreateEventScreen() {
   const [hasLimitedSeats, setHasLimitedSeats] = useState(false);
   const [maxSeats, setMaxSeats] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const MAX_DESCRIPTION_LENGTH = 500;
 
   const formatDate = (date: Date) => {
     return date.toLocaleDateString('fr-FR', {
@@ -115,6 +118,10 @@ export default function CreateEventScreen() {
         city: city.trim(),
         country: country.trim(),
       };
+
+      if (description.trim()) {
+        eventData.description = description.trim();
+      }
 
       if (address.trim()) {
         eventData.adress = address.trim();
@@ -258,6 +265,29 @@ export default function CreateEventScreen() {
                 placeholder="Ex: Soirée jeux de société"
                 className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-base"
                 placeholderTextColor="#9CA3AF"
+              />
+            </View>
+
+            {/* Description */}
+            <View className="mb-5">
+              <View className="flex-row justify-between items-center mb-2">
+                <Text className="text-sm font-semibold text-gray-700">
+                  Description (optionnel)
+                </Text>
+                <Text className={`text-xs ${description.length > MAX_DESCRIPTION_LENGTH ? 'text-red-500' : 'text-gray-400'}`}>
+                  {description.length}/{MAX_DESCRIPTION_LENGTH}
+                </Text>
+              </View>
+              <TextInput
+                value={description}
+                onChangeText={setDescription}
+                placeholder="Décrivez votre événement..."
+                className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-base"
+                placeholderTextColor="#9CA3AF"
+                multiline
+                numberOfLines={4}
+                maxLength={MAX_DESCRIPTION_LENGTH}
+                textAlignVertical="top"
               />
             </View>
 
