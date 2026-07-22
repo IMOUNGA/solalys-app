@@ -22,6 +22,7 @@ export default (): ExpoConfig => {
             bundleIdentifier: "com.lilvinssou.solalysapp",
             infoPlist: {
                 ITSAppUsesNonExemptEncryption: false,
+                NSLocationWhenInUseUsageDescription: "Solalys utilise votre position pour vous montrer les événements proches de vous.",
                 // Only DEV
                 NSAppTransportSecurity: {
                     NSAllowsArbitraryLoads: true

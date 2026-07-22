@@ -29,10 +29,8 @@ export default function TrouverScreen() {
   const [debouncedRadius, setDebouncedRadius] = useState(10);
 
   useEffect(() => {
-    if (user && authStatus === 'authenticated') {
-      dispatch(fetchEventsThunk({}));
-    }
-  }, [user, authStatus]);
+    dispatch(fetchEventsThunk({}));
+  }, []);
 
   // Récupérer la position de l'utilisateur au chargement (silencieusement si autorisé)
   useEffect(() => {
@@ -83,7 +81,7 @@ export default function TrouverScreen() {
         (debouncedQuery.trim().length >= 3) ||
         (useGeolocation && userLocation);
 
-      if (!shouldSearch || !user || authStatus !== 'authenticated') {
+      if (!shouldSearch) {
         return;
       }
 
@@ -149,8 +147,6 @@ export default function TrouverScreen() {
 
   // Recherche
   const handleSearch = useCallback(async () => {
-    if (!user || authStatus !== 'authenticated') return;
-
     setIsSearching(true);
     try {
       const response = await apiService.events.search(
@@ -184,7 +180,6 @@ export default function TrouverScreen() {
   };
 
   const onRefresh = async () => {
-    if (!user || authStatus !== 'authenticated') return;
     setRefreshing(true);
     handleResetSearch();
     await dispatch(fetchEventsThunk({}));
@@ -334,43 +329,6 @@ export default function TrouverScreen() {
     );
   };
 
-  if (!user) {
-    return (
-      <View className="flex-1 bg-white">
-        <LinearGradient
-          colors={['#3B82F6', '#8B5CF6', '#FFFFFF']}
-          locations={[0, 0.5, 1]}
-          style={{ flex: 1 }}
-        >
-          <SafeAreaView className="flex-1">
-            <View className="flex-1 items-center justify-center px-6">
-              <View className="bg-white/20 backdrop-blur-xl rounded-full p-6 mb-6">
-                <IconSymbol name="calendar.badge.exclamationmark" size={64} color="#fff" />
-              </View>
-              <Text className="text-white text-2xl font-bold text-center mb-3">
-                Découvrez des événements
-              </Text>
-              <Text className="text-white/90 text-center text-base mb-8 leading-6">
-                Connectez-vous pour participer à des événements locaux et rencontrer du monde
-              </Text>
-              <Pressable
-                className="px-8 py-4 rounded-2xl active:opacity-80"
-                onPress={() => router.push('/(auth)')}
-              >
-                <LinearGradient
-                  colors={['#FFFFFF', '#F3F4F6']}
-                  style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 16 }}
-                />
-                <Text className="text-blue-600 font-bold text-lg relative z-10">
-                  Se connecter
-                </Text>
-              </Pressable>
-            </View>
-          </SafeAreaView>
-        </LinearGradient>
-      </View>
-    );
-  }
 
   if (status === 'loading' && events.length === 0) {
     return (
@@ -409,6 +367,21 @@ export default function TrouverScreen() {
             Découvrez les événements près de chez vous
           </Text>
         </View>
+
+        {/* Bannière invitation à se connecter (visiteurs non connectés) */}
+        {!user && (
+          <View className="px-6 pb-4">
+            <Pressable
+              className="bg-white/15 rounded-2xl px-4 py-3 flex-row items-center justify-between active:opacity-70"
+              onPress={() => router.push('/(auth)')}
+            >
+              <Text className="text-white font-medium flex-1 mr-3">
+                Connectez-vous pour participer aux événements
+              </Text>
+              <Text className="text-white font-bold">Se connecter</Text>
+            </Pressable>
+          </View>
+        )}
 
         {/* Search Bar */}
         <View className="px-6 pb-4">

@@ -61,7 +61,12 @@ export default function EventDetailScreen() {
   }, []);
 
   const handleJoinLeave = async () => {
-    if (!currentEvent || !user) return;
+    if (!currentEvent) return;
+
+    if (!user) {
+      router.push('/(auth)');
+      return;
+    }
 
     setIsJoining(true);
     try {
@@ -266,7 +271,9 @@ export default function EventDetailScreen() {
           disabled={isJoining}
         >
           <Text className="text-white text-center font-semibold text-lg">
-            {isJoining
+            {!user
+              ? 'Se connecter pour participer'
+              : isJoining
               ? 'Chargement...'
               : isParticipating
               ? 'Ne plus participer'
