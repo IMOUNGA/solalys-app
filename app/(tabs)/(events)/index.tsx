@@ -3,8 +3,9 @@ import { View, Text, FlatList, Pressable, RefreshControl, ActivityIndicator, Dim
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux';
-import { fetchMyParticipationsThunk, fetchMyEventsThunk } from '@/store/thunks/eventsThunks';
+import { fetchMyParticipationsThunk, fetchMyEventsThunk, deleteEventThunk } from '@/store/thunks/eventsThunks';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { useAlert } from '@/hooks/useAlert';
 
 type TabType = 'participations' | 'creations';
 
@@ -16,6 +17,8 @@ export default function MyEventsScreen() {
   const { user, status: authStatus } = useAppSelector((state) => state.auth);
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>('participations');
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const { showAlert } = useAlert();
 
   useEffect(() => {
     if (user && authStatus === 'authenticated') {
@@ -33,6 +36,40 @@ export default function MyEventsScreen() {
       await dispatch(fetchMyEventsThunk());
     }
     setRefreshing(false);
+  };
+
+  const handleDelete = (id: number, name: string) => {
+    showAlert({
+      title: 'Supprimer l\'événement',
+      message: `Voulez-vous vraiment supprimer "${name}" ? Cette action est irréversible.`,
+      buttons: [
+        { text: 'Annuler', style: 'cancel' },
+        {
+          text: 'Supprimer',
+          style: 'destructive',
+          onPress: async () => {
+            setDeletingId(id);
+            try {
+              await dispatch(deleteEventThunk(id)).unwrap();
+              await dispatch(fetchMyEventsThunk());
+              showAlert({
+                title: 'Succès',
+                message: 'Événement supprimé avec succès',
+                buttons: [{ text: 'OK', style: 'default' }],
+              });
+            } catch (error: any) {
+              showAlert({
+                title: 'Erreur',
+                message: error?.message || 'Impossible de supprimer cet événement',
+                buttons: [{ text: 'OK', style: 'default' }],
+              });
+            } finally {
+              setDeletingId(null);
+            }
+          },
+        },
+      ],
+    });
   };
 
   const currentEvents = activeTab === 'participations' ? myParticipations : myEvents;
@@ -123,14 +160,20 @@ export default function MyEventsScreen() {
             <Text className="text-blue-600 font-semibold">Modifier</Text>
           </Pressable>
           <Pressable
-            className="flex-1 py-3 px-4 rounded-xl bg-red-50 active:bg-red-100 flex-row items-center justify-center gap-2"
-            onPress={() => {
-              // TODO: Add delete confirmation
-              console.log('Delete event', item.id);
-            }}
+            className={`flex-1 py-3 px-4 rounded-xl bg-red-50 flex-row items-center justify-center gap-2 ${
+              deletingId === item.id ? 'opacity-50' : 'active:bg-red-100'
+            }`}
+            disabled={deletingId === item.id}
+            onPress={() => handleDelete(item.id, item.name)}
           >
-            <IconSymbol name="trash" size={18} color="#EF4444" />
-            <Text className="text-red-600 font-semibold">Supprimer</Text>
+            {deletingId === item.id ? (
+              <ActivityIndicator size="small" color="#EF4444" />
+            ) : (
+              <IconSymbol name="trash" size={18} color="#EF4444" />
+            )}
+            <Text className="text-red-600 font-semibold">
+              {deletingId === item.id ? 'Suppression...' : 'Supprimer'}
+            </Text>
           </Pressable>
         </View>
       )}

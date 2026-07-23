@@ -48,3 +48,11 @@ export const leaveEventThunk = createAsyncThunk(
     return response.data;
   }
 );
+
+export const deleteEventThunk = createAsyncThunk(
+  'events/delete',
+  async (id: number) => {
+    await apiService.events.delete(id);
+    return id;
+  }
+);
