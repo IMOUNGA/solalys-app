@@ -2,16 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, Pressable, ActivityIndicator, Linking, SafeAreaView, Image, Dimensions } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as Location from 'expo-location';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux';
 import { fetchEventByIdThunk, joinEventThunk, leaveEventThunk } from '@/store/thunks/eventsThunks';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Avatar } from '@/components/Avatar';
 import { useSuccessAlert, useErrorAlert } from '@/hooks/useAlert';
 import { calculateDistance, formatDistance } from '@/utils/distance';
 
 const { width } = Dimensions.get('window');
+const HERO_HEIGHT = width * 0.72;
+const MAX_STACKED_AVATARS = 5;
 
 export default function EventDetailScreen() {
   const { id } = useLocalSearchParams();
@@ -98,133 +99,232 @@ export default function EventDetailScreen() {
     });
   };
 
+  const formatShortDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('fr-FR', {
+      day: 'numeric',
+      month: 'short',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
+
   if (status === 'loading' || !currentEvent) {
     return (
-      <SafeAreaView style={{ flex: 1 }}>
-        <ThemedView className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" />
-          <Text className="text-gray-500 mt-4">Chargement...</Text>
-        </ThemedView>
+      <SafeAreaView style={{ flex: 1 }} className="bg-white dark:bg-gray-950">
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" color="#3B82F6" />
+          <Text className="text-gray-500 dark:text-gray-400 mt-4">Chargement...</Text>
+        </View>
       </SafeAreaView>
     );
   }
 
+  const hasImages = currentEvent.images && currentEvent.images.length > 0;
+  const distance =
+    userLocation && currentEvent.latitude && currentEvent.longitude
+      ? calculateDistance(
+          userLocation.latitude,
+          userLocation.longitude,
+          currentEvent.latitude,
+          currentEvent.longitude
+        )
+      : null;
+  const participants = currentEvent.participants || [];
+  const stackedParticipants = participants.slice(0, MAX_STACKED_AVATARS);
+  const overflowCount = participants.length - stackedParticipants.length;
+
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <ThemedView className="flex-1">
-        <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 100 }}>
-          {/* Header */}
-          <View className="p-5 pb-6 border-b border-gray-200 dark:border-gray-800">
-            <Pressable onPress={() => router.back()} className="mb-4">
-              <IconSymbol name="chevron.left" size={24} color="#000" />
+    <SafeAreaView style={{ flex: 1 }} className="bg-white dark:bg-gray-950">
+      <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 24 }} bounces={false}>
+        {/* Hero */}
+        <View style={{ height: HERO_HEIGHT }}>
+          {hasImages ? (
+            <>
+              <ScrollView
+                horizontal
+                pagingEnabled
+                showsHorizontalScrollIndicator={false}
+                onScroll={(event) => {
+                  const x = event.nativeEvent.contentOffset.x;
+                  const index = Math.round(x / width);
+                  setCurrentImageIndex(index);
+                }}
+                scrollEventThrottle={16}
+              >
+                {currentEvent.images!.map((imageUrl: string, index: number) => (
+                  <Image
+                    key={index}
+                    source={{ uri: imageUrl }}
+                    style={{ width, height: HERO_HEIGHT }}
+                    resizeMode="cover"
+                  />
+                ))}
+              </ScrollView>
+
+              {/* Dégradé pour la lisibilité du bouton retour + des indicateurs */}
+              <LinearGradient
+                colors={['rgba(0,0,0,0.35)', 'transparent']}
+                style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 100 }}
+                pointerEvents="none"
+              />
+
+              {currentEvent.images!.length > 1 && (
+                <View className="absolute bottom-4 left-0 right-0 flex-row justify-center items-center gap-2">
+                  {currentEvent.images!.map((_: any, index: number) => (
+                    <View
+                      key={index}
+                      className={`h-1.5 rounded-full ${
+                        index === currentImageIndex ? 'w-5 bg-white' : 'w-1.5 bg-white/50'
+                      }`}
+                    />
+                  ))}
+                </View>
+              )}
+            </>
+          ) : (
+            <LinearGradient
+              colors={['#3B82F6', '#8B5CF6']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
+            >
+              <View className="bg-white/15 rounded-full p-6">
+                <IconSymbol name="calendar" size={44} color="#fff" />
+              </View>
+            </LinearGradient>
+          )}
+
+          {/* Bouton retour flottant */}
+          <SafeAreaView style={{ position: 'absolute', top: 0, left: 0 }}>
+            <Pressable
+              onPress={() => router.back()}
+              className="m-4 bg-black/30 rounded-full w-10 h-10 items-center justify-center active:bg-black/50"
+            >
+              <IconSymbol name="chevron.left" size={22} color="#fff" />
             </Pressable>
+          </SafeAreaView>
+        </View>
 
-          <ThemedText type="title" className="mb-3">
-            {currentEvent.name}
-          </ThemedText>
-
+        {/* Carte de contenu */}
+        <View
+          className="bg-white dark:bg-gray-950 px-5 pt-6 pb-8"
+          style={{ marginTop: -20, borderTopLeftRadius: 24, borderTopRightRadius: 24 }}
+        >
           {currentEvent.group && (
-            <View className="bg-blue-100 dark:bg-blue-900 px-3 py-1 rounded-full self-start">
-              <Text className="text-sm font-medium text-blue-700 dark:text-blue-300">
+            <View className="bg-blue-50 dark:bg-blue-950 px-3 py-1 rounded-full self-start mb-3">
+              <Text className="text-sm font-semibold text-blue-700 dark:text-blue-300">
                 {currentEvent.group.name}
               </Text>
             </View>
           )}
-        </View>
 
-        {/* Images Carousel */}
-        {currentEvent.images && currentEvent.images.length > 0 && (
-          <View>
-            <ScrollView
-              horizontal
-              pagingEnabled
-              showsHorizontalScrollIndicator={false}
-              onScroll={(event) => {
-                const x = event.nativeEvent.contentOffset.x;
-                const index = Math.round(x / width);
-                setCurrentImageIndex(index);
-              }}
-              scrollEventThrottle={16}
-            >
-              {currentEvent.images.map((imageUrl: string, index: number) => (
-                <Image
-                  key={index}
-                  source={{ uri: imageUrl }}
-                  style={{ width, height: width * 0.6 }}
-                  resizeMode="cover"
-                />
-              ))}
-            </ScrollView>
+          <Text className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+            {currentEvent.name}
+          </Text>
 
-            {/* Indicateurs de pagination */}
-            {currentEvent.images.length > 1 && (
-              <View className="flex-row justify-center items-center py-3 gap-2">
-                {currentEvent.images.map((_: any, index: number) => (
-                  <View
-                    key={index}
-                    className={`h-2 rounded-full ${
-                      index === currentImageIndex
-                        ? 'w-6 bg-blue-600'
-                        : 'w-2 bg-gray-300'
-                    }`}
-                  />
-                ))}
+          {/* Chips résumé */}
+          <View className="flex-row flex-wrap gap-2 mb-6">
+            <View className="flex-row items-center gap-1.5 bg-gray-100 dark:bg-gray-900 rounded-full px-3 py-1.5">
+              <IconSymbol name="calendar" size={14} color="#3B82F6" />
+              <Text className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                {formatShortDate(currentEvent.hours)}
+              </Text>
+            </View>
+            <View className="flex-row items-center gap-1.5 bg-gray-100 dark:bg-gray-900 rounded-full px-3 py-1.5">
+              <IconSymbol name="person.2.fill" size={14} color="#8B5CF6" />
+              <Text className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                {participants.length} participant{participants.length > 1 ? 's' : ''}
+              </Text>
+            </View>
+            {distance !== null && (
+              <View className="flex-row items-center gap-1.5 bg-gray-100 dark:bg-gray-900 rounded-full px-3 py-1.5">
+                <IconSymbol name="location.circle.fill" size={14} color="#EF4444" />
+                <Text className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                  {formatDistance(distance)}
+                </Text>
               </View>
             )}
           </View>
-        )}
 
-        {/* Info */}
-        <View className="p-5 space-y-4">
-          {/* Date */}
-          <View className="flex-row items-start gap-3">
-            <IconSymbol name="calendar" size={20} color="#3B82F6" />
-            <View className="flex-1">
-              <Text className="text-sm text-gray-500 dark:text-gray-400 mb-1">Date et heure</Text>
-              <Text className="text-base text-gray-900 dark:text-white font-medium">
-                {formatDate(currentEvent.hours)}
+          {/* Description */}
+          {currentEvent.description && (
+            <View className="mb-6">
+              <Text className="text-base font-bold text-gray-900 dark:text-white mb-2">
+                À propos
+              </Text>
+              <Text className="text-base text-gray-600 dark:text-gray-400 leading-6">
+                {currentEvent.description}
               </Text>
             </View>
-          </View>
+          )}
 
-          {/* Location */}
-          <View className="flex-row items-start gap-3">
-            <IconSymbol name="location.fill" size={20} color="#EF4444" />
-            <View className="flex-1">
-              <Text className="text-sm text-gray-500 dark:text-gray-400 mb-1">Lieu</Text>
-              <Text className="text-base text-gray-900 dark:text-white font-medium">
-                {currentEvent.adress || `${currentEvent.city}, ${currentEvent.country}`}
-              </Text>
-              {userLocation && currentEvent.latitude && currentEvent.longitude && (() => {
-                const distance = calculateDistance(
-                  userLocation.latitude,
-                  userLocation.longitude,
-                  currentEvent.latitude,
-                  currentEvent.longitude
-                );
-                return (
-                  <View className="flex-row items-center gap-1 mt-1">
-                    <IconSymbol name="location.circle.fill" size={14} color="#3B82F6" />
-                    <Text className="text-sm text-blue-600 font-semibold">
-                      {formatDistance(distance)} de vous
-                    </Text>
-                  </View>
-                );
-              })()}
-            </View>
-          </View>
+          <View className="border-t border-gray-100 dark:border-gray-800 mb-6" />
 
-          {/* Creator */}
-          {currentEvent.user && (
-            <View className="flex-row items-center gap-3">
-              <Avatar
-                uri={currentEvent.user.avatar}
-                name={`${currentEvent.user.firstname} ${currentEvent.user.lastname}`}
-                size={48}
-              />
+          {/* Infos pratiques */}
+          <View className="gap-5 mb-6">
+            <View className="flex-row items-start gap-3">
+              <View className="bg-blue-50 dark:bg-blue-950 rounded-full p-2">
+                <IconSymbol name="calendar" size={18} color="#3B82F6" />
+              </View>
               <View className="flex-1">
-                <Text className="text-sm text-gray-500 dark:text-gray-400 mb-1">Organisateur</Text>
+                <Text className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Date et heure</Text>
+                <Text className="text-base text-gray-900 dark:text-white font-medium capitalize">
+                  {formatDate(currentEvent.hours)}
+                </Text>
+              </View>
+            </View>
+
+            <View className="flex-row items-start gap-3">
+              <View className="bg-red-50 dark:bg-red-950 rounded-full p-2">
+                <IconSymbol name="location.fill" size={18} color="#EF4444" />
+              </View>
+              <View className="flex-1">
+                <Text className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Lieu</Text>
                 <Text className="text-base text-gray-900 dark:text-white font-medium">
+                  {currentEvent.adress || `${currentEvent.city}, ${currentEvent.country}`}
+                </Text>
+                {distance !== null && (
+                  <Text className="text-sm text-blue-600 dark:text-blue-400 font-semibold mt-0.5">
+                    {formatDistance(distance)} de vous
+                  </Text>
+                )}
+              </View>
+            </View>
+
+            {currentEvent.link && (
+              <View className="flex-row items-start gap-3">
+                <View className="bg-amber-50 dark:bg-amber-950 rounded-full p-2">
+                  <IconSymbol name="link" size={18} color="#F59E0B" />
+                </View>
+                <View className="flex-1">
+                  <Text className="text-xs text-gray-500 dark:text-gray-400 mb-1">Lien</Text>
+                  <Pressable
+                    onPress={() => Linking.openURL(currentEvent.link!)}
+                    className="self-start bg-amber-50 dark:bg-amber-950 rounded-full px-4 py-2 active:opacity-70"
+                  >
+                    <Text className="text-sm text-amber-700 dark:text-amber-300 font-semibold">
+                      Ouvrir le lien
+                    </Text>
+                  </Pressable>
+                </View>
+              </View>
+            )}
+          </View>
+
+          <View className="border-t border-gray-100 dark:border-gray-800 mb-6" />
+
+          {/* Organisateur */}
+          {currentEvent.user && (
+            <View className="mb-6">
+              <Text className="text-xs text-gray-500 dark:text-gray-400 mb-2">Organisé par</Text>
+              <View className="flex-row items-center gap-3">
+                <Avatar
+                  uri={currentEvent.user.avatar}
+                  name={`${currentEvent.user.firstname} ${currentEvent.user.lastname}`}
+                  size={48}
+                />
+                <Text className="text-base text-gray-900 dark:text-white font-semibold">
                   {currentEvent.user.firstname} {currentEvent.user.lastname}
                 </Text>
               </View>
@@ -232,56 +332,81 @@ export default function EventDetailScreen() {
           )}
 
           {/* Participants */}
-          <View className="flex-row items-start gap-3">
-            <IconSymbol name="person.2.fill" size={20} color="#8B5CF6" />
-            <View className="flex-1">
-              <Text className="text-sm text-gray-500 dark:text-gray-400 mb-1">Participants</Text>
-              <Text className="text-base text-gray-900 dark:text-white font-medium">
-                {currentEvent.participants?.length || 0} personne{currentEvent.participants && currentEvent.participants.length > 1 ? 's' : ''}
+          <Pressable
+            onPress={() => router.push(`/(tabs)/(trouver)/${currentEvent.id}/participants`)}
+            className="active:opacity-70"
+          >
+            <View className="flex-row items-center justify-between mb-2">
+              <Text className="text-xs text-gray-500 dark:text-gray-400">
+                {participants.length > 0
+                  ? `Participants (${participants.length})`
+                  : 'Personne ne participe pour l\'instant'}
               </Text>
+              {participants.length > 0 && (
+                <IconSymbol name="chevron.right" size={16} color="#9CA3AF" />
+              )}
             </View>
-          </View>
-
-          {/* Link */}
-          {currentEvent.link && (
-            <View className="flex-row items-start gap-3">
-              <IconSymbol name="link" size={20} color="#F59E0B" />
-              <View className="flex-1">
-                <Text className="text-sm text-gray-500 dark:text-gray-400 mb-1">Lien</Text>
-                <Pressable onPress={() => Linking.openURL(currentEvent.link!)}>
-                  <Text className="text-base text-blue-600 dark:text-blue-400 underline">
-                    Ouvrir le lien
-                  </Text>
-                </Pressable>
+            {participants.length > 0 ? (
+              <View className="flex-row items-center">
+                {stackedParticipants.map((p, index) => (
+                  <View
+                    key={p.id}
+                    style={{ marginLeft: index === 0 ? 0 : -12, zIndex: stackedParticipants.length - index }}
+                  >
+                    <Avatar
+                      name={p.user ? `${p.user.firstname} ${p.user.lastname}` : '?'}
+                      size={36}
+                      style={{ borderWidth: 2, borderColor: '#fff' }}
+                    />
+                  </View>
+                ))}
+                {overflowCount > 0 && (
+                  <View
+                    className="bg-gray-200 dark:bg-gray-800 rounded-full items-center justify-center"
+                    style={{ width: 36, height: 36, marginLeft: -12, borderWidth: 2, borderColor: '#fff' }}
+                  >
+                    <Text className="text-xs font-bold text-gray-600 dark:text-gray-300">
+                      +{overflowCount}
+                    </Text>
+                  </View>
+                )}
               </View>
-            </View>
-          )}
+            ) : (
+              <Text className="text-base text-gray-400 dark:text-gray-500">
+                Soyez le premier à rejoindre !
+              </Text>
+            )}
+          </Pressable>
         </View>
       </ScrollView>
 
       {/* Join/Leave Button */}
-      <View className="absolute bottom-0 left-0 right-0 p-5 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800">
+      <View className="p-5 pt-3 bg-white dark:bg-gray-950 border-t border-gray-100 dark:border-gray-800">
         <Pressable
-          className={`py-4 px-6 rounded-xl ${
-            isParticipating
-              ? 'bg-red-500 active:bg-red-600'
-              : 'bg-blue-500 active:bg-blue-600'
-          } ${isJoining ? 'opacity-50' : ''}`}
+          className={`rounded-2xl overflow-hidden ${isJoining ? 'opacity-60' : 'active:opacity-90'}`}
           onPress={handleJoinLeave}
           disabled={isJoining}
         >
-          <Text className="text-white text-center font-semibold text-lg">
-            {!user
-              ? 'Se connecter pour participer'
-              : isJoining
-              ? 'Chargement...'
-              : isParticipating
-              ? 'Ne plus participer'
-              : 'Participer'}
-          </Text>
+          {isParticipating ? (
+            <View className="py-4 px-6 bg-red-500">
+              <Text className="text-white text-center font-bold text-lg">
+                {isJoining ? 'Chargement...' : 'Ne plus participer'}
+              </Text>
+            </View>
+          ) : (
+            <LinearGradient
+              colors={['#3B82F6', '#8B5CF6']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={{ paddingVertical: 16, paddingHorizontal: 24 }}
+            >
+              <Text className="text-white text-center font-bold text-lg">
+                {!user ? 'Se connecter pour participer' : isJoining ? 'Chargement...' : 'Participer'}
+              </Text>
+            </LinearGradient>
+          )}
         </Pressable>
       </View>
-      </ThemedView>
     </SafeAreaView>
   );
 }

@@ -1,18 +1,25 @@
 export interface Event {
   id: number;
   name: string;
+  description?: string | null;
   hours: string;
+  endTime?: string | null;
   city: string;
   country: string;
   adress?: string;
   link?: string;
+  maxParticipants?: number | null;
   userId?: number;
   groupId?: number;
+  images?: string[];
+  latitude?: number;
+  longitude?: number;
   user?: {
     id: number;
     firstname: string;
     lastname: string;
     email: string;
+    avatar?: string | null;
   };
   group?: {
     id: number;
