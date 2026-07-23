@@ -40,14 +40,6 @@ const CompteStackLayout = () => {
                     headerBackTitle: "Retour",
                 }}
             />
-            <Stack.Screen
-                name="create-annonce"
-                options={{
-                    headerShown: true,
-                    headerTitle: "Créer une annonce",
-                    headerBackTitle: "Retour",
-                }}
-            />
         </Stack>
     );
 };
