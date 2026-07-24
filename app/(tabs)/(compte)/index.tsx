@@ -23,6 +23,7 @@ const CompteScreen = () => {
     const isAuthenticated = status === 'authenticated' && user;
     const [refreshing, setRefreshing] = useState(false);
     const [uploadingAvatar, setUploadingAvatar] = useState(false);
+    const [totalCA, setTotalCA] = useState(0);
     const showSuccess = useSuccessAlert();
     const showError = useErrorAlert();
 
@@ -31,6 +32,9 @@ const CompteScreen = () => {
         if (isAuthenticated) {
             dispatch(fetchMyGroupsThunk());
             dispatch(fetchMyParticipationsThunk());
+            apiService.referrals.getDashboard()
+                .then((res: any) => setTotalCA(res.data?.total || 0))
+                .catch(() => {});
         }
     }, [isAuthenticated, dispatch]);
 
@@ -52,6 +56,7 @@ const CompteScreen = () => {
                 dispatch(refreshUserThunk()).unwrap(),
                 dispatch(fetchMyGroupsThunk()).unwrap(),
                 dispatch(fetchMyParticipationsThunk()).unwrap(),
+                apiService.referrals.getDashboard().then((res: any) => setTotalCA(res.data?.total || 0)).catch(() => {}),
             ]);
         } finally {
             setRefreshing(false);
@@ -254,6 +259,34 @@ const CompteScreen = () => {
                                 </Pressable>
                             </View>
                         </View>
+                    </View>
+
+                    {/* Mon CA */}
+                    <View className="px-6 mb-6">
+                        <Pressable
+                            onPress={() => router.push('/(tabs)/(compte)/mon-ca' as any)}
+                            className="active:opacity-90"
+                        >
+                            <LinearGradient
+                                colors={['#10B981', '#3B82F6']}
+                                start={{ x: 0, y: 0 }}
+                                end={{ x: 1, y: 0 }}
+                                style={{ borderRadius: 16, padding: 18 }}
+                            >
+                                <View className="flex-row items-center">
+                                    <View className="bg-white/20 rounded-full p-3 mr-4">
+                                        <IconSymbol name="chart.line.uptrend.xyaxis" size={24} color="#fff" />
+                                    </View>
+                                    <View className="flex-1">
+                                        <Text className="text-white/80 text-xs font-medium">Mon CA généré</Text>
+                                        <Text className="text-white text-xl font-bold">
+                                            {totalCA.toLocaleString('fr-FR')} €
+                                        </Text>
+                                    </View>
+                                    <IconSymbol name="chevron.right" size={20} color="#fff" />
+                                </View>
+                            </LinearGradient>
+                        </Pressable>
                     </View>
 
                     {/* Menu Items */}

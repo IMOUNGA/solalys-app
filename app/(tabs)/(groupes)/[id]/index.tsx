@@ -221,6 +221,27 @@ export default function GroupDetailScreen() {
             </Pressable>
           )}
 
+          {/* Recommandations & CA — réservé aux membres */}
+          {canInvite && (
+            <Pressable
+              onPress={() => router.push(`/(tabs)/(groupes)/${currentGroup.id}/referrals` as any)}
+              className="active:opacity-70 mb-3 flex-row items-center gap-3 bg-green-50 dark:bg-green-950 rounded-2xl p-4"
+            >
+              <View className="bg-white dark:bg-gray-800 rounded-full p-2.5">
+                <IconSymbol name="chart.line.uptrend.xyaxis" size={20} color="#10B981" />
+              </View>
+              <View className="flex-1">
+                <Text className="text-base font-bold text-gray-900 dark:text-white">
+                  Recommandations & CA
+                </Text>
+                <Text className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                  Recommander un membre, suivre vos affaires
+                </Text>
+              </View>
+              <IconSymbol name="chevron.right" size={18} color="#10B981" />
+            </Pressable>
+          )}
+
           {/* Inviter un membre — visible uniquement des membres */}
           {canInvite && (
             <Pressable

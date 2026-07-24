@@ -217,6 +217,17 @@ export const apiService = {
         close: (id: number) => apiInstance.post(`/opportunities/${id}/close`),
         remove: (id: number) => apiInstance.delete(`/opportunities/${id}`),
     },
+    // Recommandations & CA (référral BNI + dashboard personnel)
+    referrals: {
+        give: (groupId: number, data: { toUserId: number; description: string }) =>
+            apiInstance.post(`/groups/${groupId}/referrals`, data),
+        logRevenue: (groupId: number, data: { amount: number; description: string; fromUserId?: number }) =>
+            apiInstance.post(`/groups/${groupId}/revenue`, data),
+        getForGroup: (groupId: number) => apiInstance.get(`/groups/${groupId}/referrals`),
+        updateStatus: (id: number, data: { status: string; amount?: number }) =>
+            apiInstance.post(`/referrals/${id}/status`, data),
+        getDashboard: () => apiInstance.get('/revenue/dashboard'),
+    },
     // Users
     users: {
         getMe: () => apiInstance.get('/users/me'),
