@@ -3,7 +3,7 @@ import { View, Text, ScrollView, Pressable, ActivityIndicator, SafeAreaView } fr
 import { router, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux';
-import { fetchGroupByIdThunk, joinGroupThunk, leaveGroupThunk } from '@/store/thunks/groupsThunks';
+import { fetchGroupByIdThunk, leaveGroupThunk } from '@/store/thunks/groupsThunks';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Avatar } from '@/components/Avatar';
 import { useSuccessAlert, useErrorAlert } from '@/hooks/useAlert';
@@ -16,7 +16,7 @@ export default function GroupDetailScreen() {
   const { currentGroup, status } = useAppSelector((state) => state.groups);
   const { user } = useAppSelector((state) => state.auth);
   const [isMember, setIsMember] = useState(false);
-  const [isJoining, setIsJoining] = useState(false);
+  const [isLeaving, setIsLeaving] = useState(false);
   const showSuccess = useSuccessAlert();
   const showError = useErrorAlert();
 
@@ -35,28 +35,18 @@ export default function GroupDetailScreen() {
     }
   }, [currentGroup, user]);
 
-  const handleJoinLeave = async () => {
+  const handleLeave = async () => {
     if (!currentGroup) return;
 
-    if (!user) {
-      router.push('/(auth)');
-      return;
-    }
-
-    setIsJoining(true);
+    setIsLeaving(true);
     try {
-      if (isMember) {
-        await dispatch(leaveGroupThunk(currentGroup.id)).unwrap();
-        showSuccess('Vous avez quitté le groupe');
-      } else {
-        await dispatch(joinGroupThunk(currentGroup.id)).unwrap();
-        showSuccess('Vous avez rejoint le groupe !');
-      }
+      await dispatch(leaveGroupThunk(currentGroup.id)).unwrap();
+      showSuccess('Vous avez quitté le groupe');
       await dispatch(fetchGroupByIdThunk(currentGroup.id));
     } catch (error: any) {
       showError(error.message || 'Une erreur est survenue');
     } finally {
-      setIsJoining(false);
+      setIsLeaving(false);
     }
   };
 
@@ -75,6 +65,7 @@ export default function GroupDetailScreen() {
   const stackedMembers = memberships.slice(0, MAX_STACKED_AVATARS);
   const overflowCount = memberships.length - stackedMembers.length;
   const isCreator = user ? currentGroup.groupcreator === user.id : false;
+  const canInvite = isMember || isCreator;
 
   return (
     <SafeAreaView style={{ flex: 1 }} className="bg-white dark:bg-gray-950">
@@ -144,7 +135,7 @@ export default function GroupDetailScreen() {
           {/* Annuaire — mise en avant */}
           <Pressable
             onPress={() => router.push(`/(tabs)/(groupes)/${currentGroup.id}/annuaire` as any)}
-            className="active:opacity-80 mb-6"
+            className="active:opacity-80 mb-3"
           >
             <LinearGradient
               colors={['#EEF2FF', '#FCE7F3']}
@@ -168,6 +159,27 @@ export default function GroupDetailScreen() {
               </View>
             </LinearGradient>
           </Pressable>
+
+          {/* Inviter un membre — visible uniquement des membres */}
+          {canInvite && (
+            <Pressable
+              onPress={() => router.push(`/(tabs)/(groupes)/${currentGroup.id}/inviter` as any)}
+              className="active:opacity-70 mb-6 flex-row items-center gap-3 bg-gray-50 dark:bg-gray-900 rounded-2xl p-4"
+            >
+              <View className="bg-white dark:bg-gray-800 rounded-full p-2.5">
+                <IconSymbol name="person.badge.plus" size={20} color="#10B981" />
+              </View>
+              <View className="flex-1">
+                <Text className="text-base font-bold text-gray-900 dark:text-white">
+                  Inviter un membre
+                </Text>
+                <Text className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                  Ce groupe fonctionne uniquement sur invitation
+                </Text>
+              </View>
+              <IconSymbol name="chevron.right" size={18} color="#9CA3AF" />
+            </Pressable>
+          )}
 
           <View className="border-t border-gray-100 dark:border-gray-800 mb-6" />
 
@@ -228,38 +240,34 @@ export default function GroupDetailScreen() {
         </View>
       </ScrollView>
 
-      {/* Join/Leave Button */}
+      {/* Bas de page : statut d'adhésion */}
       <View className="p-5 pt-3 bg-white dark:bg-gray-950 border-t border-gray-100 dark:border-gray-800">
-        <Pressable
-          className={`rounded-2xl overflow-hidden ${isJoining ? 'opacity-60' : 'active:opacity-90'}`}
-          onPress={handleJoinLeave}
-          disabled={isJoining || isCreator}
-        >
-          {isCreator ? (
-            <View className="py-4 px-6 bg-gray-100 dark:bg-gray-900">
-              <Text className="text-gray-500 dark:text-gray-400 text-center font-bold text-lg">
-                Vous êtes le créateur
-              </Text>
-            </View>
-          ) : isMember ? (
+        {isCreator ? (
+          <View className="py-4 px-6 rounded-2xl bg-gray-100 dark:bg-gray-900">
+            <Text className="text-gray-500 dark:text-gray-400 text-center font-bold text-lg">
+              Vous êtes le créateur
+            </Text>
+          </View>
+        ) : isMember ? (
+          <Pressable
+            onPress={handleLeave}
+            disabled={isLeaving}
+            className={`rounded-2xl overflow-hidden ${isLeaving ? 'opacity-60' : 'active:opacity-90'}`}
+          >
             <View className="py-4 px-6 bg-red-500">
               <Text className="text-white text-center font-bold text-lg">
-                {isJoining ? 'Chargement...' : 'Quitter le groupe'}
+                {isLeaving ? 'Chargement...' : 'Quitter le groupe'}
               </Text>
             </View>
-          ) : (
-            <LinearGradient
-              colors={['#8B5CF6', '#EC4899']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={{ paddingVertical: 16, paddingHorizontal: 24 }}
-            >
-              <Text className="text-white text-center font-bold text-lg">
-                {!user ? 'Se connecter pour rejoindre' : isJoining ? 'Chargement...' : 'Rejoindre le groupe'}
-              </Text>
-            </LinearGradient>
-          )}
-        </Pressable>
+          </Pressable>
+        ) : (
+          <View className="py-4 px-6 rounded-2xl bg-gray-50 dark:bg-gray-900 flex-row items-center gap-3">
+            <IconSymbol name="lock.fill" size={18} color="#9CA3AF" />
+            <Text className="flex-1 text-sm text-gray-500 dark:text-gray-400">
+              Ce groupe fonctionne sur invitation. Demandez à un membre de vous inviter pour le rejoindre.
+            </Text>
+          </View>
+        )}
       </View>
     </SafeAreaView>
   );

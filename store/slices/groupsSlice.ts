@@ -5,7 +5,6 @@ import {
   fetchGroupByIdThunk,
   fetchMyGroupsThunk,
   fetchGroupMembersThunk,
-  joinGroupThunk,
   leaveGroupThunk,
 } from '../thunks/groupsThunks';
 
@@ -83,16 +82,6 @@ const groupsSlice = createSlice({
       .addCase(fetchMyGroupsThunk.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message || 'Failed to fetch my groups';
-      });
-
-    // Join group
-    builder
-      .addCase(joinGroupThunk.fulfilled, (state) => {
-        state.status = 'succeeded';
-      })
-      .addCase(joinGroupThunk.rejected, (state, action: any) => {
-        state.status = 'failed';
-        state.error = action.payload?.message || 'Failed to join group';
       });
 
     // Leave group

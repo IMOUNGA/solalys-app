@@ -5,6 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux';
 import { fetchMyGroupsThunk } from '@/store/thunks/groupsThunks';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { apiService } from '@/services/apiService';
 
 type TabType = 'member' | 'creator';
 
@@ -16,10 +17,14 @@ export default function GroupesScreen() {
   const { user, status: authStatus } = useAppSelector((state) => state.auth);
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>('member');
+  const [pendingInvitations, setPendingInvitations] = useState(0);
 
   useEffect(() => {
     if (user && authStatus === 'authenticated') {
       dispatch(fetchMyGroupsThunk());
+      apiService.invitations.getMine()
+        .then((res) => setPendingInvitations(res.data?.length || 0))
+        .catch(() => {});
     }
   }, [user, authStatus]);
 
@@ -27,6 +32,10 @@ export default function GroupesScreen() {
     if (!user || authStatus !== 'authenticated') return;
     setRefreshing(true);
     await dispatch(fetchMyGroupsThunk());
+    try {
+      const res = await apiService.invitations.getMine();
+      setPendingInvitations(res.data?.length || 0);
+    } catch {}
     setRefreshing(false);
   };
 
@@ -230,6 +239,28 @@ export default function GroupesScreen() {
           </View>
         </View>
 
+        {pendingInvitations > 0 && (
+          <View className="px-6 pb-4">
+            <Pressable
+              onPress={() => router.push('/(tabs)/(groupes)/invitations' as any)}
+              className="bg-white/15 rounded-2xl px-4 py-3 flex-row items-center justify-between active:opacity-70"
+            >
+              <View className="flex-row items-center gap-3 flex-1">
+                <View className="bg-white/20 rounded-full p-2">
+                  <IconSymbol name="person.badge.plus" size={18} color="#fff" />
+                </View>
+                <Text className="text-white font-semibold flex-1">
+                  {pendingInvitations} invitation{pendingInvitations > 1 ? 's' : ''} en attente
+                </Text>
+              </View>
+              <View className="flex-row items-center gap-1">
+                <Text className="text-white font-bold">Voir</Text>
+                <IconSymbol name="chevron.right" size={16} color="#fff" />
+              </View>
+            </Pressable>
+          </View>
+        )}
+
         {currentGroups.length === 0 ? (
           <View className="flex-1 items-center justify-center px-6">
             <View className="bg-white p-8 rounded-3xl items-center"
@@ -250,12 +281,12 @@ export default function GroupesScreen() {
               </Text>
               <Text className="text-gray-600 text-center mb-6 leading-6">
                 {activeTab === 'member'
-                  ? 'Vous ne faites partie d\'aucun groupe. Découvrez-en pour rejoindre une communauté !'
+                  ? 'Vous ne faites partie d\'aucun groupe. Ces groupes fonctionnent uniquement sur invitation : demandez à un membre de vous inviter !'
                   : 'Vous n\'avez créé aucun groupe. Créez-en un pour rassembler votre communauté !'}
               </Text>
               <Pressable
                 className="py-4 px-8 rounded-2xl w-full active:opacity-80"
-                onPress={() => router.push(activeTab === 'member' ? '/(tabs)/(groupes)' : '/(tabs)/(groupes)/create' as any)}
+                onPress={() => router.push(activeTab === 'member' ? '/(tabs)/(groupes)/invitations' as any : '/(tabs)/(groupes)/create' as any)}
               >
                 <LinearGradient
                   colors={['#10B981', '#3B82F6']}
@@ -264,7 +295,7 @@ export default function GroupesScreen() {
                   style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 16 }}
                 />
                 <Text className="text-white text-center font-bold text-lg relative z-10">
-                  {activeTab === 'member' ? 'Découvrir des groupes' : 'Créer un groupe'}
+                  {activeTab === 'member' ? 'Voir mes invitations' : 'Créer un groupe'}
                 </Text>
               </Pressable>
             </View>

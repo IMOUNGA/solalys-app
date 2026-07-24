@@ -197,9 +197,15 @@ export const apiService = {
         create: (data: any) => apiInstance.post('/groups', data),
         update: (id: number, data: any) => apiInstance.patch(`/groups/${id}`, data),
         delete: (id: number) => apiInstance.delete(`/groups/${id}`),
-        join: (id: number) => apiInstance.post(`/groups/${id}/join`),
         leave: (id: number) => apiInstance.post(`/groups/${id}/leave`),
         setPrimary: (id: number) => apiInstance.post(`/groups/${id}/set-primary`),
+    },
+    // Invitations (adhésion sur invitation uniquement — pas de "join" libre)
+    invitations: {
+        create: (groupId: number, email: string) => apiInstance.post(`/groups/${groupId}/invitations`, { email }),
+        getMine: () => apiInstance.get('/invitations/me'),
+        accept: (id: number) => apiInstance.post(`/invitations/${id}/accept`),
+        decline: (id: number) => apiInstance.post(`/invitations/${id}/decline`),
     },
     // Users
     users: {

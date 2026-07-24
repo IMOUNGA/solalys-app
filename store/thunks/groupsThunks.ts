@@ -33,20 +33,6 @@ export const fetchGroupMembersThunk = createAsyncThunk(
   }
 );
 
-export const joinGroupThunk = createAsyncThunk(
-  'groups/join',
-  async (id: number, { rejectWithValue }) => {
-    try {
-      const response = await apiService.groups.join(id);
-      return response.data;
-    } catch (error: any) {
-      return rejectWithValue({
-        message: error?.response?.data?.message || error?.message || 'Impossible de rejoindre ce groupe',
-      });
-    }
-  }
-);
-
 export const leaveGroupThunk = createAsyncThunk(
   'groups/leave',
   async (id: number, { rejectWithValue }) => {
