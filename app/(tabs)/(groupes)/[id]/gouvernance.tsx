@@ -25,6 +25,9 @@ export default function GouvernanceScreen() {
   const showConfirm = useConfirmAlert();
 
   const isCreator = user ? currentGroup?.groupcreator === Number(user.id) : false;
+  const presidentRole = roles.find((r) => r.title.toLowerCase() === 'président');
+  const isPresident = user ? presidentRole?.userId === Number(user.id) : false;
+  const canManage = isCreator || isPresident;
 
   const load = useCallback(async () => {
     try {
@@ -81,7 +84,7 @@ export default function GouvernanceScreen() {
           <IconSymbol name="chevron.left" size={22} color="#000" />
         </Pressable>
         <Text className="text-lg font-bold text-gray-900 dark:text-white flex-1">Gouvernance</Text>
-        {isCreator && (
+        {canManage && (
           <Pressable
             onPress={() => router.push(`/(tabs)/(groupes)/${groupId}/role-creer` as any)}
             className="w-9 h-9 items-center justify-center bg-blue-500 rounded-full active:opacity-80"
@@ -145,35 +148,51 @@ export default function GouvernanceScreen() {
               <View className="items-center justify-center py-10 px-8 bg-white dark:bg-gray-900 rounded-2xl">
                 <IconSymbol name="crown.fill" size={36} color="#9CA3AF" />
                 <Text className="text-gray-500 dark:text-gray-400 text-center mt-3">
-                  {isCreator ? 'Attribuez un premier rôle avec le bouton +' : 'Aucun rôle attribué pour le moment'}
+                  {canManage ? 'Attribuez un premier rôle avec le bouton +' : 'Aucun rôle attribué pour le moment'}
                 </Text>
               </View>
             ) : (
               <View className="gap-2">
-                {roles.map((role) => (
-                  <View
-                    key={role.id}
-                    className="flex-row items-center gap-3 bg-white dark:bg-gray-900 rounded-2xl p-3"
-                    style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 }}
-                  >
-                    <Avatar name={`${role.user.firstname} ${role.user.lastname}`} uri={role.user.avatar} size={40} />
-                    <View className="flex-1">
-                      <Text className="text-sm font-bold text-gray-900 dark:text-white">{role.title}</Text>
-                      <Text className="text-xs text-gray-500 dark:text-gray-400">
-                        {role.user.firstname} {role.user.lastname}
-                      </Text>
+                {roles.map((role) => {
+                  const isOwnPresidentRole = role.id === presidentRole?.id && isPresident;
+                  return (
+                    <View
+                      key={role.id}
+                      className="bg-white dark:bg-gray-900 rounded-2xl p-3"
+                      style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 }}
+                    >
+                      <View className="flex-row items-center gap-3">
+                        <Avatar name={`${role.user.firstname} ${role.user.lastname}`} uri={role.user.avatar} size={40} />
+                        <View className="flex-1">
+                          <Text className="text-sm font-bold text-gray-900 dark:text-white">{role.title}</Text>
+                          <Text className="text-xs text-gray-500 dark:text-gray-400">
+                            {role.user.firstname} {role.user.lastname}
+                          </Text>
+                        </View>
+                        {canManage && (
+                          <Pressable
+                            onPress={() => handleRemove(role)}
+                            disabled={removingId === role.id}
+                            className="p-2 active:opacity-60"
+                          >
+                            <IconSymbol name="xmark.circle.fill" size={20} color="#EF4444" />
+                          </Pressable>
+                        )}
+                      </View>
+                      {isOwnPresidentRole && (
+                        <Pressable
+                          onPress={() => router.push(`/(tabs)/(groupes)/${groupId}/ceder-presidence` as any)}
+                          className="flex-row items-center justify-center gap-1.5 mt-3 pt-3 border-t border-gray-100 dark:border-gray-800 active:opacity-70"
+                        >
+                          <IconSymbol name="arrow.triangle.2.circlepath" size={14} color="#3B82F6" />
+                          <Text className="text-sm font-semibold text-blue-600 dark:text-blue-400">
+                            Céder la présidence
+                          </Text>
+                        </Pressable>
+                      )}
                     </View>
-                    {isCreator && (
-                      <Pressable
-                        onPress={() => handleRemove(role)}
-                        disabled={removingId === role.id}
-                        className="p-2 active:opacity-60"
-                      >
-                        <IconSymbol name="xmark.circle.fill" size={20} color="#EF4444" />
-                      </Pressable>
-                    )}
-                  </View>
-                ))}
+                  );
+                })}
               </View>
             )}
           </View>

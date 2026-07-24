@@ -235,6 +235,8 @@ export const apiService = {
         create: (groupId: number, data: { userId: number; title: string }) =>
             apiInstance.post(`/groups/${groupId}/roles`, data),
         remove: (groupId: number, roleId: number) => apiInstance.delete(`/groups/${groupId}/roles/${roleId}`),
+        transferPresident: (groupId: number, toUserId: number) =>
+            apiInstance.post(`/groups/${groupId}/roles/transfer-president`, { toUserId }),
     },
     // Users
     users: {
