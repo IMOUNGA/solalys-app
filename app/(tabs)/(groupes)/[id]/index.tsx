@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, Pressable, ActivityIndicator, SafeAreaView } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux';
 import { fetchGroupByIdThunk, joinGroupThunk, leaveGroupThunk } from '@/store/thunks/groupsThunks';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { Avatar } from '@/components/Avatar';
 import { useSuccessAlert, useErrorAlert } from '@/hooks/useAlert';
+
+const MAX_STACKED_AVATARS = 5;
 
 export default function GroupDetailScreen() {
   const { id } = useLocalSearchParams();
@@ -34,7 +36,12 @@ export default function GroupDetailScreen() {
   }, [currentGroup, user]);
 
   const handleJoinLeave = async () => {
-    if (!currentGroup || !user) return;
+    if (!currentGroup) return;
+
+    if (!user) {
+      router.push('/(auth)');
+      return;
+    }
 
     setIsJoining(true);
     try {
@@ -45,7 +52,6 @@ export default function GroupDetailScreen() {
         await dispatch(joinGroupThunk(currentGroup.id)).unwrap();
         showSuccess('Vous avez rejoint le groupe !');
       }
-      // Refresh group
       await dispatch(fetchGroupByIdThunk(currentGroup.id));
     } catch (error: any) {
       showError(error.message || 'Une erreur est survenue');
@@ -56,138 +62,205 @@ export default function GroupDetailScreen() {
 
   if (status === 'loading' || !currentGroup) {
     return (
-      <SafeAreaView style={{ flex: 1 }}>
-        <ThemedView className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" />
-          <Text className="text-gray-500 mt-4">Chargement...</Text>
-        </ThemedView>
+      <SafeAreaView style={{ flex: 1 }} className="bg-white dark:bg-gray-950">
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" color="#8B5CF6" />
+          <Text className="text-gray-500 dark:text-gray-400 mt-4">Chargement...</Text>
+        </View>
       </SafeAreaView>
     );
   }
 
-  return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <ThemedView className="flex-1">
-        <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 100 }}>
-          {/* Header */}
-          <View className="p-5 pb-6 border-b border-gray-200 dark:border-gray-800">
-            <Pressable onPress={() => router.back()} className="mb-4">
-              <IconSymbol name="chevron.left" size={24} color="#000" />
-            </Pressable>
+  const memberships = currentGroup.groupMemberships || [];
+  const stackedMembers = memberships.slice(0, MAX_STACKED_AVATARS);
+  const overflowCount = memberships.length - stackedMembers.length;
+  const isCreator = user ? currentGroup.groupcreator === user.id : false;
 
-          <ThemedText type="title" className="mb-2">
+  return (
+    <SafeAreaView style={{ flex: 1 }} className="bg-white dark:bg-gray-950">
+      <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 24 }} bounces={false}>
+        {/* Hero */}
+        <View style={{ height: 180 }}>
+          <LinearGradient
+            colors={['#8B5CF6', '#EC4899']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
+          >
+            <View className="bg-white/15 rounded-full p-6">
+              <IconSymbol name="person.2.fill" size={40} color="#fff" />
+            </View>
+          </LinearGradient>
+
+          <SafeAreaView style={{ position: 'absolute', top: 0, left: 0 }}>
+            <Pressable
+              onPress={() => router.back()}
+              className="m-4 bg-black/30 rounded-full w-10 h-10 items-center justify-center active:bg-black/50"
+            >
+              <IconSymbol name="chevron.left" size={22} color="#fff" />
+            </Pressable>
+          </SafeAreaView>
+        </View>
+
+        {/* Carte de contenu */}
+        <View
+          className="bg-white dark:bg-gray-950 px-5 pt-6 pb-8"
+          style={{ marginTop: -20, borderTopLeftRadius: 24, borderTopRightRadius: 24 }}
+        >
+          <Text className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
             {currentGroup.name}
-          </ThemedText>
+          </Text>
 
           {currentGroup.slogan && (
-            <Text className="text-gray-600 dark:text-gray-400 italic text-base">
+            <Text className="text-base text-gray-500 dark:text-gray-400 italic mb-4">
               "{currentGroup.slogan}"
             </Text>
           )}
-        </View>
 
-        {/* Info */}
-        <View className="p-5 space-y-4">
-          {/* Location */}
-          <View className="flex-row items-start gap-3">
-            <IconSymbol name="location.fill" size={20} color="#EF4444" />
-            <View className="flex-1">
-              <Text className="text-sm text-gray-500 dark:text-gray-400 mb-1">Localisation</Text>
-              <Text className="text-base text-gray-900 dark:text-white font-medium">
-                {currentGroup.adresse || `${currentGroup.city}, ${currentGroup.country}`}
+          {/* Chips résumé */}
+          <View className="flex-row flex-wrap gap-2 mb-6">
+            <View className="flex-row items-center gap-1.5 bg-gray-100 dark:bg-gray-900 rounded-full px-3 py-1.5">
+              <IconSymbol name="location.fill" size={14} color="#EF4444" />
+              <Text className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                {currentGroup.city}, {currentGroup.country}
               </Text>
             </View>
+            <View className="flex-row items-center gap-1.5 bg-gray-100 dark:bg-gray-900 rounded-full px-3 py-1.5">
+              <IconSymbol name="person.2.fill" size={14} color="#8B5CF6" />
+              <Text className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                {memberships.length} membre{memberships.length > 1 ? 's' : ''}
+              </Text>
+            </View>
+            {currentGroup.events && currentGroup.events.length > 0 && (
+              <View className="flex-row items-center gap-1.5 bg-gray-100 dark:bg-gray-900 rounded-full px-3 py-1.5">
+                <IconSymbol name="calendar" size={14} color="#3B82F6" />
+                <Text className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                  {currentGroup.events.length} événement{currentGroup.events.length > 1 ? 's' : ''}
+                </Text>
+              </View>
+            )}
           </View>
 
-          {/* Creator */}
+          {/* Annuaire — mise en avant */}
+          <Pressable
+            onPress={() => router.push(`/(tabs)/(groupes)/${currentGroup.id}/annuaire` as any)}
+            className="active:opacity-80 mb-6"
+          >
+            <LinearGradient
+              colors={['#EEF2FF', '#FCE7F3']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={{ borderRadius: 16, padding: 16 }}
+            >
+              <View className="flex-row items-center gap-3">
+                <View className="bg-white rounded-full p-2.5">
+                  <IconSymbol name="book.fill" size={20} color="#8B5CF6" />
+                </View>
+                <View className="flex-1">
+                  <Text className="text-base font-bold text-gray-900">
+                    Annuaire des membres
+                  </Text>
+                  <Text className="text-xs text-gray-600 mt-0.5">
+                    Métiers, offres et recherches de chacun
+                  </Text>
+                </View>
+                <IconSymbol name="chevron.right" size={18} color="#8B5CF6" />
+              </View>
+            </LinearGradient>
+          </Pressable>
+
+          <View className="border-t border-gray-100 dark:border-gray-800 mb-6" />
+
+          {/* Créateur */}
           {currentGroup.creator && (
-            <View className="flex-row items-start gap-3">
-              <IconSymbol name="person.fill" size={20} color="#10B981" />
-              <View className="flex-1">
-                <Text className="text-sm text-gray-500 dark:text-gray-400 mb-1">Créateur</Text>
-                <Text className="text-base text-gray-900 dark:text-white font-medium">
+            <View className="mb-6">
+              <Text className="text-xs text-gray-500 dark:text-gray-400 mb-2">Créé par</Text>
+              <View className="flex-row items-center gap-3">
+                <Avatar
+                  name={`${currentGroup.creator.firstname} ${currentGroup.creator.lastname}`}
+                  size={44}
+                />
+                <Text className="text-base text-gray-900 dark:text-white font-semibold">
                   {currentGroup.creator.firstname} {currentGroup.creator.lastname}
                 </Text>
               </View>
             </View>
           )}
 
-          {/* Members */}
-          <View className="flex-row items-start gap-3">
-            <IconSymbol name="person.2.fill" size={20} color="#8B5CF6" />
-            <View className="flex-1">
-              <Text className="text-sm text-gray-500 dark:text-gray-400 mb-1">Membres</Text>
-              <Text className="text-base text-gray-900 dark:text-white font-medium">
-                {currentGroup.groupMemberships?.length || 0} membre{currentGroup.groupMemberships && currentGroup.groupMemberships.length > 1 ? 's' : ''}
-              </Text>
-            </View>
-          </View>
-
-          {/* Events */}
-          {currentGroup.events && currentGroup.events.length > 0 && (
-            <View className="flex-row items-start gap-3">
-              <IconSymbol name="calendar" size={20} color="#3B82F6" />
-              <View className="flex-1">
-                <Text className="text-sm text-gray-500 dark:text-gray-400 mb-1">Événements</Text>
-                <Text className="text-base text-gray-900 dark:text-white font-medium">
-                  {currentGroup.events.length} événement{currentGroup.events.length > 1 ? 's' : ''} organisé{currentGroup.events.length > 1 ? 's' : ''}
+          {/* Membres */}
+          {memberships.length > 0 && (
+            <Pressable
+              onPress={() => router.push(`/(tabs)/(groupes)/${currentGroup.id}/annuaire` as any)}
+              className="active:opacity-70"
+            >
+              <View className="flex-row items-center justify-between mb-2">
+                <Text className="text-xs text-gray-500 dark:text-gray-400">
+                  Membres ({memberships.length})
                 </Text>
+                <IconSymbol name="chevron.right" size={16} color="#9CA3AF" />
               </View>
-            </View>
+              <View className="flex-row items-center">
+                {stackedMembers.map((m, index) => (
+                  <View
+                    key={m.id}
+                    style={{ marginLeft: index === 0 ? 0 : -12, zIndex: stackedMembers.length - index }}
+                  >
+                    <Avatar
+                      name={m.user ? `${m.user.firstname} ${m.user.lastname}` : '?'}
+                      size={36}
+                      style={{ borderWidth: 2, borderColor: '#fff' }}
+                    />
+                  </View>
+                ))}
+                {overflowCount > 0 && (
+                  <View
+                    className="bg-gray-200 dark:bg-gray-800 rounded-full items-center justify-center"
+                    style={{ width: 36, height: 36, marginLeft: -12, borderWidth: 2, borderColor: '#fff' }}
+                  >
+                    <Text className="text-xs font-bold text-gray-600 dark:text-gray-300">
+                      +{overflowCount}
+                    </Text>
+                  </View>
+                )}
+              </View>
+            </Pressable>
           )}
         </View>
-
-        {/* Members List */}
-        {currentGroup.groupMemberships && currentGroup.groupMemberships.length > 0 && (
-          <View className="px-5 pb-5">
-            <Text className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
-              Membres du groupe
-            </Text>
-            <View className="space-y-2">
-              {currentGroup.groupMemberships.map((membership) => (
-                <View
-                  key={membership.id}
-                  className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg flex-row items-center gap-2"
-                >
-                  <IconSymbol name="person.circle" size={20} color="#6B7280" />
-                  <Text className="text-gray-900 dark:text-white">
-                    {membership.user?.firstname} {membership.user?.lastname}
-                  </Text>
-                  {membership.userId === currentGroup.groupcreator && (
-                    <View className="bg-yellow-100 dark:bg-yellow-900 px-2 py-0.5 rounded-full ml-auto">
-                      <Text className="text-xs text-yellow-700 dark:text-yellow-300">Créateur</Text>
-                    </View>
-                  )}
-                </View>
-              ))}
-            </View>
-          </View>
-        )}
       </ScrollView>
 
       {/* Join/Leave Button */}
-      <View className="absolute bottom-0 left-0 right-0 p-5 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800">
+      <View className="p-5 pt-3 bg-white dark:bg-gray-950 border-t border-gray-100 dark:border-gray-800">
         <Pressable
-          className={`py-4 px-6 rounded-xl ${
-            isMember
-              ? 'bg-red-500 active:bg-red-600'
-              : 'bg-blue-500 active:bg-blue-600'
-          } ${isJoining ? 'opacity-50' : ''}`}
+          className={`rounded-2xl overflow-hidden ${isJoining ? 'opacity-60' : 'active:opacity-90'}`}
           onPress={handleJoinLeave}
-          disabled={isJoining || (user ? currentGroup.groupcreator === user.id : false)}
+          disabled={isJoining || isCreator}
         >
-          <Text className="text-white text-center font-semibold text-lg">
-            {isJoining
-              ? 'Chargement...'
-              : user && currentGroup.groupcreator === user.id
-              ? 'Vous êtes le créateur'
-              : isMember
-              ? 'Quitter le groupe'
-              : 'Rejoindre le groupe'}
-          </Text>
+          {isCreator ? (
+            <View className="py-4 px-6 bg-gray-100 dark:bg-gray-900">
+              <Text className="text-gray-500 dark:text-gray-400 text-center font-bold text-lg">
+                Vous êtes le créateur
+              </Text>
+            </View>
+          ) : isMember ? (
+            <View className="py-4 px-6 bg-red-500">
+              <Text className="text-white text-center font-bold text-lg">
+                {isJoining ? 'Chargement...' : 'Quitter le groupe'}
+              </Text>
+            </View>
+          ) : (
+            <LinearGradient
+              colors={['#8B5CF6', '#EC4899']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={{ paddingVertical: 16, paddingHorizontal: 24 }}
+            >
+              <Text className="text-white text-center font-bold text-lg">
+                {!user ? 'Se connecter pour rejoindre' : isJoining ? 'Chargement...' : 'Rejoindre le groupe'}
+              </Text>
+            </LinearGradient>
+          )}
         </Pressable>
       </View>
-      </ThemedView>
     </SafeAreaView>
   );
 }

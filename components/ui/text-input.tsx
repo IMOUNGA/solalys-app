@@ -11,8 +11,8 @@ interface TextInputProps {
     secureTextEntry?: boolean;
     keyboardType?: 'default' | 'email-address' | 'numeric' | 'phone-pad';
     autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
-    autoComplete?: 'email' | 'password' | 'username' | 'off';
-    icon?: string;
+    autoComplete?: React.ComponentProps<typeof RNTextInput>['autoComplete'];
+    icon?: React.ComponentProps<typeof IconSymbol>['name'];
 }
 
 export const TextInput = ({
@@ -26,7 +26,7 @@ export const TextInput = ({
     autoCapitalize = 'none',
     autoComplete,
     icon,
-}) => {
+}: TextInputProps) => {
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const [isFocused, setIsFocused] = useState(false);
 

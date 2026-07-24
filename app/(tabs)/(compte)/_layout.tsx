@@ -10,11 +10,7 @@ const CompteStackLayout = () => {
             />
             <Stack.Screen
                 name="account-settings"
-                options={{
-                    headerShown: true,
-                    headerTitle: "Gestion du compte",
-                    headerBackTitle: "Retour",
-                }}
+                options={{ headerShown: false }}
             />
             <Stack.Screen
                 name="support"

@@ -4,6 +4,7 @@ import {
   fetchGroupsThunk,
   fetchGroupByIdThunk,
   fetchMyGroupsThunk,
+  fetchGroupMembersThunk,
   joinGroupThunk,
   leaveGroupThunk,
 } from '../thunks/groupsThunks';
@@ -12,6 +13,8 @@ interface GroupsState {
   groups: Group[];
   myGroups: Group[];
   currentGroup: Group | null;
+  groupMembers: any[];
+  membersStatus: 'idle' | 'loading' | 'succeeded' | 'failed';
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
 }
@@ -20,6 +23,8 @@ const initialState: GroupsState = {
   groups: [],
   myGroups: [],
   currentGroup: null,
+  groupMembers: [],
+  membersStatus: 'idle',
   status: 'idle',
   error: null,
 };
@@ -85,9 +90,9 @@ const groupsSlice = createSlice({
       .addCase(joinGroupThunk.fulfilled, (state) => {
         state.status = 'succeeded';
       })
-      .addCase(joinGroupThunk.rejected, (state, action) => {
+      .addCase(joinGroupThunk.rejected, (state, action: any) => {
         state.status = 'failed';
-        state.error = action.error.message || 'Failed to join group';
+        state.error = action.payload?.message || 'Failed to join group';
       });
 
     // Leave group
@@ -95,9 +100,22 @@ const groupsSlice = createSlice({
       .addCase(leaveGroupThunk.fulfilled, (state) => {
         state.status = 'succeeded';
       })
-      .addCase(leaveGroupThunk.rejected, (state, action) => {
+      .addCase(leaveGroupThunk.rejected, (state, action: any) => {
         state.status = 'failed';
-        state.error = action.error.message || 'Failed to leave group';
+        state.error = action.payload?.message || 'Failed to leave group';
+      });
+
+    // Fetch group members (annuaire)
+    builder
+      .addCase(fetchGroupMembersThunk.pending, (state) => {
+        state.membersStatus = 'loading';
+      })
+      .addCase(fetchGroupMembersThunk.fulfilled, (state, action: PayloadAction<any[]>) => {
+        state.membersStatus = 'succeeded';
+        state.groupMembers = action.payload;
+      })
+      .addCase(fetchGroupMembersThunk.rejected, (state) => {
+        state.membersStatus = 'failed';
       });
   },
 });

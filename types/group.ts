@@ -31,6 +31,18 @@ export interface GroupMembership {
   };
 }
 
+export interface GroupMember {
+  id: number;
+  firstname: string;
+  lastname: string;
+  avatar?: string | null;
+  metier?: string | null;
+  offre?: string | null;
+  recherche?: string | null;
+  creation?: string;
+  isCreator: boolean;
+}
+
 export interface CreateGroupDTO {
   name: string;
   country: string;

@@ -25,18 +25,38 @@ export const fetchMyGroupsThunk = createAsyncThunk(
   }
 );
 
+export const fetchGroupMembersThunk = createAsyncThunk(
+  'groups/fetchMembers',
+  async (id: number) => {
+    const response = await apiService.groups.getMembers(id);
+    return response.data;
+  }
+);
+
 export const joinGroupThunk = createAsyncThunk(
   'groups/join',
-  async (id: number) => {
-    const response = await apiService.groups.join(id);
-    return response.data;
+  async (id: number, { rejectWithValue }) => {
+    try {
+      const response = await apiService.groups.join(id);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue({
+        message: error?.response?.data?.message || error?.message || 'Impossible de rejoindre ce groupe',
+      });
+    }
   }
 );
 
 export const leaveGroupThunk = createAsyncThunk(
   'groups/leave',
-  async (id: number) => {
-    const response = await apiService.groups.leave(id);
-    return response.data;
+  async (id: number, { rejectWithValue }) => {
+    try {
+      const response = await apiService.groups.leave(id);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue({
+        message: error?.response?.data?.message || error?.message || 'Impossible de quitter ce groupe',
+      });
+    }
   }
 );
