@@ -44,6 +44,13 @@ const SLIDES: Slide[] = [
     title: 'Recommandations & CA',
     description: 'Recommandez, soyez recommandé, et mesurez ce que votre réseau vous rapporte vraiment — en euros.',
   },
+  {
+    key: 'gratuit',
+    icon: 'gift.fill',
+    colors: ['#F59E0B', '#10B981'],
+    title: "Gratuit jusqu'au 1ᵉʳ octobre",
+    description: "Testez toutes les fonctionnalités sans engagement pendant l'été. Les abonnements Pro et Organisateur ouvriront à la rentrée, le 1ᵉʳ octobre 2026.",
+  },
 ];
 
 export default function OnboardingScreen() {
