@@ -19,14 +19,14 @@ export interface Referral {
   id: number;
   groupId: number;
   fromUserId: number | null;
-  toUserId: number;
+  toUserId: number | null;
   description: string;
   status: ReferralStatus;
   amount: number | null;
   createdat: string;
   convertedat?: string | null;
   fromUser: ReferralPerson | null;
-  toUser: ReferralPerson;
+  toUser: ReferralPerson | null;
   group?: { id: number; name: string };
 }
 

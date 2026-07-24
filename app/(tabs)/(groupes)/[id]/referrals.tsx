@@ -222,9 +222,13 @@ export default function ReferralsScreen() {
         </View>
         <Text className="text-sm text-gray-800 dark:text-gray-200 mb-3">{item.description}</Text>
         <View className="flex-row items-center gap-2">
-          <Avatar name={`${item.toUser.firstname} ${item.toUser.lastname}`} uri={item.toUser.avatar} size={26} />
+          <Avatar
+            name={item.toUser ? `${item.toUser.firstname} ${item.toUser.lastname}` : 'Compte supprimé'}
+            uri={item.toUser?.avatar}
+            size={26}
+          />
           <Text className="text-xs text-gray-600 dark:text-gray-400">
-            Pour {item.toUser.firstname} {item.toUser.lastname}
+            Pour {item.toUser ? `${item.toUser.firstname} ${item.toUser.lastname}` : 'un compte supprimé'}
           </Text>
         </View>
         {item.amount != null && (

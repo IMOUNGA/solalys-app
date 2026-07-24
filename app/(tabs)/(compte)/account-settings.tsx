@@ -179,6 +179,29 @@ const AccountSettingsScreen = () => {
                                 </Text>
                             </LinearGradient>
                         </Pressable>
+
+                        <View className="border-t border-gray-100 dark:border-gray-800 pt-5 mt-2">
+                            <Text className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+                                Zone dangereuse
+                            </Text>
+                            <Pressable
+                                onPress={() => router.push('/(tabs)/(compte)/delete-account' as any)}
+                                className="flex-row items-center gap-3 bg-red-50 dark:bg-red-950 rounded-2xl p-4 active:opacity-70"
+                            >
+                                <View className="bg-white dark:bg-gray-900 rounded-full p-2.5">
+                                    <IconSymbol name="trash.fill" size={18} color="#EF4444" />
+                                </View>
+                                <View className="flex-1">
+                                    <Text className="text-base font-bold text-red-600 dark:text-red-400">
+                                        Supprimer mon compte
+                                    </Text>
+                                    <Text className="text-xs text-red-500/80 dark:text-red-400/70 mt-0.5">
+                                        Action définitive et irréversible
+                                    </Text>
+                                </View>
+                                <IconSymbol name="chevron.right" size={18} color="#EF4444" />
+                            </Pressable>
+                        </View>
                     </View>
                 </ScrollView>
             </KeyboardAvoidingView>
