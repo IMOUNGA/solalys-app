@@ -50,7 +50,26 @@ export default function GroupDetailScreen() {
     }
   };
 
-  if (status === 'loading' || !currentGroup) {
+  if (status === 'failed' && !currentGroup) {
+    return (
+      <SafeAreaView style={{ flex: 1 }} className="bg-white dark:bg-gray-950">
+        <View className="flex-1 items-center justify-center px-8">
+          <IconSymbol name="exclamationmark.triangle.fill" size={40} color="#EF4444" />
+          <Text className="text-gray-900 dark:text-white font-semibold text-lg mt-4 mb-1 text-center">
+            Impossible de charger ce groupe
+          </Text>
+          <Pressable
+            onPress={() => dispatch(fetchGroupByIdThunk(Number(id)))}
+            className="mt-4 px-6 py-3 rounded-xl bg-violet-500 active:opacity-80"
+          >
+            <Text className="text-white font-semibold">Réessayer</Text>
+          </Pressable>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (status === 'loading' && !currentGroup) {
     return (
       <SafeAreaView style={{ flex: 1 }} className="bg-white dark:bg-gray-950">
         <View className="flex-1 items-center justify-center">
@@ -59,6 +78,10 @@ export default function GroupDetailScreen() {
         </View>
       </SafeAreaView>
     );
+  }
+
+  if (!currentGroup) {
+    return null;
   }
 
   const memberships = currentGroup.groupMemberships || [];
@@ -307,7 +330,23 @@ export default function GroupDetailScreen() {
 
       {/* Bas de page : statut d'adhésion */}
       <View className="p-5 pt-3 bg-white dark:bg-gray-950 border-t border-gray-100 dark:border-gray-800">
-        {isCreator ? (
+        {!user ? (
+          <Pressable
+            onPress={() => router.push('/(auth)')}
+            className="rounded-2xl overflow-hidden active:opacity-90"
+          >
+            <LinearGradient
+              colors={['#8B5CF6', '#EC4899']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={{ paddingVertical: 16, paddingHorizontal: 24 }}
+            >
+              <Text className="text-white text-center font-bold text-lg">
+                Se connecter pour rejoindre
+              </Text>
+            </LinearGradient>
+          </Pressable>
+        ) : isCreator ? (
           <View className="py-4 px-6 rounded-2xl bg-gray-100 dark:bg-gray-900">
             <Text className="text-gray-500 dark:text-gray-400 text-center font-bold text-lg">
               Vous êtes le créateur
