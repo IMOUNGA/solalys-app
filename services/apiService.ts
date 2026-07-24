@@ -206,6 +206,7 @@ export const apiService = {
         getMe: () => apiInstance.get('/users/me'),
         updateMe: (data: any) => apiInstance.patch('/users/me', data),
         getMyGroups: () => apiInstance.get('/users/me/groups'),
+        registerPushToken: (token: string) => apiInstance.post('/users/me/push-token', { token }),
     },
     // Auth
     auth: {

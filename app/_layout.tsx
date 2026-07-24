@@ -14,7 +14,8 @@ import {loadSessionThunk} from "@/store/thunks/authThunks";
 import {AlertProvider} from "@/contexts/AlertContext";
 import {Alert} from "@/components/ui/alert";
 import { ActivityIndicator, View } from 'react-native';
-import {useAppDispatch} from "@/hooks/useRedux";
+import {useAppDispatch, useAppSelector} from "@/hooks/useRedux";
+import {registerForPushNotifications} from "@/services/pushNotifications";
 
 export const unstable_settings = {
     anchor: '(tabs)',
@@ -23,11 +24,20 @@ export const unstable_settings = {
 // Composant pour initialiser la session au démarrage
 function SessionInitializer() {
     const dispatch = useAppDispatch();
+    const { user, status } = useAppSelector((state) => state.auth);
 
     useEffect(() => {
         // Charger la session au démarrage de l'app
         dispatch(loadSessionThunk());
     }, [dispatch]);
+
+    useEffect(() => {
+        // Enregistrer le token push dès qu'on a une session active (login,
+        // signup, ou session persistée retrouvée au démarrage).
+        if (user && status === 'authenticated') {
+            registerForPushNotifications();
+        }
+    }, [user, status]);
 
     return null;
 }

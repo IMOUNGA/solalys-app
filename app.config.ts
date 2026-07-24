@@ -57,6 +57,13 @@ export default (): ExpoConfig => {
                         "backgroundColor": "#000000"
                     }
                 }
+            ],
+            [
+                "expo-notifications",
+                {
+                    icon: "./assets/images/icon.png",
+                    color: "#3B82F6"
+                }
             ]
         ],
         experiments: {
