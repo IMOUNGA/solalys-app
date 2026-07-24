@@ -106,7 +106,7 @@ export default function GroupDetailScreen() {
     });
 
   return (
-    <SafeAreaView style={{ flex: 1 }} className="bg-white dark:bg-gray-950">
+    <View style={{ flex: 1 }} className="bg-white dark:bg-gray-950">
       <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 24 }} bounces={false}>
         {/* Hero */}
         <View style={{ height: 180 }}>
@@ -375,7 +375,8 @@ export default function GroupDetailScreen() {
       </ScrollView>
 
       {/* Bas de page : statut d'adhésion */}
-      <View className="p-5 pt-3 bg-white dark:bg-gray-950 border-t border-gray-100 dark:border-gray-800">
+      <SafeAreaView className="bg-white dark:bg-gray-950">
+      <View className="p-5 pt-3 border-t border-gray-100 dark:border-gray-800">
         {!user ? (
           <Pressable
             onPress={() => router.push('/(auth)')}
@@ -419,6 +420,7 @@ export default function GroupDetailScreen() {
           </View>
         )}
       </View>
-    </SafeAreaView>
+      </SafeAreaView>
+    </View>
   );
 }

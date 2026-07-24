@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, Pressable, ActivityIndicator, SafeAreaView, KeyboardAvoidingView, Platform } from 'react-native';
+import { SafeAreaView as SafeAreaViewTop } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux';
@@ -61,7 +62,7 @@ const AccountSettingsScreen = () => {
     }
 
     return (
-        <SafeAreaView style={{ flex: 1 }} className="bg-white dark:bg-gray-950">
+        <View style={{ flex: 1 }} className="bg-white dark:bg-gray-950">
             <KeyboardAvoidingView
                 style={{ flex: 1 }}
                 behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -75,6 +76,7 @@ const AccountSettingsScreen = () => {
                             end={{ x: 1, y: 1 }}
                             style={{ paddingBottom: 32 }}
                         >
+                          <SafeAreaViewTop edges={['top']}>
                             <View className="flex-row items-center px-5 pt-3 pb-4">
                                 <Pressable
                                     onPress={() => router.back()}
@@ -92,6 +94,7 @@ const AccountSettingsScreen = () => {
                                     style={{ borderWidth: 3, borderColor: 'rgba(255,255,255,0.4)' }}
                                 />
                             </View>
+                          </SafeAreaViewTop>
                         </LinearGradient>
                     </View>
 
@@ -205,7 +208,7 @@ const AccountSettingsScreen = () => {
                     </View>
                 </ScrollView>
             </KeyboardAvoidingView>
-        </SafeAreaView>
+        </View>
     );
 };
 

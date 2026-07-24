@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, Pressable, SafeAreaView, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, Pressable, KeyboardAvoidingView, Platform } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { IconSymbol } from '@/components/ui/icon-symbol';
@@ -38,7 +39,7 @@ export default function InviteMemberScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }} className="bg-white dark:bg-gray-950">
+    <View style={{ flex: 1 }} className="bg-white dark:bg-gray-950">
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <View>
           <LinearGradient
@@ -47,26 +48,28 @@ export default function InviteMemberScreen() {
             end={{ x: 1, y: 1 }}
             style={{ paddingBottom: 28 }}
           >
-            <View className="flex-row items-center px-5 pt-3 pb-4">
-              <Pressable
-                onPress={() => router.back()}
-                className="w-9 h-9 items-center justify-center -ml-2 mr-2"
-              >
-                <IconSymbol name="chevron.left" size={22} color="#fff" />
-              </Pressable>
-              <Text className="text-white text-lg font-bold">Inviter un membre</Text>
-            </View>
-            <View className="items-center px-6">
-              <View className="bg-white/15 rounded-full p-5 mb-3">
-                <IconSymbol name="person.badge.plus" size={32} color="#fff" />
+            <SafeAreaView edges={['top']}>
+              <View className="flex-row items-center px-5 pt-3 pb-4">
+                <Pressable
+                  onPress={() => router.back()}
+                  className="w-9 h-9 items-center justify-center -ml-2 mr-2"
+                >
+                  <IconSymbol name="chevron.left" size={22} color="#fff" />
+                </Pressable>
+                <Text className="text-white text-lg font-bold">Inviter un membre</Text>
               </View>
-              {currentGroup && (
-                <Text className="text-white/90 text-center text-sm">
-                  Vous invitez quelqu'un à rejoindre{'\n'}
-                  <Text className="font-bold">{currentGroup.name}</Text>
-                </Text>
-              )}
-            </View>
+              <View className="items-center px-6">
+                <View className="bg-white/15 rounded-full p-5 mb-3">
+                  <IconSymbol name="person.badge.plus" size={32} color="#fff" />
+                </View>
+                {currentGroup && (
+                  <Text className="text-white/90 text-center text-sm">
+                    Vous invitez quelqu'un à rejoindre{'\n'}
+                    <Text className="font-bold">{currentGroup.name}</Text>
+                  </Text>
+                )}
+              </View>
+            </SafeAreaView>
           </LinearGradient>
         </View>
 
@@ -107,6 +110,6 @@ export default function InviteMemberScreen() {
           </Pressable>
         </View>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }

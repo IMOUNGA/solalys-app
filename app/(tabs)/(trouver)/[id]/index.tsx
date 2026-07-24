@@ -139,7 +139,7 @@ export default function EventDetailScreen() {
   const overflowCount = participants.length - stackedParticipants.length;
 
   return (
-    <SafeAreaView style={{ flex: 1 }} className="bg-white dark:bg-gray-950">
+    <View style={{ flex: 1 }} className="bg-white dark:bg-gray-950">
       <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 24 }} bounces={false}>
         {/* Hero */}
         <View style={{ height: HERO_HEIGHT }}>
@@ -408,32 +408,34 @@ export default function EventDetailScreen() {
       </ScrollView>
 
       {/* Join/Leave Button */}
-      <View className="p-5 pt-3 bg-white dark:bg-gray-950 border-t border-gray-100 dark:border-gray-800">
-        <Pressable
-          className={`rounded-2xl overflow-hidden ${isJoining ? 'opacity-60' : 'active:opacity-90'}`}
-          onPress={handleJoinLeave}
-          disabled={isJoining}
-        >
-          {isParticipating ? (
-            <View className="py-4 px-6 bg-red-500">
-              <Text className="text-white text-center font-bold text-lg">
-                {isJoining ? 'Chargement...' : 'Ne plus participer'}
-              </Text>
-            </View>
-          ) : (
-            <LinearGradient
-              colors={['#3B82F6', '#8B5CF6']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={{ paddingVertical: 16, paddingHorizontal: 24 }}
-            >
-              <Text className="text-white text-center font-bold text-lg">
-                {!user ? 'Se connecter pour participer' : isJoining ? 'Chargement...' : 'Participer'}
-              </Text>
-            </LinearGradient>
-          )}
-        </Pressable>
-      </View>
-    </SafeAreaView>
+      <SafeAreaView className="bg-white dark:bg-gray-950">
+        <View className="p-5 pt-3 border-t border-gray-100 dark:border-gray-800">
+          <Pressable
+            className={`rounded-2xl overflow-hidden ${isJoining ? 'opacity-60' : 'active:opacity-90'}`}
+            onPress={handleJoinLeave}
+            disabled={isJoining}
+          >
+            {isParticipating ? (
+              <View className="py-4 px-6 bg-red-500">
+                <Text className="text-white text-center font-bold text-lg">
+                  {isJoining ? 'Chargement...' : 'Ne plus participer'}
+                </Text>
+              </View>
+            ) : (
+              <LinearGradient
+                colors={['#3B82F6', '#8B5CF6']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={{ paddingVertical: 16, paddingHorizontal: 24 }}
+              >
+                <Text className="text-white text-center font-bold text-lg">
+                  {!user ? 'Se connecter pour participer' : isJoining ? 'Chargement...' : 'Participer'}
+                </Text>
+              </LinearGradient>
+            )}
+          </Pressable>
+        </View>
+      </SafeAreaView>
+    </View>
   );
 }

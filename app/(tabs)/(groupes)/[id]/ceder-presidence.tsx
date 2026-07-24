@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Pressable, SafeAreaView, FlatList } from 'react-native';
+import { View, Text, Pressable, FlatList } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { IconSymbol } from '@/components/ui/icon-symbol';
@@ -55,7 +56,7 @@ export default function TransferPresidentScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }} className="bg-white dark:bg-gray-950">
+    <View style={{ flex: 1 }} className="bg-white dark:bg-gray-950">
       <View>
         <LinearGradient
           colors={['#3B82F6', '#8B5CF6']}
@@ -63,12 +64,14 @@ export default function TransferPresidentScreen() {
           end={{ x: 1, y: 1 }}
           style={{ paddingBottom: 20 }}
         >
-          <View className="flex-row items-center px-5 pt-3 pb-4">
-            <Pressable onPress={() => router.back()} className="w-9 h-9 items-center justify-center -ml-2 mr-2">
-              <IconSymbol name="chevron.left" size={22} color="#fff" />
-            </Pressable>
-            <Text className="text-white text-lg font-bold">Céder la présidence</Text>
-          </View>
+          <SafeAreaView edges={['top']}>
+            <View className="flex-row items-center px-5 pt-3 pb-4">
+              <Pressable onPress={() => router.back()} className="w-9 h-9 items-center justify-center -ml-2 mr-2">
+                <IconSymbol name="chevron.left" size={22} color="#fff" />
+              </Pressable>
+              <Text className="text-white text-lg font-bold">Céder la présidence</Text>
+            </View>
+          </SafeAreaView>
         </LinearGradient>
       </View>
 
@@ -104,24 +107,26 @@ export default function TransferPresidentScreen() {
         }}
       />
 
-      <View className="p-5 pt-2">
-        <Pressable
-          onPress={handleTransfer}
-          disabled={isSending}
-          className={`rounded-2xl overflow-hidden ${isSending ? 'opacity-60' : 'active:opacity-90'}`}
-        >
-          <LinearGradient
-            colors={['#3B82F6', '#8B5CF6']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={{ paddingVertical: 16 }}
+      <SafeAreaView edges={['bottom']}>
+        <View className="p-5 pt-2">
+          <Pressable
+            onPress={handleTransfer}
+            disabled={isSending}
+            className={`rounded-2xl overflow-hidden ${isSending ? 'opacity-60' : 'active:opacity-90'}`}
           >
-            <Text className="text-white text-center font-bold text-base">
-              {isSending ? 'Transfert...' : 'Céder la présidence'}
-            </Text>
-          </LinearGradient>
-        </Pressable>
-      </View>
-    </SafeAreaView>
+            <LinearGradient
+              colors={['#3B82F6', '#8B5CF6']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={{ paddingVertical: 16 }}
+            >
+              <Text className="text-white text-center font-bold text-base">
+                {isSending ? 'Transfert...' : 'Céder la présidence'}
+              </Text>
+            </LinearGradient>
+          </Pressable>
+        </View>
+      </SafeAreaView>
+    </View>
   );
 }
