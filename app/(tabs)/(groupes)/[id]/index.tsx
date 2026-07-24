@@ -173,6 +173,27 @@ export default function GroupDetailScreen() {
             </Pressable>
           )}
 
+          {/* Board d'opportunités — réservé aux membres */}
+          {canInvite && (
+            <Pressable
+              onPress={() => router.push(`/(tabs)/(groupes)/${currentGroup.id}/opportunites` as any)}
+              className="active:opacity-70 mb-3 flex-row items-center gap-3 bg-amber-50 dark:bg-amber-950 rounded-2xl p-4"
+            >
+              <View className="bg-white dark:bg-gray-800 rounded-full p-2.5">
+                <IconSymbol name="lightbulb.fill" size={20} color="#D97706" />
+              </View>
+              <View className="flex-1">
+                <Text className="text-base font-bold text-gray-900 dark:text-white">
+                  Board d'opportunités
+                </Text>
+                <Text className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                  Prestataires, partenariats, recrutements...
+                </Text>
+              </View>
+              <IconSymbol name="chevron.right" size={18} color="#D97706" />
+            </Pressable>
+          )}
+
           {/* Inviter un membre — visible uniquement des membres */}
           {canInvite && (
             <Pressable

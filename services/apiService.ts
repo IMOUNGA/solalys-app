@@ -207,6 +207,16 @@ export const apiService = {
         accept: (id: number) => apiInstance.post(`/invitations/${id}/accept`),
         decline: (id: number) => apiInstance.post(`/invitations/${id}/decline`),
     },
+    // Opportunités (board d'opportunités business par groupe)
+    opportunities: {
+        getForGroup: (groupId: number) => apiInstance.get(`/groups/${groupId}/opportunities`),
+        create: (groupId: number, data: { type: string; title: string; description: string }) =>
+            apiInstance.post(`/groups/${groupId}/opportunities`, data),
+        getOne: (id: number) => apiInstance.get(`/opportunities/${id}`),
+        toggleInterest: (id: number) => apiInstance.post(`/opportunities/${id}/interest`),
+        close: (id: number) => apiInstance.post(`/opportunities/${id}/close`),
+        remove: (id: number) => apiInstance.delete(`/opportunities/${id}`),
+    },
     // Users
     users: {
         getMe: () => apiInstance.get('/users/me'),
