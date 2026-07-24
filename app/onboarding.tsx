@@ -17,6 +17,13 @@ interface Slide {
 
 const SLIDES: Slide[] = [
   {
+    key: 'gratuit',
+    icon: 'gift.fill',
+    colors: ['#F59E0B', '#10B981'],
+    title: "Gratuit jusqu'au 1ᵉʳ octobre",
+    description: "Testez toutes les fonctionnalités sans engagement pendant l'été. Les abonnements Pro et Organisateur ouvriront à la rentrée, le 1ᵉʳ octobre 2026.",
+  },
+  {
     key: 'welcome',
     icon: 'person.3.fill',
     colors: ['#3B82F6', '#8B5CF6'],
@@ -43,13 +50,6 @@ const SLIDES: Slide[] = [
     colors: ['#10B981', '#3B82F6'],
     title: 'Recommandations & CA',
     description: 'Recommandez, soyez recommandé, et mesurez ce que votre réseau vous rapporte vraiment — en euros.',
-  },
-  {
-    key: 'gratuit',
-    icon: 'gift.fill',
-    colors: ['#F59E0B', '#10B981'],
-    title: "Gratuit jusqu'au 1ᵉʳ octobre",
-    description: "Testez toutes les fonctionnalités sans engagement pendant l'été. Les abonnements Pro et Organisateur ouvriront à la rentrée, le 1ᵉʳ octobre 2026.",
   },
 ];
 
