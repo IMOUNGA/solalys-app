@@ -212,15 +212,11 @@ export default function EventDetailScreen() {
           style={{ marginTop: -20, borderTopLeftRadius: 24, borderTopRightRadius: 24 }}
         >
           {currentEvent.group && (
-            <Pressable
-              onPress={() => router.push(`/(tabs)/(groupes)/${currentEvent.group!.id}` as any)}
-              className="flex-row items-center gap-1 bg-blue-50 dark:bg-blue-950 px-3 py-1 rounded-full self-start mb-3 active:opacity-70"
-            >
+            <View className="bg-blue-50 dark:bg-blue-950 px-3 py-1 rounded-full self-start mb-3">
               <Text className="text-sm font-semibold text-blue-700 dark:text-blue-300">
                 {currentEvent.group.name}
               </Text>
-              <IconSymbol name="chevron.right" size={12} color="#1D4ED8" />
-            </Pressable>
+            </View>
           )}
 
           <Text className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
@@ -333,6 +329,29 @@ export default function EventDetailScreen() {
                 </Text>
               </View>
             </View>
+          )}
+
+          {/* Groupe organisateur — mise en avant */}
+          {currentEvent.group && (
+            <Pressable
+              onPress={() => router.push(`/(tabs)/(groupes)/${currentEvent.group!.id}` as any)}
+              className="active:opacity-80 mb-6"
+            >
+              <View className="flex-row items-center gap-3 bg-blue-50 dark:bg-blue-950 rounded-2xl p-4">
+                <View className="bg-white dark:bg-gray-800 rounded-full p-2.5">
+                  <IconSymbol name="person.2.fill" size={20} color="#3B82F6" />
+                </View>
+                <View className="flex-1">
+                  <Text className="text-base font-bold text-gray-900 dark:text-white">
+                    Infos sur le groupe
+                  </Text>
+                  <Text className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
+                    {currentEvent.group.name}
+                  </Text>
+                </View>
+                <IconSymbol name="chevron.right" size={18} color="#3B82F6" />
+              </View>
+            </Pressable>
           )}
 
           {/* Participants */}
