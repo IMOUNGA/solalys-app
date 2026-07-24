@@ -227,7 +227,8 @@ export const apiService = {
         updateStatus: (id: number, data: { status: string; amount?: number }) =>
             apiInstance.post(`/referrals/${id}/status`, data),
         getDashboard: (year?: number) => apiInstance.get(`/revenue/dashboard${year ? `?year=${year}` : ''}`),
-        getGroupSummary: (groupId: number) => apiInstance.get(`/groups/${groupId}/revenue-summary`),
+        getGroupSummary: (groupId: number, year?: number) =>
+            apiInstance.get(`/groups/${groupId}/revenue-summary${year ? `?year=${year}` : ''}`),
     },
     // Rôles de gouvernance de groupe
     groupRoles: {

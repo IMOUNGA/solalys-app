@@ -15,6 +15,7 @@ export interface GroupRole {
 export interface GroupRevenueSummary {
   total: number;
   byYear: { year: number; total: number }[];
+  byMonth: { month: number; total: number }[];
 }
 
 export const SUGGESTED_ROLE_TITLES = [

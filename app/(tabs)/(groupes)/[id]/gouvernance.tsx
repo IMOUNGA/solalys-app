@@ -1,7 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, Text, ScrollView, Pressable, ActivityIndicator, SafeAreaView, RefreshControl } from 'react-native';
+import { View, Text, ScrollView, Pressable, ActivityIndicator, SafeAreaView, RefreshControl, Modal } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
+import { File, Paths } from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Avatar } from '@/components/Avatar';
 import { useAppSelector } from '@/hooks/useRedux';
@@ -9,7 +11,18 @@ import { useErrorAlert, useConfirmAlert } from '@/hooks/useAlert';
 import { apiService } from '@/services/apiService';
 import { GroupRole, GroupRevenueSummary } from '@/types/groupRole';
 
+const CURRENT_YEAR = new Date().getFullYear();
+
+const MONTH_LABELS = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
+
 const formatMoney = (amount: number) => `${amount.toLocaleString('fr-FR')} €`;
+
+const csvEscape = (value: string) => {
+  if (/[",\n]/.test(value)) {
+    return `"${value.replace(/"/g, '""')}"`;
+  }
+  return value;
+};
 
 export default function GouvernanceScreen() {
   const { id } = useLocalSearchParams();
@@ -18,9 +31,12 @@ export default function GouvernanceScreen() {
   const { currentGroup } = useAppSelector((state) => state.groups);
   const [roles, setRoles] = useState<GroupRole[]>([]);
   const [summary, setSummary] = useState<GroupRevenueSummary | null>(null);
+  const [selectedYear, setSelectedYear] = useState<number | null>(CURRENT_YEAR);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [removingId, setRemovingId] = useState<number | null>(null);
+  const [yearPickerVisible, setYearPickerVisible] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const showError = useErrorAlert();
   const showConfirm = useConfirmAlert();
 
@@ -29,11 +45,11 @@ export default function GouvernanceScreen() {
   const isPresident = user ? presidentRole?.userId === Number(user.id) : false;
   const canManage = isCreator || isPresident;
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (year: number | null) => {
     try {
       const [rolesRes, summaryRes] = await Promise.all([
         apiService.groupRoles.getForGroup(groupId),
-        apiService.referrals.getGroupSummary(groupId).catch(() => ({ data: null })),
+        apiService.referrals.getGroupSummary(groupId, year ?? undefined).catch(() => ({ data: null })),
       ]);
       setRoles(rolesRes.data || []);
       setSummary(summaryRes.data);
@@ -45,14 +61,14 @@ export default function GouvernanceScreen() {
   useEffect(() => {
     (async () => {
       setLoading(true);
-      await load();
+      await load(selectedYear);
       setLoading(false);
     })();
-  }, [load]);
+  }, [selectedYear, load]);
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await load();
+    await load(selectedYear);
     setRefreshing(false);
   };
 
@@ -75,24 +91,133 @@ export default function GouvernanceScreen() {
     );
   };
 
+  const handleExportCsv = async () => {
+    if (!summary) {
+      showError('Aucune donnée à exporter');
+      return;
+    }
+
+    setIsExporting(true);
+    try {
+      let rows: string[][];
+
+      if (selectedYear) {
+        rows = [
+          ['Mois', 'CA (€)'],
+          ...summary.byMonth.map((m) => [MONTH_LABELS[m.month - 1], String(m.total)]),
+          ['Total', String(summary.total)],
+        ];
+      } else {
+        rows = [
+          ['Année', 'CA (€)'],
+          ...summary.byYear.map((y) => [String(y.year), String(y.total)]),
+          ['Total', String(summary.total)],
+        ];
+      }
+
+      const csvContent = rows.map((row) => row.map((cell) => csvEscape(cell)).join(',')).join('\n');
+      const fileName = `ca-groupe${selectedYear ? `-${selectedYear}` : ''}.csv`;
+      const file = new File(Paths.cache, fileName);
+      if (file.exists) {
+        file.delete();
+      }
+      file.create();
+      file.write(csvContent);
+
+      const canShare = await Sharing.isAvailableAsync();
+      if (!canShare) {
+        showError("Le partage n'est pas disponible sur cet appareil");
+        return;
+      }
+
+      await Sharing.shareAsync(file.uri, {
+        mimeType: 'text/csv',
+        dialogTitle: 'Exporter le CA du groupe',
+        UTI: 'public.comma-separated-values-text',
+      });
+    } catch (error: any) {
+      showError("Impossible d'exporter le CSV");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const yearOptions = Array.from(new Set([CURRENT_YEAR, ...(summary?.byYear.map((y) => y.year) || [])])).sort(
+    (a, b) => b - a,
+  );
   const maxYearTotal = summary?.byYear[0] ? Math.max(...summary.byYear.map((y) => y.total)) : 1;
+  const maxMonthTotal = summary?.byMonth.length ? Math.max(1, ...summary.byMonth.map((m) => m.total)) : 1;
 
   return (
     <SafeAreaView style={{ flex: 1 }} className="bg-gray-50 dark:bg-gray-950">
-      <View className="flex-row items-center gap-3 px-5 py-4 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
+      <View className="flex-row items-center gap-2 px-5 py-4 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
         <Pressable onPress={() => router.back()} className="w-9 h-9 items-center justify-center -ml-2">
           <IconSymbol name="chevron.left" size={22} color="#000" />
         </Pressable>
         <Text className="text-lg font-bold text-gray-900 dark:text-white flex-1">Gouvernance</Text>
-        {canManage && (
-          <Pressable
-            onPress={() => router.push(`/(tabs)/(groupes)/${groupId}/role-creer` as any)}
-            className="w-9 h-9 items-center justify-center bg-blue-500 rounded-full active:opacity-80"
-          >
-            <IconSymbol name="plus" size={18} color="#fff" />
-          </Pressable>
-        )}
+
+        <Pressable
+          onPress={() => setYearPickerVisible(true)}
+          className="flex-row items-center gap-1 bg-gray-100 dark:bg-gray-800 rounded-full px-3 py-2 active:opacity-70"
+        >
+          <Text className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+            {selectedYear ?? 'Toutes années'}
+          </Text>
+          <IconSymbol name="chevron.down" size={12} color="#6B7280" />
+        </Pressable>
+
+        <Pressable
+          onPress={handleExportCsv}
+          disabled={isExporting || !summary}
+          className={`flex-row items-center gap-1.5 bg-gray-100 dark:bg-gray-800 rounded-full px-3 py-2 ${isExporting ? 'opacity-50' : 'active:opacity-70'}`}
+        >
+          <IconSymbol name="square.and.arrow.up" size={16} color="#3B82F6" />
+          <Text className="text-xs font-semibold text-blue-600 dark:text-blue-400">CSV</Text>
+        </Pressable>
       </View>
+
+      <Modal
+        visible={yearPickerVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setYearPickerVisible(false)}
+      >
+        <Pressable
+          className="flex-1 bg-black/40 items-center justify-center px-10"
+          onPress={() => setYearPickerVisible(false)}
+        >
+          <Pressable
+            onPress={(e) => e.stopPropagation()}
+            className="bg-white dark:bg-gray-900 rounded-2xl w-full overflow-hidden"
+            style={{ maxWidth: 280 }}
+          >
+            <Text className="text-sm font-bold text-gray-900 dark:text-white px-5 pt-4 pb-2">
+              Choisir une période
+            </Text>
+            {yearOptions.map((year) => (
+              <Pressable
+                key={year}
+                onPress={() => { setSelectedYear(year); setYearPickerVisible(false); }}
+                className={`flex-row items-center justify-between px-5 py-3 active:bg-gray-50 dark:active:bg-gray-800 ${selectedYear === year ? 'bg-blue-50 dark:bg-blue-950' : ''}`}
+              >
+                <Text className={`text-base ${selectedYear === year ? 'font-bold text-blue-600 dark:text-blue-400' : 'text-gray-800 dark:text-gray-200'}`}>
+                  {year}
+                </Text>
+                {selectedYear === year && <IconSymbol name="checkmark" size={18} color="#3B82F6" />}
+              </Pressable>
+            ))}
+            <Pressable
+              onPress={() => { setSelectedYear(null); setYearPickerVisible(false); }}
+              className={`flex-row items-center justify-between px-5 py-3 border-t border-gray-100 dark:border-gray-800 active:bg-gray-50 dark:active:bg-gray-800 ${selectedYear === null ? 'bg-blue-50 dark:bg-blue-950' : ''}`}
+            >
+              <Text className={`text-base ${selectedYear === null ? 'font-bold text-blue-600 dark:text-blue-400' : 'text-gray-800 dark:text-gray-200'}`}>
+                Toutes années
+              </Text>
+              {selectedYear === null && <IconSymbol name="checkmark" size={18} color="#3B82F6" />}
+            </Pressable>
+          </Pressable>
+        </Pressable>
+      </Modal>
 
       {loading ? (
         <View className="flex-1 items-center justify-center">
@@ -109,14 +234,42 @@ export default function GouvernanceScreen() {
             end={{ x: 1, y: 1 }}
             style={{ borderRadius: 24, padding: 24, marginBottom: 24 }}
           >
-            <Text className="text-white/80 text-sm font-medium mb-1">CA généré par le groupe</Text>
+            <Text className="text-white/80 text-sm font-medium mb-1">
+              CA généré par le groupe {selectedYear ? `en ${selectedYear}` : '(toutes années)'}
+            </Text>
             <Text className="text-white text-4xl font-bold">{formatMoney(summary?.total || 0)}</Text>
             <Text className="text-white/70 text-xs mt-3">
               Total anonymisé, sans détail par membre
             </Text>
           </LinearGradient>
 
-          {summary && summary.byYear.length > 0 && (
+          {selectedYear && summary && summary.byMonth.length > 0 && (
+            <View className="mb-6">
+              <Text className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">
+                Par mois
+              </Text>
+              <View className="gap-2.5">
+                {summary.byMonth.map((m) => (
+                  <View key={m.month}>
+                    <View className="flex-row items-center justify-between mb-1">
+                      <Text className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                        {MONTH_LABELS[m.month - 1]}
+                      </Text>
+                      <Text className="text-xs font-bold text-gray-900 dark:text-white">{formatMoney(m.total)}</Text>
+                    </View>
+                    <View className="h-1.5 bg-gray-100 dark:bg-gray-900 rounded-full overflow-hidden">
+                      <View
+                        className="h-1.5 bg-blue-500 rounded-full"
+                        style={{ width: `${Math.max(m.total > 0 ? 4 : 0, (m.total / maxMonthTotal) * 100)}%` }}
+                      />
+                    </View>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+
+          {!selectedYear && summary && summary.byYear.length > 0 && (
             <View className="mb-6">
               <Text className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">
                 Par année
@@ -141,9 +294,19 @@ export default function GouvernanceScreen() {
           )}
 
           <View>
-            <Text className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">
-              Rôles ({roles.length})
-            </Text>
+            <View className="flex-row items-center justify-between mb-3">
+              <Text className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                Rôles ({roles.length})
+              </Text>
+              {canManage && (
+                <Pressable
+                  onPress={() => router.push(`/(tabs)/(groupes)/${groupId}/role-creer` as any)}
+                  className="w-7 h-7 items-center justify-center bg-blue-500 rounded-full active:opacity-80"
+                >
+                  <IconSymbol name="plus" size={14} color="#fff" />
+                </Pressable>
+              )}
+            </View>
             {roles.length === 0 ? (
               <View className="items-center justify-center py-10 px-8 bg-white dark:bg-gray-900 rounded-2xl">
                 <IconSymbol name="crown.fill" size={36} color="#9CA3AF" />
