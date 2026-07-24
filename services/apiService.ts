@@ -199,6 +199,7 @@ export const apiService = {
         delete: (id: number) => apiInstance.delete(`/groups/${id}`),
         leave: (id: number) => apiInstance.post(`/groups/${id}/leave`),
         setPrimary: (id: number) => apiInstance.post(`/groups/${id}/set-primary`),
+        removeMember: (id: number, userId: number) => apiInstance.delete(`/groups/${id}/members/${userId}`),
     },
     // Invitations (adhésion sur invitation uniquement — pas de "join" libre)
     invitations: {
@@ -206,6 +207,8 @@ export const apiService = {
         getMine: () => apiInstance.get('/invitations/me'),
         accept: (id: number) => apiInstance.post(`/invitations/${id}/accept`),
         decline: (id: number) => apiInstance.post(`/invitations/${id}/decline`),
+        getForGroup: (groupId: number) => apiInstance.get(`/groups/${groupId}/invitations`),
+        cancel: (id: number) => apiInstance.post(`/invitations/${id}/cancel`),
     },
     // Opportunités (board d'opportunités business par groupe)
     opportunities: {

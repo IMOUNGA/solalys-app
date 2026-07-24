@@ -293,6 +293,26 @@ export default function GouvernanceScreen() {
             </View>
           )}
 
+          {canManage && (
+            <Pressable
+              onPress={() => router.push(`/(tabs)/(groupes)/${groupId}/membres-gestion` as any)}
+              className="active:opacity-70 mb-6 flex-row items-center gap-3 bg-gray-50 dark:bg-gray-900 rounded-2xl p-4"
+            >
+              <View className="bg-white dark:bg-gray-800 rounded-full p-2.5">
+                <IconSymbol name="person.fill.badge.minus" size={20} color="#3B82F6" />
+              </View>
+              <View className="flex-1">
+                <Text className="text-base font-bold text-gray-900 dark:text-white">
+                  Gérer les membres
+                </Text>
+                <Text className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                  Retirer un membre, gérer les invitations en attente
+                </Text>
+              </View>
+              <IconSymbol name="chevron.right" size={18} color="#9CA3AF" />
+            </Pressable>
+          )}
+
           <View>
             <View className="flex-row items-center justify-between mb-3">
               <Text className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
