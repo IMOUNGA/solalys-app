@@ -11,7 +11,7 @@ import { logoutState } from '@/store/slices/authSlice';
 import { fetchMyGroupsThunk } from '@/store/thunks/groupsThunks';
 import { fetchMyParticipationsThunk } from '@/store/thunks/eventsThunks';
 import { useSuccessAlert, useErrorAlert } from '@/hooks/useAlert';
-import apiService from '@/services/apiService';
+import { apiService } from '@/services/apiService';
 
 const { width } = Dimensions.get('window');
 
