@@ -4,18 +4,14 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Avatar } from '@/components/Avatar';
-import { useAppDispatch, useAppSelector } from '@/hooks/useRedux';
-import { fetchGroupMembersThunk } from '@/store/thunks/groupsThunks';
 import { useSuccessAlert, useErrorAlert } from '@/hooks/useAlert';
 import { apiService } from '@/services/apiService';
-import type { GroupMember } from '@/types/group';
+import type { NetworkContact } from '@/types/referral';
 
 export default function CreateReferralScreen() {
   const { id } = useLocalSearchParams();
   const groupId = Number(id);
-  const dispatch = useAppDispatch();
-  const { groupMembers } = useAppSelector((state) => state.groups);
-  const { user } = useAppSelector((state) => state.auth);
+  const [network, setNetwork] = useState<NetworkContact[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [description, setDescription] = useState('');
   const [isSending, setIsSending] = useState(false);
@@ -23,10 +19,10 @@ export default function CreateReferralScreen() {
   const showError = useErrorAlert();
 
   useEffect(() => {
-    dispatch(fetchGroupMembersThunk(groupId));
-  }, [groupId]);
-
-  const otherMembers = (groupMembers as GroupMember[]).filter((m) => Number(user?.id) !== m.id);
+    apiService.users.getMyNetwork()
+      .then((res: any) => setNetwork(res.data || []))
+      .catch(() => {});
+  }, []);
 
   const handleCreate = async () => {
     if (!selectedId) {
@@ -70,13 +66,16 @@ export default function CreateReferralScreen() {
         </View>
 
         <View className="px-5 pt-5 pb-2">
-          <Text className="text-base font-medium text-gray-700 dark:text-gray-300 mb-3">
+          <Text className="text-base font-medium text-gray-700 dark:text-gray-300 mb-1">
             Recommander qui ?
+          </Text>
+          <Text className="text-xs text-gray-500 dark:text-gray-400">
+            Toutes les personnes avec qui vous partagez un groupe
           </Text>
         </View>
 
         <FlatList
-          data={otherMembers}
+          data={network}
           keyExtractor={(item) => String(item.id)}
           contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 12 }}
           style={{ maxHeight: 220 }}

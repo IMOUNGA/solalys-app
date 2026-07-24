@@ -7,6 +7,14 @@ export interface ReferralPerson {
   avatar?: string | null;
 }
 
+export interface NetworkContact {
+  id: number;
+  firstname: string;
+  lastname: string;
+  avatar?: string | null;
+  metier?: string | null;
+}
+
 export interface Referral {
   id: number;
   groupId: number;

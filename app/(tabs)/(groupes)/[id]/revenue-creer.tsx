@@ -4,18 +4,14 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Avatar } from '@/components/Avatar';
-import { useAppDispatch, useAppSelector } from '@/hooks/useRedux';
-import { fetchGroupMembersThunk } from '@/store/thunks/groupsThunks';
 import { useSuccessAlert, useErrorAlert } from '@/hooks/useAlert';
 import { apiService } from '@/services/apiService';
-import type { GroupMember } from '@/types/group';
+import type { NetworkContact } from '@/types/referral';
 
 export default function CreateRevenueScreen() {
   const { id } = useLocalSearchParams();
   const groupId = Number(id);
-  const dispatch = useAppDispatch();
-  const { groupMembers } = useAppSelector((state) => state.groups);
-  const { user } = useAppSelector((state) => state.auth);
+  const [network, setNetwork] = useState<NetworkContact[]>([]);
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -24,10 +20,10 @@ export default function CreateRevenueScreen() {
   const showError = useErrorAlert();
 
   useEffect(() => {
-    dispatch(fetchGroupMembersThunk(groupId));
-  }, [groupId]);
-
-  const otherMembers = (groupMembers as GroupMember[]).filter((m) => Number(user?.id) !== m.id);
+    apiService.users.getMyNetwork()
+      .then((res: any) => setNetwork(res.data || []))
+      .catch(() => {});
+  }, []);
 
   const handleCreate = async () => {
     const parsedAmount = parseFloat(amount.replace(',', '.'));
@@ -113,7 +109,7 @@ export default function CreateRevenueScreen() {
               Créditer un membre (facultatif)
             </Text>
             <Text className="text-xs text-gray-500 dark:text-gray-400 -mt-1">
-              Si cette affaire vient d'une mise en relation informelle avec un membre
+              Si cette affaire vient d'une mise en relation informelle avec quelqu'un de votre réseau
             </Text>
 
             {selectedId && (
@@ -127,7 +123,7 @@ export default function CreateRevenueScreen() {
             )}
 
             <FlatList
-              data={otherMembers}
+              data={network}
               keyExtractor={(item) => String(item.id)}
               horizontal
               showsHorizontalScrollIndicator={false}
