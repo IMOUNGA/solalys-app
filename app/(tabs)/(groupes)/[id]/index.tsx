@@ -242,6 +242,27 @@ export default function GroupDetailScreen() {
             </Pressable>
           )}
 
+          {/* Gouvernance — réservé aux membres */}
+          {canInvite && (
+            <Pressable
+              onPress={() => router.push(`/(tabs)/(groupes)/${currentGroup.id}/gouvernance` as any)}
+              className="active:opacity-70 mb-3 flex-row items-center gap-3 bg-blue-50 dark:bg-blue-950 rounded-2xl p-4"
+            >
+              <View className="bg-white dark:bg-gray-800 rounded-full p-2.5">
+                <IconSymbol name="crown.fill" size={20} color="#3B82F6" />
+              </View>
+              <View className="flex-1">
+                <Text className="text-base font-bold text-gray-900 dark:text-white">
+                  Gouvernance
+                </Text>
+                <Text className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                  Rôles du groupe et CA généré
+                </Text>
+              </View>
+              <IconSymbol name="chevron.right" size={18} color="#3B82F6" />
+            </Pressable>
+          )}
+
           {/* Inviter un membre — visible uniquement des membres */}
           {canInvite && (
             <Pressable

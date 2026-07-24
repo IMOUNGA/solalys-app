@@ -227,6 +227,14 @@ export const apiService = {
         updateStatus: (id: number, data: { status: string; amount?: number }) =>
             apiInstance.post(`/referrals/${id}/status`, data),
         getDashboard: (year?: number) => apiInstance.get(`/revenue/dashboard${year ? `?year=${year}` : ''}`),
+        getGroupSummary: (groupId: number) => apiInstance.get(`/groups/${groupId}/revenue-summary`),
+    },
+    // Rôles de gouvernance de groupe
+    groupRoles: {
+        getForGroup: (groupId: number) => apiInstance.get(`/groups/${groupId}/roles`),
+        create: (groupId: number, data: { userId: number; title: string }) =>
+            apiInstance.post(`/groups/${groupId}/roles`, data),
+        remove: (groupId: number, roleId: number) => apiInstance.delete(`/groups/${groupId}/roles/${roleId}`),
     },
     // Users
     users: {
