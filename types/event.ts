@@ -36,6 +36,11 @@ export interface EventParticipant {
     id: number;
     firstname: string;
     lastname: string;
+    metier?: string | null;
+    primaryGroup?: {
+      id: number;
+      name: string;
+    } | null;
   };
 }
 

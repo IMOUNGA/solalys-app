@@ -66,6 +66,17 @@ export default function GroupDetailScreen() {
   const overflowCount = memberships.length - stackedMembers.length;
   const isCreator = user ? currentGroup.groupcreator === user.id : false;
   const canInvite = isMember || isCreator;
+  const upcomingEvents = (currentGroup.events || [])
+    .filter((e) => new Date(e.hours).getTime() >= Date.now())
+    .sort((a, b) => new Date(a.hours).getTime() - new Date(b.hours).getTime());
+
+  const formatShortDate = (dateString: string) =>
+    new Date(dateString).toLocaleDateString('fr-FR', {
+      day: 'numeric',
+      month: 'short',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
 
   return (
     <SafeAreaView style={{ flex: 1 }} className="bg-white dark:bg-gray-950">
@@ -132,33 +143,35 @@ export default function GroupDetailScreen() {
             )}
           </View>
 
-          {/* Annuaire — mise en avant */}
-          <Pressable
-            onPress={() => router.push(`/(tabs)/(groupes)/${currentGroup.id}/annuaire` as any)}
-            className="active:opacity-80 mb-3"
-          >
-            <LinearGradient
-              colors={['#EEF2FF', '#FCE7F3']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={{ borderRadius: 16, padding: 16 }}
+          {/* Annuaire — réservé aux membres */}
+          {canInvite && (
+            <Pressable
+              onPress={() => router.push(`/(tabs)/(groupes)/${currentGroup.id}/annuaire` as any)}
+              className="active:opacity-80 mb-3"
             >
-              <View className="flex-row items-center gap-3">
-                <View className="bg-white rounded-full p-2.5">
-                  <IconSymbol name="book.fill" size={20} color="#8B5CF6" />
+              <LinearGradient
+                colors={['#EEF2FF', '#FCE7F3']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={{ borderRadius: 16, padding: 16 }}
+              >
+                <View className="flex-row items-center gap-3">
+                  <View className="bg-white rounded-full p-2.5">
+                    <IconSymbol name="book.fill" size={20} color="#8B5CF6" />
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-base font-bold text-gray-900">
+                      Annuaire des membres
+                    </Text>
+                    <Text className="text-xs text-gray-600 mt-0.5">
+                      Métiers, offres et recherches de chacun
+                    </Text>
+                  </View>
+                  <IconSymbol name="chevron.right" size={18} color="#8B5CF6" />
                 </View>
-                <View className="flex-1">
-                  <Text className="text-base font-bold text-gray-900">
-                    Annuaire des membres
-                  </Text>
-                  <Text className="text-xs text-gray-600 mt-0.5">
-                    Métiers, offres et recherches de chacun
-                  </Text>
-                </View>
-                <IconSymbol name="chevron.right" size={18} color="#8B5CF6" />
-              </View>
-            </LinearGradient>
-          </Pressable>
+              </LinearGradient>
+            </Pressable>
+          )}
 
           {/* Inviter un membre — visible uniquement des membres */}
           {canInvite && (
@@ -199,8 +212,39 @@ export default function GroupDetailScreen() {
             </View>
           )}
 
-          {/* Membres */}
-          {memberships.length > 0 && (
+          {/* Prochains événements — visible de tous, membre ou non */}
+          {upcomingEvents.length > 0 && (
+            <View className="mb-6">
+              <Text className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                Prochains événements
+              </Text>
+              <View className="gap-2">
+                {upcomingEvents.map((event) => (
+                  <Pressable
+                    key={event.id}
+                    onPress={() => router.push(`/(tabs)/(trouver)/${event.id}` as any)}
+                    className="flex-row items-center gap-3 bg-gray-50 dark:bg-gray-900 rounded-2xl p-3 active:opacity-70"
+                  >
+                    <View className="bg-white dark:bg-gray-800 rounded-full p-2">
+                      <IconSymbol name="calendar" size={16} color="#3B82F6" />
+                    </View>
+                    <View className="flex-1">
+                      <Text className="text-sm font-semibold text-gray-900 dark:text-white">
+                        {event.name}
+                      </Text>
+                      <Text className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 capitalize">
+                        {formatShortDate(event.hours)}
+                      </Text>
+                    </View>
+                    <IconSymbol name="chevron.right" size={16} color="#9CA3AF" />
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+          )}
+
+          {/* Membres — réservé aux membres */}
+          {canInvite && memberships.length > 0 && (
             <Pressable
               onPress={() => router.push(`/(tabs)/(groupes)/${currentGroup.id}/annuaire` as any)}
               className="active:opacity-70"

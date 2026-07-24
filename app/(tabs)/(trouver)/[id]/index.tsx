@@ -212,11 +212,15 @@ export default function EventDetailScreen() {
           style={{ marginTop: -20, borderTopLeftRadius: 24, borderTopRightRadius: 24 }}
         >
           {currentEvent.group && (
-            <View className="bg-blue-50 dark:bg-blue-950 px-3 py-1 rounded-full self-start mb-3">
+            <Pressable
+              onPress={() => router.push(`/(tabs)/(groupes)/${currentEvent.group!.id}` as any)}
+              className="flex-row items-center gap-1 bg-blue-50 dark:bg-blue-950 px-3 py-1 rounded-full self-start mb-3 active:opacity-70"
+            >
               <Text className="text-sm font-semibold text-blue-700 dark:text-blue-300">
                 {currentEvent.group.name}
               </Text>
-            </View>
+              <IconSymbol name="chevron.right" size={12} color="#1D4ED8" />
+            </Pressable>
           )}
 
           <Text className="text-2xl font-bold text-gray-900 dark:text-white mb-4">

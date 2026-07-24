@@ -23,6 +23,8 @@ export default function EventParticipantsScreen() {
   const renderParticipant = ({ item }: { item: EventParticipant }) => {
     const name = item.user ? `${item.user.firstname} ${item.user.lastname}` : 'Utilisateur';
     const isOrganizer = currentEvent?.userId === item.userId;
+    const metier = item.user?.metier?.trim();
+    const groupName = item.user?.primaryGroup?.name;
 
     return (
       <View className="flex-row items-center gap-3 px-5 py-3">
@@ -31,6 +33,11 @@ export default function EventParticipantsScreen() {
           <Text className="text-base font-semibold text-gray-900 dark:text-white">
             {name}
           </Text>
+          {(metier || groupName) && (
+            <Text className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+              {[metier, groupName].filter(Boolean).join(' · ')}
+            </Text>
+          )}
           {isOrganizer && (
             <Text className="text-xs text-blue-600 dark:text-blue-400 font-medium mt-0.5">
               Organisateur
