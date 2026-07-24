@@ -31,6 +31,8 @@ export default function MonCaScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [yearPickerVisible, setYearPickerVisible] = useState(false);
+  const [byPersonOpen, setByPersonOpen] = useState(true);
+  const [historyOpen, setHistoryOpen] = useState(true);
   const showError = useErrorAlert();
 
   const load = useCallback(async (year: number | null) => {
@@ -239,59 +241,73 @@ export default function MonCaScreen() {
               </View>
 
               <View className="mb-6">
-                <Text className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">
-                  Par personne
-                </Text>
-                <View className="gap-3">
-                  {dashboard.byPerson.map((p) => (
-                    <View key={p.userId ?? 'direct'} className="flex-row items-center gap-3">
-                      <Avatar name={p.userId ? `${p.firstname} ${p.lastname}` : 'CA'} size={36} />
-                      <View className="flex-1">
-                        <Text className="text-sm font-semibold text-gray-800 dark:text-gray-200">
-                          {p.userId ? `${p.firstname} ${p.lastname}` : p.firstname}
-                        </Text>
-                        <View className="h-1.5 bg-gray-100 dark:bg-gray-900 rounded-full overflow-hidden mt-1">
-                          <View
-                            className="h-1.5 bg-blue-500 rounded-full"
-                            style={{ width: `${Math.max(6, (p.total / maxPersonTotal) * 100)}%` }}
-                          />
+                <Pressable
+                  onPress={() => setByPersonOpen((v) => !v)}
+                  className="flex-row items-center justify-between mb-3 active:opacity-70"
+                >
+                  <Text className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                    Par personne ({dashboard.byPerson.length})
+                  </Text>
+                  <IconSymbol name={byPersonOpen ? 'chevron.up' : 'chevron.down'} size={14} color="#9CA3AF" />
+                </Pressable>
+                {byPersonOpen && (
+                  <View className="gap-3">
+                    {dashboard.byPerson.map((p) => (
+                      <View key={p.userId ?? 'direct'} className="flex-row items-center gap-3">
+                        <Avatar name={p.userId ? `${p.firstname} ${p.lastname}` : 'CA'} size={36} />
+                        <View className="flex-1">
+                          <Text className="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                            {p.userId ? `${p.firstname} ${p.lastname}` : p.firstname}
+                          </Text>
+                          <View className="h-1.5 bg-gray-100 dark:bg-gray-900 rounded-full overflow-hidden mt-1">
+                            <View
+                              className="h-1.5 bg-blue-500 rounded-full"
+                              style={{ width: `${Math.max(6, (p.total / maxPersonTotal) * 100)}%` }}
+                            />
+                          </View>
                         </View>
+                        <Text className="text-sm font-bold text-gray-900 dark:text-white">{formatMoney(p.total)}</Text>
                       </View>
-                      <Text className="text-sm font-bold text-gray-900 dark:text-white">{formatMoney(p.total)}</Text>
-                    </View>
-                  ))}
-                </View>
+                    ))}
+                  </View>
+                )}
               </View>
 
               <View>
-                <View className="flex-row items-center justify-between mb-3">
+                <Pressable
+                  onPress={() => setHistoryOpen((v) => !v)}
+                  className="flex-row items-center justify-between mb-3 active:opacity-70"
+                >
                   <Text className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
                     Historique {selectedYear ? `(${dashboard.entries.length})` : '(20 plus récents)'}
                   </Text>
-                </View>
-                <View className="gap-2">
-                  {(selectedYear ? dashboard.entries : dashboard.entries.slice(0, 20)).map((entry) => (
-                    <View
-                      key={entry.id}
-                      className="flex-row items-center gap-3 bg-gray-50 dark:bg-gray-900 rounded-xl p-3"
-                    >
-                      <View className="bg-green-100 dark:bg-green-950 rounded-full p-2">
-                        <IconSymbol name="checkmark.circle.fill" size={16} color="#10B981" />
-                      </View>
-                      <View className="flex-1">
-                        <Text className="text-sm font-medium text-gray-800 dark:text-gray-200" numberOfLines={1}>
-                          {entry.description}
+                  <IconSymbol name={historyOpen ? 'chevron.up' : 'chevron.down'} size={14} color="#9CA3AF" />
+                </Pressable>
+                {historyOpen && (
+                  <View className="gap-2">
+                    {(selectedYear ? dashboard.entries : dashboard.entries.slice(0, 20)).map((entry) => (
+                      <View
+                        key={entry.id}
+                        className="flex-row items-center gap-3 bg-gray-50 dark:bg-gray-900 rounded-xl p-3"
+                      >
+                        <View className="bg-green-100 dark:bg-green-950 rounded-full p-2">
+                          <IconSymbol name="checkmark.circle.fill" size={16} color="#10B981" />
+                        </View>
+                        <View className="flex-1">
+                          <Text className="text-sm font-medium text-gray-800 dark:text-gray-200" numberOfLines={1}>
+                            {entry.description}
+                          </Text>
+                          <Text className="text-xs text-gray-500 dark:text-gray-400">
+                            {entry.group?.name} · {formatDate(entry.convertedat)}
+                          </Text>
+                        </View>
+                        <Text className="text-sm font-bold text-green-600 dark:text-green-400">
+                          {formatMoney(entry.amount || 0)}
                         </Text>
-                        <Text className="text-xs text-gray-500 dark:text-gray-400">
-                          {entry.group?.name} · {formatDate(entry.convertedat)}
-                        </Text>
                       </View>
-                      <Text className="text-sm font-bold text-green-600 dark:text-green-400">
-                        {formatMoney(entry.amount || 0)}
-                      </Text>
-                    </View>
-                  ))}
-                </View>
+                    ))}
+                  </View>
+                )}
               </View>
             </>
           )}
