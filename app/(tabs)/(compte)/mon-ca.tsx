@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, Text, ScrollView, Pressable, ActivityIndicator, SafeAreaView, RefreshControl } from 'react-native';
+import { View, Text, ScrollView, Pressable, ActivityIndicator, SafeAreaView, RefreshControl, Modal } from 'react-native';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { File, Paths } from 'expo-file-system';
@@ -9,6 +9,8 @@ import { Avatar } from '@/components/Avatar';
 import { useErrorAlert } from '@/hooks/useAlert';
 import { apiService } from '@/services/apiService';
 import { RevenueDashboard } from '@/types/referral';
+
+const CURRENT_YEAR = new Date().getFullYear();
 
 const formatMoney = (amount: number) => `${amount.toLocaleString('fr-FR')} €`;
 
@@ -24,10 +26,11 @@ const csvEscape = (value: string) => {
 
 export default function MonCaScreen() {
   const [dashboard, setDashboard] = useState<RevenueDashboard | null>(null);
-  const [selectedYear, setSelectedYear] = useState<number | null>(null);
+  const [selectedYear, setSelectedYear] = useState<number | null>(CURRENT_YEAR);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const [yearPickerVisible, setYearPickerVisible] = useState(false);
   const showError = useErrorAlert();
 
   const load = useCallback(async (year: number | null) => {
@@ -102,6 +105,7 @@ export default function MonCaScreen() {
 
   const maxGroupTotal = dashboard?.byGroup[0]?.total || 1;
   const maxPersonTotal = dashboard?.byPerson[0]?.total || 1;
+  const yearOptions = Array.from(new Set([CURRENT_YEAR, ...(dashboard?.availableYears || [])])).sort((a, b) => b - a);
 
   return (
     <SafeAreaView style={{ flex: 1 }} className="bg-white dark:bg-gray-950">
@@ -110,6 +114,17 @@ export default function MonCaScreen() {
           <IconSymbol name="chevron.left" size={22} color="#000" />
         </Pressable>
         <Text className="text-lg font-bold text-gray-900 dark:text-white flex-1">Mon CA</Text>
+
+        <Pressable
+          onPress={() => setYearPickerVisible(true)}
+          className="flex-row items-center gap-1 bg-gray-100 dark:bg-gray-800 rounded-full px-3 py-2 active:opacity-70"
+        >
+          <Text className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+            {selectedYear ?? 'Toutes années'}
+          </Text>
+          <IconSymbol name="chevron.down" size={12} color="#6B7280" />
+        </Pressable>
+
         <Pressable
           onPress={handleExportCsv}
           disabled={isExporting || !dashboard || dashboard.entries.length === 0}
@@ -120,34 +135,48 @@ export default function MonCaScreen() {
         </Pressable>
       </View>
 
-      {!loading && dashboard && dashboard.availableYears.length > 0 && (
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: 20, paddingVertical: 12, gap: 8 }}
-          className="border-b border-gray-100 dark:border-gray-800"
+      <Modal
+        visible={yearPickerVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setYearPickerVisible(false)}
+      >
+        <Pressable
+          className="flex-1 bg-black/40 items-center justify-center px-10"
+          onPress={() => setYearPickerVisible(false)}
         >
           <Pressable
-            onPress={() => setSelectedYear(null)}
-            className={`px-4 py-2 rounded-full ${selectedYear === null ? 'bg-green-500' : 'bg-gray-100 dark:bg-gray-800'}`}
+            onPress={(e) => e.stopPropagation()}
+            className="bg-white dark:bg-gray-900 rounded-2xl w-full overflow-hidden"
+            style={{ maxWidth: 280 }}
           >
-            <Text className={`text-sm font-semibold ${selectedYear === null ? 'text-white' : 'text-gray-600 dark:text-gray-300'}`}>
-              Toutes années
+            <Text className="text-sm font-bold text-gray-900 dark:text-white px-5 pt-4 pb-2">
+              Choisir une période
             </Text>
-          </Pressable>
-          {dashboard.availableYears.map((year) => (
+            {yearOptions.map((year) => (
+              <Pressable
+                key={year}
+                onPress={() => { setSelectedYear(year); setYearPickerVisible(false); }}
+                className={`flex-row items-center justify-between px-5 py-3 active:bg-gray-50 dark:active:bg-gray-800 ${selectedYear === year ? 'bg-green-50 dark:bg-green-950' : ''}`}
+              >
+                <Text className={`text-base ${selectedYear === year ? 'font-bold text-green-600 dark:text-green-400' : 'text-gray-800 dark:text-gray-200'}`}>
+                  {year}
+                </Text>
+                {selectedYear === year && <IconSymbol name="checkmark" size={18} color="#10B981" />}
+              </Pressable>
+            ))}
             <Pressable
-              key={year}
-              onPress={() => setSelectedYear(year)}
-              className={`px-4 py-2 rounded-full ${selectedYear === year ? 'bg-green-500' : 'bg-gray-100 dark:bg-gray-800'}`}
+              onPress={() => { setSelectedYear(null); setYearPickerVisible(false); }}
+              className={`flex-row items-center justify-between px-5 py-3 border-t border-gray-100 dark:border-gray-800 active:bg-gray-50 dark:active:bg-gray-800 ${selectedYear === null ? 'bg-green-50 dark:bg-green-950' : ''}`}
             >
-              <Text className={`text-sm font-semibold ${selectedYear === year ? 'text-white' : 'text-gray-600 dark:text-gray-300'}`}>
-                {year}
+              <Text className={`text-base ${selectedYear === null ? 'font-bold text-green-600 dark:text-green-400' : 'text-gray-800 dark:text-gray-200'}`}>
+                Toutes années
               </Text>
+              {selectedYear === null && <IconSymbol name="checkmark" size={18} color="#10B981" />}
             </Pressable>
-          ))}
-        </ScrollView>
-      )}
+          </Pressable>
+        </Pressable>
+      </Modal>
 
       {loading ? (
         <View className="flex-1 items-center justify-center">
@@ -165,7 +194,7 @@ export default function MonCaScreen() {
             style={{ borderRadius: 24, padding: 24, marginBottom: 24 }}
           >
             <Text className="text-white/80 text-sm font-medium mb-1">
-              CA généré via Solalys{selectedYear ? ` en ${selectedYear}` : ''}
+              CA généré via Solalys {selectedYear ? `en ${selectedYear}` : '(toutes années)'}
             </Text>
             <Text className="text-white text-4xl font-bold">{formatMoney(dashboard?.total || 0)}</Text>
             <Text className="text-white/70 text-xs mt-3">

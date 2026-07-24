@@ -14,6 +14,7 @@ import { useSuccessAlert, useErrorAlert } from '@/hooks/useAlert';
 import { apiService } from '@/services/apiService';
 
 const { width } = Dimensions.get('window');
+const CURRENT_YEAR = new Date().getFullYear();
 
 const CompteScreen = () => {
     const dispatch = useAppDispatch();
@@ -32,7 +33,7 @@ const CompteScreen = () => {
         if (isAuthenticated) {
             dispatch(fetchMyGroupsThunk());
             dispatch(fetchMyParticipationsThunk());
-            apiService.referrals.getDashboard()
+            apiService.referrals.getDashboard(CURRENT_YEAR)
                 .then((res: any) => setTotalCA(res.data?.total || 0))
                 .catch(() => {});
         }
@@ -56,7 +57,7 @@ const CompteScreen = () => {
                 dispatch(refreshUserThunk()).unwrap(),
                 dispatch(fetchMyGroupsThunk()).unwrap(),
                 dispatch(fetchMyParticipationsThunk()).unwrap(),
-                apiService.referrals.getDashboard().then((res: any) => setTotalCA(res.data?.total || 0)).catch(() => {}),
+                apiService.referrals.getDashboard(CURRENT_YEAR).then((res: any) => setTotalCA(res.data?.total || 0)).catch(() => {}),
             ]);
         } finally {
             setRefreshing(false);
@@ -278,7 +279,7 @@ const CompteScreen = () => {
                                         <IconSymbol name="chart.line.uptrend.xyaxis" size={24} color="#fff" />
                                     </View>
                                     <View className="flex-1">
-                                        <Text className="text-white/80 text-xs font-medium">Mon CA généré</Text>
+                                        <Text className="text-white/80 text-xs font-medium">Mon CA {CURRENT_YEAR}</Text>
                                         <Text className="text-white text-xl font-bold">
                                             {totalCA.toLocaleString('fr-FR')} €
                                         </Text>
