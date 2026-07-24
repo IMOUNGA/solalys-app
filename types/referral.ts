@@ -47,5 +47,6 @@ export interface RevenueDashboard {
   total: number;
   byGroup: RevenueDashboardGroupTotal[];
   byPerson: RevenueDashboardPersonTotal[];
-  recent: Referral[];
+  entries: Referral[];
+  availableYears: number[];
 }

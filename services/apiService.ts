@@ -226,7 +226,7 @@ export const apiService = {
         getForGroup: (groupId: number) => apiInstance.get(`/groups/${groupId}/referrals`),
         updateStatus: (id: number, data: { status: string; amount?: number }) =>
             apiInstance.post(`/referrals/${id}/status`, data),
-        getDashboard: () => apiInstance.get('/revenue/dashboard'),
+        getDashboard: (year?: number) => apiInstance.get(`/revenue/dashboard${year ? `?year=${year}` : ''}`),
     },
     // Users
     users: {

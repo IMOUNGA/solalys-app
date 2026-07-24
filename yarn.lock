@@ -3869,6 +3869,11 @@ expo-file-system@~19.0.17:
   resolved "https://registry.npmjs.org/expo-file-system/-/expo-file-system-19.0.17.tgz"
   integrity sha512-WwaS01SUFrxBnExn87pg0sCTJjZpf2KAOzfImG0o8yhkU7fbYpihpl/oocXBEsNbj58a8hVt1Y4CVV5c1tzu/g==
 
+expo-file-system@~19.0.23:
+  version "19.0.23"
+  resolved "https://registry.yarnpkg.com/expo-file-system/-/expo-file-system-19.0.23.tgz#ad2c88ed039ba0fd5a739338818f42304171eddd"
+  integrity sha512-MeGkid9OeNILfT/qonaXHp4f2c15xaB28U/bcN7pqZej0Kx0+6+V7e9ZIXpPHm07zVatxA+QkMTPQEGfmvVOxA==
+
 expo-font@~14.0.8, expo-font@~14.0.9:
   version "14.0.9"
   resolved "https://registry.npmjs.org/expo-font/-/expo-font-14.0.9.tgz"
@@ -3991,6 +3996,11 @@ expo-server@^1.0.1:
   version "1.0.1"
   resolved "https://registry.npmjs.org/expo-server/-/expo-server-1.0.1.tgz"
   integrity sha512-J3JlpzNXOkkr4BbapTrcv6klBQcw6NzrBBVIU7qkNE2eU3U1on9rp27wi0+cihjG/QgxSIqQVkrga5z3HWnH0A==
+
+expo-sharing@~14.0.8:
+  version "14.0.8"
+  resolved "https://registry.yarnpkg.com/expo-sharing/-/expo-sharing-14.0.8.tgz#cfd5fcf77ab5f64cf3d192a40a925abb316d3545"
+  integrity sha512-A1pPr2iBrxypFDCWVAESk532HK+db7MFXbvO2sCV9ienaFXAk7lIBm6bkqgE6vzRd9O3RGdEGzYx80cYlc089Q==
 
 expo-splash-screen@~31.0.10:
   version "31.0.10"

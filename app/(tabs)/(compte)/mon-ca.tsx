@@ -2,6 +2,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, ScrollView, Pressable, ActivityIndicator, SafeAreaView, RefreshControl } from 'react-native';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
+import { File, Paths } from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Avatar } from '@/components/Avatar';
 import { useErrorAlert } from '@/hooks/useAlert';
@@ -13,15 +15,24 @@ const formatMoney = (amount: number) => `${amount.toLocaleString('fr-FR')} €`;
 const formatDate = (dateString?: string | null) =>
   dateString ? new Date(dateString).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
 
+const csvEscape = (value: string) => {
+  if (/[",\n]/.test(value)) {
+    return `"${value.replace(/"/g, '""')}"`;
+  }
+  return value;
+};
+
 export default function MonCaScreen() {
   const [dashboard, setDashboard] = useState<RevenueDashboard | null>(null);
+  const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const showError = useErrorAlert();
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (year: number | null) => {
     try {
-      const response = await apiService.referrals.getDashboard();
+      const response = await apiService.referrals.getDashboard(year ?? undefined);
       setDashboard(response.data);
     } catch (error: any) {
       showError(error?.response?.data?.message || 'Impossible de charger votre dashboard');
@@ -31,15 +42,62 @@ export default function MonCaScreen() {
   useEffect(() => {
     (async () => {
       setLoading(true);
-      await load();
+      await load(selectedYear);
       setLoading(false);
     })();
-  }, [load]);
+  }, [selectedYear, load]);
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await load();
+    await load(selectedYear);
     setRefreshing(false);
+  };
+
+  const handleExportCsv = async () => {
+    if (!dashboard || dashboard.entries.length === 0) {
+      showError('Aucune donnée à exporter pour cette période');
+      return;
+    }
+
+    setIsExporting(true);
+    try {
+      const header = ['Date', 'Groupe', 'Description', 'Origine', 'Montant (€)'];
+      const rows = dashboard.entries.map((entry) => [
+        formatDate(entry.convertedat),
+        entry.group?.name || '',
+        entry.description,
+        entry.fromUser ? `${entry.fromUser.firstname} ${entry.fromUser.lastname}` : 'CA direct',
+        String(entry.amount ?? 0),
+      ]);
+
+      const csvContent = [header, ...rows]
+        .map((row) => row.map((cell) => csvEscape(String(cell))).join(','))
+        .join('\n');
+
+      const fileName = `mon-ca${selectedYear ? `-${selectedYear}` : ''}.csv`;
+      const file = new File(Paths.cache, fileName);
+      if (file.exists) {
+        file.delete();
+      }
+      file.create();
+      file.write(csvContent);
+
+      const canShare = await Sharing.isAvailableAsync();
+      if (!canShare) {
+        showError("Le partage n'est pas disponible sur cet appareil");
+        return;
+      }
+
+      await Sharing.shareAsync(file.uri, {
+        mimeType: 'text/csv',
+        dialogTitle: 'Exporter mon CA',
+        UTI: 'public.comma-separated-values-text',
+      });
+    } catch (error: any) {
+      showError("Impossible d'exporter le CSV");
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   const maxGroupTotal = dashboard?.byGroup[0]?.total || 1;
@@ -51,8 +109,45 @@ export default function MonCaScreen() {
         <Pressable onPress={() => router.back()} className="w-9 h-9 items-center justify-center -ml-2">
           <IconSymbol name="chevron.left" size={22} color="#000" />
         </Pressable>
-        <Text className="text-lg font-bold text-gray-900 dark:text-white">Mon CA</Text>
+        <Text className="text-lg font-bold text-gray-900 dark:text-white flex-1">Mon CA</Text>
+        <Pressable
+          onPress={handleExportCsv}
+          disabled={isExporting || !dashboard || dashboard.entries.length === 0}
+          className={`flex-row items-center gap-1.5 bg-gray-100 dark:bg-gray-800 rounded-full px-3 py-2 ${isExporting ? 'opacity-50' : 'active:opacity-70'}`}
+        >
+          <IconSymbol name="square.and.arrow.up" size={16} color="#10B981" />
+          <Text className="text-xs font-semibold text-green-600 dark:text-green-400">CSV</Text>
+        </Pressable>
       </View>
+
+      {!loading && dashboard && dashboard.availableYears.length > 0 && (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingHorizontal: 20, paddingVertical: 12, gap: 8 }}
+          className="border-b border-gray-100 dark:border-gray-800"
+        >
+          <Pressable
+            onPress={() => setSelectedYear(null)}
+            className={`px-4 py-2 rounded-full ${selectedYear === null ? 'bg-green-500' : 'bg-gray-100 dark:bg-gray-800'}`}
+          >
+            <Text className={`text-sm font-semibold ${selectedYear === null ? 'text-white' : 'text-gray-600 dark:text-gray-300'}`}>
+              Toutes années
+            </Text>
+          </Pressable>
+          {dashboard.availableYears.map((year) => (
+            <Pressable
+              key={year}
+              onPress={() => setSelectedYear(year)}
+              className={`px-4 py-2 rounded-full ${selectedYear === year ? 'bg-green-500' : 'bg-gray-100 dark:bg-gray-800'}`}
+            >
+              <Text className={`text-sm font-semibold ${selectedYear === year ? 'text-white' : 'text-gray-600 dark:text-gray-300'}`}>
+                {year}
+              </Text>
+            </Pressable>
+          ))}
+        </ScrollView>
+      )}
 
       {loading ? (
         <View className="flex-1 items-center justify-center">
@@ -69,7 +164,9 @@ export default function MonCaScreen() {
             end={{ x: 1, y: 1 }}
             style={{ borderRadius: 24, padding: 24, marginBottom: 24 }}
           >
-            <Text className="text-white/80 text-sm font-medium mb-1">CA total généré via Solalys</Text>
+            <Text className="text-white/80 text-sm font-medium mb-1">
+              CA généré via Solalys{selectedYear ? ` en ${selectedYear}` : ''}
+            </Text>
             <Text className="text-white text-4xl font-bold">{formatMoney(dashboard?.total || 0)}</Text>
             <Text className="text-white/70 text-xs mt-3">
               Visible uniquement par vous — tous vos groupes confondus
@@ -138,11 +235,13 @@ export default function MonCaScreen() {
               </View>
 
               <View>
-                <Text className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">
-                  Historique récent
-                </Text>
+                <View className="flex-row items-center justify-between mb-3">
+                  <Text className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                    Historique {selectedYear ? `(${dashboard.entries.length})` : '(20 plus récents)'}
+                  </Text>
+                </View>
                 <View className="gap-2">
-                  {dashboard.recent.map((entry) => (
+                  {(selectedYear ? dashboard.entries : dashboard.entries.slice(0, 20)).map((entry) => (
                     <View
                       key={entry.id}
                       className="flex-row items-center gap-3 bg-gray-50 dark:bg-gray-900 rounded-xl p-3"
