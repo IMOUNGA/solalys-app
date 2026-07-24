@@ -4,6 +4,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux';
 import { fetchGroupByIdThunk, leaveGroupThunk } from '@/store/thunks/groupsThunks';
+import { clearCurrentGroup } from '@/store/slices/groupsSlice';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Avatar } from '@/components/Avatar';
 import { useSuccessAlert, useErrorAlert } from '@/hooks/useAlert';
@@ -24,6 +25,9 @@ export default function GroupDetailScreen() {
     if (id && !isNaN(Number(id))) {
       dispatch(fetchGroupByIdThunk(Number(id)));
     }
+    return () => {
+      dispatch(clearCurrentGroup());
+    };
   }, [id]);
 
   useEffect(() => {

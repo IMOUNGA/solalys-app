@@ -5,6 +5,7 @@ import * as Location from 'expo-location';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux';
 import { fetchEventByIdThunk, joinEventThunk, leaveEventThunk } from '@/store/thunks/eventsThunks';
+import { clearCurrentEvent } from '@/store/slices/eventsSlice';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Avatar } from '@/components/Avatar';
 import { useSuccessAlert, useErrorAlert } from '@/hooks/useAlert';
@@ -30,6 +31,9 @@ export default function EventDetailScreen() {
     if (id && !isNaN(Number(id))) {
       dispatch(fetchEventByIdThunk(Number(id)));
     }
+    return () => {
+      dispatch(clearCurrentEvent());
+    };
   }, [id]);
 
   useEffect(() => {
