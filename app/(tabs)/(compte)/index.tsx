@@ -10,7 +10,7 @@ import { logoutThunk, refreshUserThunk } from '@/store/thunks/authThunks';
 import { logoutState } from '@/store/slices/authSlice';
 import { fetchMyGroupsThunk } from '@/store/thunks/groupsThunks';
 import { fetchMyParticipationsThunk } from '@/store/thunks/eventsThunks';
-import { useSuccessAlert, useErrorAlert } from '@/hooks/useAlert';
+import { useSuccessAlert, useErrorAlert, useConfirmAlert } from '@/hooks/useAlert';
 import { apiService } from '@/services/apiService';
 
 const { width } = Dimensions.get('window');
@@ -27,6 +27,7 @@ const CompteScreen = () => {
     const [totalCA, setTotalCA] = useState(0);
     const showSuccess = useSuccessAlert();
     const showError = useErrorAlert();
+    const showConfirm = useConfirmAlert();
 
     // Charger les données utilisateur au montage
     useEffect(() => {
@@ -39,14 +40,21 @@ const CompteScreen = () => {
         }
     }, [isAuthenticated, dispatch]);
 
-    const handleLogout = async () => {
-        try {
-            await dispatch(logoutThunk()).unwrap();
-            dispatch(logoutState());
-            router.replace('/(tabs)/(trouver)');
-        } catch (error) {
-            // Error handled
-        }
+    const handleLogout = () => {
+        showConfirm(
+            'Voulez-vous vraiment vous déconnecter ?',
+            async () => {
+                try {
+                    await dispatch(logoutThunk()).unwrap();
+                    dispatch(logoutState());
+                    router.replace('/(tabs)/(trouver)');
+                } catch (error) {
+                    // Error handled
+                }
+            },
+            'Déconnexion',
+            'Se déconnecter',
+        );
     };
 
     const onRefresh = useCallback(async () => {
