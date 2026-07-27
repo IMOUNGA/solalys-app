@@ -20,6 +20,12 @@
       "env": {
         "APP_ENV": "prod"
       }
+    },
+    "testflight-preprod": {
+      "extends": "production",
+      "env": {
+        "APP_ENV": "preprod"
+      }
     }
   },
   "submit": {
