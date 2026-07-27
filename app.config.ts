@@ -93,7 +93,7 @@ export default (): ExpoConfig => {
                 prod: API_PROD,
             },
             eas: {
-                projectId: "228f64ee-f020-4650-a8a8-3f0daa4a7368"
+                projectId: "89c65a33-33cb-4154-87d0-f8182879d1b3"
             }
         },
     }
