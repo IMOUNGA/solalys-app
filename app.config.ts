@@ -25,7 +25,11 @@ export default (): ExpoConfig => {
         orientation: "portrait",
         icon: "./assets/images/icon.png",
         scheme: "solalysapp",
-        userInterfaceStyle: "automatic",
+        // L'app n'a pas de vrai thème sombre complet (classes dark: ajoutées
+        // au coup par coup sur certains écrans seulement) — forcé en clair
+        // pour éviter des fonds noirs sur les écrans qui n'ont pas de fond
+        // explicite, plutôt que de dépendre du mode système de l'appareil.
+        userInterfaceStyle: "light",
         newArchEnabled: true,
         ios: {
             supportsTablet: true,
