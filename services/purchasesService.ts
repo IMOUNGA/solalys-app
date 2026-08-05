@@ -5,15 +5,19 @@ import Constants from 'expo-constants';
 let configured = false;
 
 /**
- * À appeler une fois au démarrage de l'app (avant tout logIn). Pas de clé
- * Android pour l'instant, l'app n'est distribuée que sur iOS.
+ * À appeler une fois au démarrage de l'app (avant tout logIn). RevenueCat
+ * fournit une clé API publique distincte par store (iOS/Android) — même
+ * projet, mêmes entitlements `pro`/`organisateur` des deux côtés.
  */
 export function initPurchases() {
-  if (configured || Platform.OS !== 'ios') return;
+  if (configured) return;
 
-  const apiKey = Constants.expoConfig?.extra?.revenueCatApiKey as string | undefined;
+  const extra = Constants.expoConfig?.extra;
+  const apiKey = (Platform.OS === 'ios' ? extra?.revenueCatApiKeyIos : extra?.revenueCatApiKeyAndroid) as
+    | string
+    | undefined;
   if (!apiKey) {
-    console.warn('⚠️ REVENUECAT_API_KEY manquant, IAP désactivé');
+    console.warn(`⚠️ Clé RevenueCat manquante pour ${Platform.OS}, IAP désactivé`);
     return;
   }
 
