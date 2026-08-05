@@ -6,6 +6,7 @@ import { File, Paths } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useSuccessAlert, useErrorAlert } from '@/hooks/useAlert';
+import { useSmartBack } from '@/hooks/useSmartBack';
 import { apiService } from '@/services/apiService';
 import { Guest, GUEST_STATUSES, GuestStatus, UPCOMING_GUEST_STATUSES } from '@/types/guest';
 
@@ -41,6 +42,7 @@ export default function GuestsScreen() {
   const [statusFilter, setStatusFilter] = useState<GuestStatus[]>(GUEST_STATUSES.map((s) => s.value));
   const showSuccess = useSuccessAlert();
   const showError = useErrorAlert();
+  const goBack = useSmartBack();
 
   const load = useCallback(async () => {
     try {
@@ -216,7 +218,7 @@ export default function GuestsScreen() {
   return (
     <SafeAreaView style={{ flex: 1 }} className="bg-gray-50 dark:bg-gray-950">
       <View className="flex-row items-center gap-3 px-5 py-4 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
-        <Pressable onPress={() => router.back()} className="w-9 h-9 items-center justify-center -ml-2">
+        <Pressable onPress={goBack} className="w-9 h-9 items-center justify-center -ml-2">
           <IconSymbol name="chevron.left" size={22} color="#000" />
         </Pressable>
         <Text className="text-lg font-bold text-gray-900 dark:text-white flex-1">Espace invités</Text>

@@ -82,7 +82,10 @@ export default function DashboardScreen() {
   }, [dispatch, myGroups.length]);
 
   const navigateToCreate = (groupId: number) => {
-    router.push(`/(tabs)/(groupes)/${groupId}/${CREATE_ROUTE_BY_TAB[tab]}` as any);
+    router.push({
+      pathname: `/(tabs)/(groupes)/${groupId}/${CREATE_ROUTE_BY_TAB[tab]}` as any,
+      params: { returnTo: '/(tabs)/(compte)/dashboard' },
+    });
   };
 
   const handleCreatePress = () => {
@@ -452,7 +455,12 @@ export default function DashboardScreen() {
 
         return (
           <Pressable
-            onPress={() => router.push(`/(tabs)/(groupes)/${item.groupId}/opportunites` as any)}
+            onPress={() =>
+              router.push({
+                pathname: `/(tabs)/(groupes)/${item.groupId}/opportunites` as any,
+                params: { returnTo: '/(tabs)/(compte)/dashboard' },
+              })
+            }
             className="active:opacity-90 mb-3"
           >
             <View
@@ -542,7 +550,12 @@ export default function DashboardScreen() {
         const info = guestStatusInfo(item.status);
         return (
           <Pressable
-            onPress={() => router.push(`/(tabs)/(groupes)/${item.groupId}/invites` as any)}
+            onPress={() =>
+              router.push({
+                pathname: `/(tabs)/(groupes)/${item.groupId}/invites` as any,
+                params: { returnTo: '/(tabs)/(compte)/dashboard' },
+              })
+            }
             className="active:opacity-90 mb-3"
           >
             <View

@@ -6,6 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Avatar } from '@/components/Avatar';
 import { useSuccessAlert, useErrorAlert } from '@/hooks/useAlert';
+import { useSmartBack } from '@/hooks/useSmartBack';
 import { apiService } from '@/services/apiService';
 import type { NetworkContact } from '@/types/referral';
 
@@ -19,6 +20,7 @@ export default function CreateRevenueScreen() {
   const [isSending, setIsSending] = useState(false);
   const showSuccess = useSuccessAlert();
   const showError = useErrorAlert();
+  const goBack = useSmartBack();
 
   useEffect(() => {
     apiService.users.getMyNetwork()
@@ -45,7 +47,7 @@ export default function CreateRevenueScreen() {
         fromUserId: selectedId ?? undefined,
       });
       showSuccess('CA ajouté à votre dashboard !');
-      router.back();
+      goBack();
     } catch (error: any) {
       showError(error?.response?.data?.message || "Impossible d'ajouter ce CA");
     } finally {
@@ -65,7 +67,7 @@ export default function CreateRevenueScreen() {
           >
             <SafeAreaView edges={['top']}>
               <View className="flex-row items-center px-5 pt-3 pb-4">
-                <Pressable onPress={() => router.back()} className="w-9 h-9 items-center justify-center -ml-2 mr-2">
+                <Pressable onPress={goBack} className="w-9 h-9 items-center justify-center -ml-2 mr-2">
                   <IconSymbol name="chevron.left" size={22} color="#fff" />
                 </Pressable>
                 <Text className="text-white text-lg font-bold">Ajouter du CA</Text>

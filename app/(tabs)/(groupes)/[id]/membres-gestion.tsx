@@ -5,6 +5,8 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Avatar } from '@/components/Avatar';
 import { useAppSelector } from '@/hooks/useRedux';
 import { useErrorAlert, useConfirmAlert } from '@/hooks/useAlert';
+import { useSubscriptionTier } from '@/hooks/useSubscriptionTier';
+import { UpgradeRequired } from '@/components/ui/UpgradeRequired';
 import { apiService } from '@/services/apiService';
 import type { GroupMember } from '@/types/group';
 
@@ -27,6 +29,7 @@ export default function MembresGestionScreen() {
   const [busyId, setBusyId] = useState<number | null>(null);
   const showError = useErrorAlert();
   const showConfirm = useConfirmAlert();
+  const { hasOrganisateur, loading: tierLoading } = useSubscriptionTier();
 
   const load = useCallback(async () => {
     try {
@@ -42,12 +45,17 @@ export default function MembresGestionScreen() {
   }, [groupId]);
 
   useEffect(() => {
+    if (tierLoading) return;
+    if (!hasOrganisateur) {
+      setLoading(false);
+      return;
+    }
     (async () => {
       setLoading(true);
       await load();
       setLoading(false);
     })();
-  }, [load]);
+  }, [load, tierLoading, hasOrganisateur]);
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -102,10 +110,12 @@ export default function MembresGestionScreen() {
         <Text className="text-lg font-bold text-gray-900 dark:text-white">Gestion des membres</Text>
       </View>
 
-      {loading ? (
+      {loading || tierLoading ? (
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color="#3B82F6" />
         </View>
+      ) : !hasOrganisateur ? (
+        <UpgradeRequired message="La gestion des membres et des invitations nécessite l'abonnement Organisateur." />
       ) : (
         <ScrollView
           contentContainerStyle={{ padding: 20, paddingBottom: 40 }}

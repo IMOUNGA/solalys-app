@@ -6,6 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Calendar } from 'react-native-calendars';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useSuccessAlert, useErrorAlert } from '@/hooks/useAlert';
+import { useSmartBack } from '@/hooks/useSmartBack';
 import { apiService } from '@/services/apiService';
 
 export default function CreateGuestScreen() {
@@ -22,6 +23,7 @@ export default function CreateGuestScreen() {
   const [isSending, setIsSending] = useState(false);
   const showSuccess = useSuccessAlert();
   const showError = useErrorAlert();
+  const goBack = useSmartBack();
 
   const formatDate = (date: Date) =>
     date.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
@@ -44,7 +46,7 @@ export default function CreateGuestScreen() {
         visitDate: visitDate ? visitDate.toISOString().split('T')[0] : undefined,
       });
       showSuccess(`${firstname.trim()} a bien été ajouté(e)`, 'Invité ajouté');
-      router.back();
+      goBack();
     } catch (error: any) {
       showError(error?.response?.data?.message || "Impossible d'enregistrer cet invité");
     } finally {
@@ -61,7 +63,7 @@ export default function CreateGuestScreen() {
         <LinearGradient colors={['#EC4899', '#8B5CF6']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ paddingBottom: 20 }}>
           <SafeAreaView edges={['top']}>
             <View className="flex-row items-center px-5 pt-3 pb-4">
-              <Pressable onPress={() => router.back()} className="w-9 h-9 items-center justify-center -ml-2 mr-2">
+              <Pressable onPress={goBack} className="w-9 h-9 items-center justify-center -ml-2 mr-2">
                 <IconSymbol name="chevron.left" size={22} color="#fff" />
               </Pressable>
               <Text className="text-white text-lg font-bold">Nouvel invité</Text>

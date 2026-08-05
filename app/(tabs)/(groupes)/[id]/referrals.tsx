@@ -4,6 +4,8 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Avatar } from '@/components/Avatar';
 import { useAlert, useErrorAlert } from '@/hooks/useAlert';
+import { useSubscriptionTier } from '@/hooks/useSubscriptionTier';
+import { UpgradeRequired } from '@/components/ui/UpgradeRequired';
 import { apiService } from '@/services/apiService';
 import { Referral } from '@/types/referral';
 
@@ -31,6 +33,7 @@ export default function ReferralsScreen() {
   const groupId = Number(id);
   const { showAlert } = useAlert();
   const showError = useErrorAlert();
+  const { hasPro, loading: tierLoading } = useSubscriptionTier();
   const [given, setGiven] = useState<Referral[]>([]);
   const [received, setReceived] = useState<Referral[]>([]);
   const [loading, setLoading] = useState(true);
@@ -51,12 +54,17 @@ export default function ReferralsScreen() {
   }, [groupId]);
 
   useEffect(() => {
+    if (tierLoading) return;
+    if (!hasPro) {
+      setLoading(false);
+      return;
+    }
     (async () => {
       setLoading(true);
       await load();
       setLoading(false);
     })();
-  }, [load]);
+  }, [load, tierLoading, hasPro]);
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -249,14 +257,24 @@ export default function ReferralsScreen() {
           <IconSymbol name="chevron.left" size={22} color="#000" />
         </Pressable>
         <Text className="text-lg font-bold text-gray-900 dark:text-white flex-1">Recommandations & CA</Text>
-        <Pressable
-          onPress={handleCreate}
-          className="w-9 h-9 items-center justify-center bg-green-500 rounded-full active:opacity-80"
-        >
-          <IconSymbol name="plus" size={18} color="#fff" />
-        </Pressable>
+        {hasPro && (
+          <Pressable
+            onPress={handleCreate}
+            className="w-9 h-9 items-center justify-center bg-green-500 rounded-full active:opacity-80"
+          >
+            <IconSymbol name="plus" size={18} color="#fff" />
+          </Pressable>
+        )}
       </View>
 
+      {tierLoading ? (
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" color="#10B981" />
+        </View>
+      ) : !hasPro ? (
+        <UpgradeRequired message="Le suivi des recommandations et du CA nécessite un abonnement Pro ou supérieur." />
+      ) : (
+        <>
       <View className="flex-row gap-3 px-5 py-3 bg-white dark:bg-gray-900">
         <Pressable
           onPress={() => setActiveTab('received')}
@@ -303,6 +321,8 @@ export default function ReferralsScreen() {
             </View>
           }
         />
+      )}
+      </>
       )}
     </SafeAreaView>
   );

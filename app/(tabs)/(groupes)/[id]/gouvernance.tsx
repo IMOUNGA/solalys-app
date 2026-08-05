@@ -8,6 +8,7 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Avatar } from '@/components/Avatar';
 import { useAppSelector } from '@/hooks/useRedux';
 import { useErrorAlert, useConfirmAlert } from '@/hooks/useAlert';
+import { useSubscriptionTier } from '@/hooks/useSubscriptionTier';
 import { apiService } from '@/services/apiService';
 import { GroupRole, GroupRevenueSummary } from '@/types/groupRole';
 
@@ -40,10 +41,15 @@ export default function GouvernanceScreen() {
   const showError = useErrorAlert();
   const showConfirm = useConfirmAlert();
 
+  const { hasOrganisateur } = useSubscriptionTier();
+
   const isCreator = user ? currentGroup?.groupcreator === Number(user.id) : false;
   const presidentRole = roles.find((r) => r.title.toLowerCase() === 'président');
   const isPresident = user ? presidentRole?.userId === Number(user.id) : false;
   const canManage = isCreator || isPresident;
+  // La gestion des rôles/membres nécessite en plus le palier Organisateur —
+  // canManage seul (créateur/président) ne suffit pas côté backend.
+  const canManageActions = canManage && hasOrganisateur;
 
   const load = useCallback(async (year: number | null) => {
     try {
@@ -293,10 +299,10 @@ export default function GouvernanceScreen() {
             </View>
           )}
 
-          {canManage && (
+          {canManageActions && (
             <Pressable
               onPress={() => router.push(`/(tabs)/(groupes)/${groupId}/membres-gestion` as any)}
-              className="active:opacity-70 mb-6 flex-row items-center gap-3 bg-gray-50 dark:bg-gray-900 rounded-2xl p-4"
+              className="active:opacity-70 mb-3 flex-row items-center gap-3 bg-gray-50 dark:bg-gray-900 rounded-2xl p-4"
             >
               <View className="bg-white dark:bg-gray-800 rounded-full p-2.5">
                 <IconSymbol name="person.fill.badge.minus" size={20} color="#3B82F6" />
@@ -313,12 +319,52 @@ export default function GouvernanceScreen() {
             </Pressable>
           )}
 
+          {canManage && !hasOrganisateur && (
+            <Pressable
+              onPress={() => router.push('/(tabs)/(compte)/abonnement' as any)}
+              className="active:opacity-70 mb-3 flex-row items-center gap-3 bg-amber-50 dark:bg-amber-950/30 rounded-2xl p-4"
+            >
+              <View className="bg-white dark:bg-gray-800 rounded-full p-2.5">
+                <IconSymbol name="lock.fill" size={18} color="#D97706" />
+              </View>
+              <View className="flex-1">
+                <Text className="text-sm font-bold text-amber-800 dark:text-amber-400">
+                  Gestion des rôles et des membres
+                </Text>
+                <Text className="text-xs text-amber-700/80 dark:text-amber-400/70 mt-0.5">
+                  Nécessite l'abonnement Organisateur
+                </Text>
+              </View>
+              <IconSymbol name="chevron.right" size={18} color="#D97706" />
+            </Pressable>
+          )}
+
+          {canManage && (
+            <Pressable
+              onPress={() => router.push(`/(tabs)/(groupes)/${groupId}/series-recurrentes` as any)}
+              className="active:opacity-70 mb-6 flex-row items-center gap-3 bg-gray-50 dark:bg-gray-900 rounded-2xl p-4"
+            >
+              <View className="bg-white dark:bg-gray-800 rounded-full p-2.5">
+                <IconSymbol name="arrow.triangle.2.circlepath" size={20} color="#3B82F6" />
+              </View>
+              <View className="flex-1">
+                <Text className="text-base font-bold text-gray-900 dark:text-white">
+                  Réunions récurrentes
+                </Text>
+                <Text className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                  Mettre en pause ou supprimer une série
+                </Text>
+              </View>
+              <IconSymbol name="chevron.right" size={18} color="#9CA3AF" />
+            </Pressable>
+          )}
+
           <View>
             <View className="flex-row items-center justify-between mb-3">
               <Text className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
                 Rôles ({roles.length})
               </Text>
-              {canManage && (
+              {canManageActions && (
                 <Pressable
                   onPress={() => router.push(`/(tabs)/(groupes)/${groupId}/role-creer` as any)}
                   className="w-7 h-7 items-center justify-center bg-blue-500 rounded-full active:opacity-80"
@@ -352,7 +398,7 @@ export default function GouvernanceScreen() {
                             {role.user.firstname} {role.user.lastname}
                           </Text>
                         </View>
-                        {canManage && (
+                        {canManageActions && (
                           <Pressable
                             onPress={() => handleRemove(role)}
                             disabled={removingId === role.id}
@@ -362,7 +408,7 @@ export default function GouvernanceScreen() {
                           </Pressable>
                         )}
                       </View>
-                      {isOwnPresidentRole && (
+                      {isOwnPresidentRole && hasOrganisateur && (
                         <Pressable
                           onPress={() => router.push(`/(tabs)/(groupes)/${groupId}/ceder-presidence` as any)}
                           className="flex-row items-center justify-center gap-1.5 mt-3 pt-3 border-t border-gray-100 dark:border-gray-800 active:opacity-70"

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Pressable } from 'react-native';
-import { router, useLocalSearchParams } from 'expo-router';
 import { IconSymbol } from './icon-symbol';
+import { useSmartBack } from '@/hooks/useSmartBack';
 
 /**
  * Bouton retour centralisé. Chaque tab a sa propre pile de navigation
@@ -12,7 +12,8 @@ import { IconSymbol } from './icon-symbol';
  * Pour corriger ça : tout écran atteint via un saut de tab doit recevoir un
  * paramètre `returnTo` (le chemin de l'écran d'origine) au moment du push.
  * Ce bouton le lit et l'utilise en priorité ; sinon il se comporte comme un
- * retour classique.
+ * retour classique. Logique dans hooks/useSmartBack.ts, réutilisable telle
+ * quelle sur un écran qui a déjà son propre style de bouton retour.
  */
 export function BackButton({
   variant = 'circle',
@@ -21,19 +22,7 @@ export function BackButton({
   variant?: 'circle' | 'plain';
   color?: string;
 }) {
-  const { returnTo } = useLocalSearchParams<{ returnTo?: string }>();
-
-  const handlePress = () => {
-    if (returnTo) {
-      router.replace(returnTo as any);
-      return;
-    }
-    if (router.canGoBack()) {
-      router.back();
-      return;
-    }
-    router.replace('/(tabs)' as any);
-  };
+  const handlePress = useSmartBack();
 
   if (variant === 'plain') {
     return (

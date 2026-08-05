@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Pressable, KeyboardAvoidingView, Platform, ScrollView, TextInput as RNTextInput } from 'react-native';
+import { View, Text, Pressable, KeyboardAvoidingView, Platform, ScrollView, TextInput as RNTextInput, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -7,6 +7,9 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { TextInput } from '@/components/ui/text-input';
 import { useAppSelector } from '@/hooks/useRedux';
 import { useSuccessAlert, useErrorAlert } from '@/hooks/useAlert';
+import { useSmartBack } from '@/hooks/useSmartBack';
+import { useSubscriptionTier } from '@/hooks/useSubscriptionTier';
+import { UpgradeRequired } from '@/components/ui/UpgradeRequired';
 import { apiService } from '@/services/apiService';
 import { OPPORTUNITY_TYPES, OpportunityType } from '@/types/opportunity';
 
@@ -19,6 +22,8 @@ export default function CreateOpportunityScreen() {
   const [isSending, setIsSending] = useState(false);
   const showSuccess = useSuccessAlert();
   const showError = useErrorAlert();
+  const goBack = useSmartBack();
+  const { hasPro, loading: tierLoading } = useSubscriptionTier();
 
   const handleCreate = async () => {
     if (!title.trim() || !description.trim()) {
@@ -34,7 +39,7 @@ export default function CreateOpportunityScreen() {
         description: description.trim(),
       });
       showSuccess('Opportunité publiée dans le groupe !');
-      router.back();
+      goBack();
     } catch (error: any) {
       showError(error?.response?.data?.message || "Impossible de publier l'opportunité");
     } finally {
@@ -54,7 +59,7 @@ export default function CreateOpportunityScreen() {
           >
             <SafeAreaView edges={['top']}>
               <View className="flex-row items-center px-5 pt-3 pb-4">
-                <Pressable onPress={() => router.back()} className="w-9 h-9 items-center justify-center -ml-2 mr-2">
+                <Pressable onPress={goBack} className="w-9 h-9 items-center justify-center -ml-2 mr-2">
                   <IconSymbol name="chevron.left" size={22} color="#fff" />
                 </Pressable>
                 <Text className="text-white text-lg font-bold">Publier une opportunité</Text>
@@ -74,6 +79,13 @@ export default function CreateOpportunityScreen() {
           </LinearGradient>
         </View>
 
+        {tierLoading ? (
+          <View className="flex-1 items-center justify-center">
+            <ActivityIndicator size="large" color="#F59E0B" />
+          </View>
+        ) : !hasPro ? (
+          <UpgradeRequired message="La publication d'opportunités nécessite un abonnement Pro ou supérieur." />
+        ) : (
         <ScrollView contentContainerStyle={{ padding: 20, gap: 20 }} keyboardShouldPersistTaps="handled">
           <View className="gap-2">
             <Text className="text-base font-medium text-gray-700 dark:text-gray-300">Type d'opportunité</Text>
@@ -137,6 +149,7 @@ export default function CreateOpportunityScreen() {
             </LinearGradient>
           </Pressable>
         </ScrollView>
+        )}
       </KeyboardAvoidingView>
     </View>
   );

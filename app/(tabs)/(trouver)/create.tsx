@@ -9,12 +9,15 @@ import { useAppDispatch, useAppSelector } from '@/hooks/useRedux';
 import { apiService } from '@/services/apiService';
 import { fetchEventsThunk } from '@/store/thunks/eventsThunks';
 import { useSuccessAlert, useErrorAlert } from '@/hooks/useAlert';
+import { useSubscriptionTier } from '@/hooks/useSubscriptionTier';
+import { UpgradeRequired } from '@/components/ui/UpgradeRequired';
 
 export default function CreateEventScreen() {
   const dispatch = useAppDispatch();
   const { myGroups } = useAppSelector((state) => state.groups);
   const showSuccess = useSuccessAlert();
   const showError = useErrorAlert();
+  const { hasPro, loading: tierLoading } = useSubscriptionTier();
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -323,6 +326,14 @@ export default function CreateEventScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         className="flex-1"
       >
+        {tierLoading ? (
+          <View className="flex-1 items-center justify-center">
+            <ActivityIndicator size="large" color="#3B82F6" />
+          </View>
+        ) : !hasPro ? (
+          <UpgradeRequired message="La création d'événements nécessite un abonnement Pro ou supérieur." />
+        ) : (
+        <>
         <ScrollView
           className="flex-1"
           contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 20, paddingBottom: 40 }}
@@ -666,6 +677,8 @@ export default function CreateEventScreen() {
             )}
           </Pressable>
         </View>
+        </>
+        )}
       </KeyboardAvoidingView>
 
       {/* Calendar Modal */}
