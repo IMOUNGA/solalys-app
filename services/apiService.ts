@@ -233,6 +233,14 @@ export const apiService = {
         getGroupSummary: (groupId: number, year?: number) =>
             apiInstance.get(`/groups/${groupId}/revenue-summary${year ? `?year=${year}` : ''}`),
     },
+    // Ask hebdomadaire ("ce que je recherche cette semaine", façon GAIN exchange BNI)
+    weeklyAsks: {
+        getForGroup: (groupId: number, week?: string) =>
+            apiInstance.get(`/groups/${groupId}/weekly-asks${week ? `?week=${week}` : ''}`),
+        upsert: (groupId: number, content: string) =>
+            apiInstance.post(`/groups/${groupId}/weekly-asks`, { content }),
+        remove: (id: number) => apiInstance.delete(`/weekly-asks/${id}`),
+    },
     // Rôles de gouvernance de groupe
     groupRoles: {
         getForGroup: (groupId: number) => apiInstance.get(`/groups/${groupId}/roles`),

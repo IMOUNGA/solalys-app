@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, FlatList, Pressable, RefreshControl, ActivityIndicator, Dimensions, SafeAreaView } from 'react-native';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -18,6 +18,7 @@ export default function GroupesScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>('member');
   const [pendingInvitations, setPendingInvitations] = useState(0);
+  const hasSetDefaultTab = useRef(false);
 
   useEffect(() => {
     if (user && authStatus === 'authenticated') {
@@ -27,6 +28,18 @@ export default function GroupesScreen() {
         .catch(() => {});
     }
   }, [user, authStatus]);
+
+  // Par défaut, on arrive directement sur l'onglet le plus pertinent : Créateur
+  // si on a créé au moins un groupe, Membre sinon — évite un clic inutile.
+  // Ne s'applique qu'une fois au premier chargement, pas si l'utilisateur a
+  // déjà choisi un onglet lui-même.
+  useEffect(() => {
+    if (!hasSetDefaultTab.current && myGroups.length > 0 && user) {
+      const isCreatorOfSomething = myGroups.some((g) => g.groupcreator === user.id);
+      setActiveTab(isCreatorOfSomething ? 'creator' : 'member');
+      hasSetDefaultTab.current = true;
+    }
+  }, [myGroups, user]);
 
   const onRefresh = async () => {
     if (!user || authStatus !== 'authenticated') return;
@@ -202,7 +215,7 @@ export default function GroupesScreen() {
           {/* Tabs */}
           <View className="flex-row gap-3">
             <Pressable
-              onPress={() => setActiveTab('member')}
+              onPress={() => { hasSetDefaultTab.current = true; setActiveTab('member'); }}
               className={`flex-1 py-3 px-4 rounded-xl ${
                 activeTab === 'member' ? 'bg-white' : 'bg-white/20'
               }`}
@@ -220,7 +233,7 @@ export default function GroupesScreen() {
             </Pressable>
 
             <Pressable
-              onPress={() => setActiveTab('creator')}
+              onPress={() => { hasSetDefaultTab.current = true; setActiveTab('creator'); }}
               className={`flex-1 py-3 px-4 rounded-xl ${
                 activeTab === 'creator' ? 'bg-white' : 'bg-white/20'
               }`}

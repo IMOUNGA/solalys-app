@@ -221,6 +221,27 @@ export default function GroupDetailScreen() {
             </Pressable>
           )}
 
+          {/* Ask hebdomadaire — réservé aux membres */}
+          {canInvite && (
+            <Pressable
+              onPress={() => router.push(`/(tabs)/(groupes)/${currentGroup.id}/ask-hebdomadaire` as any)}
+              className="active:opacity-70 mb-3 flex-row items-center gap-3 bg-pink-50 dark:bg-pink-950 rounded-2xl p-4"
+            >
+              <View className="bg-white dark:bg-gray-800 rounded-full p-2.5">
+                <IconSymbol name="bubble.left.and.bubble.right.fill" size={20} color="#EC4899" />
+              </View>
+              <View className="flex-1">
+                <Text className="text-base font-bold text-gray-900 dark:text-white">
+                  Ask de la semaine
+                </Text>
+                <Text className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                  Dites ce que vous recherchez cette semaine
+                </Text>
+              </View>
+              <IconSymbol name="chevron.right" size={18} color="#EC4899" />
+            </Pressable>
+          )}
+
           {/* Recommandations & CA — réservé aux membres */}
           {canInvite && (
             <Pressable
