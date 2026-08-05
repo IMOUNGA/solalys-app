@@ -242,17 +242,14 @@ export default function TrouverScreen() {
         <View className="flex-row gap-3 mb-3">
           {/* Contenu à gauche */}
           <View className="flex-1">
-            <View className="flex-row items-center gap-2 mb-2">
-              <Text className="text-lg font-bold text-gray-900 flex-1" numberOfLines={1}>
-                {item.name}
+            <Text className="text-lg font-bold text-gray-900" numberOfLines={2}>
+              {item.name}
+            </Text>
+            {item.group && (
+              <Text className="text-xs text-violet-600 font-semibold mt-0.5 mb-1">
+                {item.group.name}
               </Text>
-              {isParticipating && (
-                <View className="flex-row items-center gap-1 bg-green-50 rounded-full px-2 py-1">
-                  <IconSymbol name="checkmark.circle.fill" size={12} color="#10B981" />
-                  <Text className="text-xs font-bold text-green-600">Inscrit</Text>
-                </View>
-              )}
-            </View>
+            )}
             {item.description && (
               <Text className="text-sm text-gray-600 mb-2 leading-5">
                 {truncateDescription(item.description)}
@@ -268,43 +265,15 @@ export default function TrouverScreen() {
             </View>
           </View>
 
-          {/* Image à droite */}
-          {hasImage ? (
-            <View className="w-20 h-20">
-              <Image
-                source={{ uri: item.images[0] }}
-                className="w-full h-full rounded-xl"
-                resizeMode="cover"
-              />
-              {item.group && (
-                <View className="absolute -bottom-1 -right-1 bg-gradient-to-r from-blue-500 to-violet-500 px-2 py-0.5 rounded-full">
-                  <LinearGradient
-                    colors={['#3B82F6', '#8B5CF6']}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 0 }}
-                    style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 100 }}
-                  />
-                  <Text className="text-xs font-bold text-white relative z-10">
-                    {item.group.name}
-                  </Text>
-                </View>
-              )}
-            </View>
-          ) : item.group ? (
-            <View className="justify-start">
-              <View className="bg-gradient-to-r from-blue-500 to-violet-500 px-3 py-1.5 rounded-full">
-                <LinearGradient
-                  colors={['#3B82F6', '#8B5CF6']}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 100 }}
-                />
-                <Text className="text-xs font-bold text-white relative z-10">
-                  {item.group.name}
-                </Text>
-              </View>
-            </View>
-          ) : null}
+          {/* Image à droite, compacte pour laisser la place au titre */}
+          {hasImage && (
+            <Image
+              source={{ uri: item.images[0] }}
+              style={{ width: 56, height: 56 }}
+              className="rounded-xl"
+              resizeMode="cover"
+            />
+          )}
         </View>
 
         <View className="flex-row items-center gap-2 mb-3">
@@ -325,14 +294,26 @@ export default function TrouverScreen() {
           </View>
         </View>
 
-        {item.participants && item.participants.length > 0 && (
-          <View className="flex-row items-center gap-2 pt-3 border-t border-gray-100">
-            <View className="bg-green-50 rounded-full p-1.5">
-              <IconSymbol name="person.2.fill" size={16} color="#10B981" />
+        {(item.participants?.length > 0 || isParticipating) && (
+          <View className="flex-row items-center justify-between pt-3 border-t border-gray-100">
+            <View className="flex-row items-center gap-2">
+              {item.participants && item.participants.length > 0 && (
+                <>
+                  <View className="bg-green-50 rounded-full p-1.5">
+                    <IconSymbol name="person.2.fill" size={16} color="#10B981" />
+                  </View>
+                  <Text className="text-sm text-gray-700 font-medium">
+                    {item.participants.length} participant{item.participants.length > 1 ? 's' : ''}
+                  </Text>
+                </>
+              )}
             </View>
-            <Text className="text-sm text-gray-700 font-medium">
-              {item.participants.length} participant{item.participants.length > 1 ? 's' : ''}
-            </Text>
+            {isParticipating && (
+              <View className="flex-row items-center gap-1 bg-green-50 rounded-full px-2 py-1">
+                <IconSymbol name="checkmark.circle.fill" size={12} color="#10B981" />
+                <Text className="text-xs font-bold text-green-600">Inscrit</Text>
+              </View>
+            )}
           </View>
         )}
       </Pressable>

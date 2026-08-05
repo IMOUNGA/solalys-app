@@ -215,24 +215,24 @@ export default function GroupDetailScreen() {
             </Pressable>
           )}
 
-          {/* Board d'opportunités — réservé aux membres */}
+          {/* Recommandations & CA — réservé aux membres */}
           {canInvite && (
             <Pressable
-              onPress={() => router.push(`/(tabs)/(groupes)/${currentGroup.id}/opportunites` as any)}
-              className="active:opacity-70 mb-3 flex-row items-center gap-3 bg-amber-50 dark:bg-amber-950 rounded-2xl p-4"
+              onPress={() => router.push(`/(tabs)/(groupes)/${currentGroup.id}/referrals` as any)}
+              className="active:opacity-70 mb-3 flex-row items-center gap-3 bg-green-50 dark:bg-green-950 rounded-2xl p-4"
             >
               <View className="bg-white dark:bg-gray-800 rounded-full p-2.5">
-                <IconSymbol name="lightbulb.fill" size={20} color="#D97706" />
+                <IconSymbol name="chart.line.uptrend.xyaxis" size={20} color="#10B981" />
               </View>
               <View className="flex-1">
                 <Text className="text-base font-bold text-gray-900 dark:text-white">
-                  Board d'opportunités
+                  Recommandations & CA
                 </Text>
                 <Text className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                  Prestataires, partenariats, recrutements...
+                  Recommander un membre, suivre vos affaires
                 </Text>
               </View>
-              <IconSymbol name="chevron.right" size={18} color="#D97706" />
+              <IconSymbol name="chevron.right" size={18} color="#10B981" />
             </Pressable>
           )}
 
@@ -257,48 +257,6 @@ export default function GroupDetailScreen() {
             </Pressable>
           )}
 
-          {/* Recommandations & CA — réservé aux membres */}
-          {canInvite && (
-            <Pressable
-              onPress={() => router.push(`/(tabs)/(groupes)/${currentGroup.id}/referrals` as any)}
-              className="active:opacity-70 mb-3 flex-row items-center gap-3 bg-green-50 dark:bg-green-950 rounded-2xl p-4"
-            >
-              <View className="bg-white dark:bg-gray-800 rounded-full p-2.5">
-                <IconSymbol name="chart.line.uptrend.xyaxis" size={20} color="#10B981" />
-              </View>
-              <View className="flex-1">
-                <Text className="text-base font-bold text-gray-900 dark:text-white">
-                  Recommandations & CA
-                </Text>
-                <Text className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                  Recommander un membre, suivre vos affaires
-                </Text>
-              </View>
-              <IconSymbol name="chevron.right" size={18} color="#10B981" />
-            </Pressable>
-          )}
-
-          {/* Gouvernance — réservé aux membres */}
-          {canInvite && (
-            <Pressable
-              onPress={() => router.push(`/(tabs)/(groupes)/${currentGroup.id}/gouvernance` as any)}
-              className="active:opacity-70 mb-3 flex-row items-center gap-3 bg-blue-50 dark:bg-blue-950 rounded-2xl p-4"
-            >
-              <View className="bg-white dark:bg-gray-800 rounded-full p-2.5">
-                <IconSymbol name="crown.fill" size={20} color="#3B82F6" />
-              </View>
-              <View className="flex-1">
-                <Text className="text-base font-bold text-gray-900 dark:text-white">
-                  Gouvernance
-                </Text>
-                <Text className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                  Rôles du groupe et CA généré
-                </Text>
-              </View>
-              <IconSymbol name="chevron.right" size={18} color="#3B82F6" />
-            </Pressable>
-          )}
-
           {/* Espace invités — réservé aux membres (créateur/président + palier Organisateur côté API) */}
           {canInvite && (
             <Pressable
@@ -320,11 +278,32 @@ export default function GroupDetailScreen() {
             </Pressable>
           )}
 
+          {/* Board d'opportunités — réservé aux membres */}
+          {canInvite && (
+            <Pressable
+              onPress={() => router.push(`/(tabs)/(groupes)/${currentGroup.id}/opportunites` as any)}
+              className="active:opacity-70 mb-3 flex-row items-center gap-3 bg-amber-50 dark:bg-amber-950 rounded-2xl p-4"
+            >
+              <View className="bg-white dark:bg-gray-800 rounded-full p-2.5">
+                <IconSymbol name="lightbulb.fill" size={20} color="#D97706" />
+              </View>
+              <View className="flex-1">
+                <Text className="text-base font-bold text-gray-900 dark:text-white">
+                  Board d'opportunités
+                </Text>
+                <Text className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                  Prestataires, partenariats, recrutements...
+                </Text>
+              </View>
+              <IconSymbol name="chevron.right" size={18} color="#D97706" />
+            </Pressable>
+          )}
+
           {/* Inviter un membre — visible uniquement des membres */}
           {canInvite && (
             <Pressable
               onPress={() => router.push(`/(tabs)/(groupes)/${currentGroup.id}/inviter` as any)}
-              className="active:opacity-70 mb-6 flex-row items-center gap-3 bg-gray-50 dark:bg-gray-900 rounded-2xl p-4"
+              className="active:opacity-70 mb-3 flex-row items-center gap-3 bg-gray-50 dark:bg-gray-900 rounded-2xl p-4"
             >
               <View className="bg-white dark:bg-gray-800 rounded-full p-2.5">
                 <IconSymbol name="person.badge.plus" size={20} color="#10B981" />
@@ -338,6 +317,27 @@ export default function GroupDetailScreen() {
                 </Text>
               </View>
               <IconSymbol name="chevron.right" size={18} color="#9CA3AF" />
+            </Pressable>
+          )}
+
+          {/* Gouvernance — réservé aux membres */}
+          {canInvite && (
+            <Pressable
+              onPress={() => router.push(`/(tabs)/(groupes)/${currentGroup.id}/gouvernance` as any)}
+              className="active:opacity-70 mb-6 flex-row items-center gap-3 bg-blue-50 dark:bg-blue-950 rounded-2xl p-4"
+            >
+              <View className="bg-white dark:bg-gray-800 rounded-full p-2.5">
+                <IconSymbol name="crown.fill" size={20} color="#3B82F6" />
+              </View>
+              <View className="flex-1">
+                <Text className="text-base font-bold text-gray-900 dark:text-white">
+                  Gouvernance
+                </Text>
+                <Text className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                  Rôles du groupe et CA généré
+                </Text>
+              </View>
+              <IconSymbol name="chevron.right" size={18} color="#3B82F6" />
             </Pressable>
           )}
 

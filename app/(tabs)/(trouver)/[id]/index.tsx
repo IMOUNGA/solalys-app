@@ -9,8 +9,9 @@ import { clearCurrentEvent } from '@/store/slices/eventsSlice';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Avatar } from '@/components/Avatar';
 import { BackButton } from '@/components/ui/BackButton';
-import { useSuccessAlert, useErrorAlert } from '@/hooks/useAlert';
+import { useSuccessAlert, useErrorAlert, useConfirmAlert } from '@/hooks/useAlert';
 import { calculateDistance, formatDistance } from '@/utils/distance';
+import { apiService } from '@/services/apiService';
 
 const { width } = Dimensions.get('window');
 const HERO_HEIGHT = width * 0.72;
@@ -32,6 +33,8 @@ export default function EventDetailScreen() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const showSuccess = useSuccessAlert();
   const showError = useErrorAlert();
+  const showConfirm = useConfirmAlert();
+  const [isStoppingRecurrence, setIsStoppingRecurrence] = useState(false);
 
   useEffect(() => {
     if (id && !isNaN(Number(id))) {
@@ -95,6 +98,28 @@ export default function EventDetailScreen() {
     } finally {
       setIsJoining(false);
     }
+  };
+
+  const handleStopRecurrence = () => {
+    if (!currentEvent?.seriesId) return;
+
+    showConfirm(
+      'Les prochaines occurrences ne seront plus générées automatiquement. Les événements déjà créés (dont celui-ci) restent inchangés.',
+      async () => {
+        setIsStoppingRecurrence(true);
+        try {
+          await apiService.recurringEvents.update(currentEvent.seriesId!, { active: false });
+          showSuccess('Récurrence arrêtée');
+          await dispatch(fetchEventByIdThunk(currentEvent.id));
+        } catch (error: any) {
+          showError(error?.response?.data?.message || 'Une erreur est survenue');
+        } finally {
+          setIsStoppingRecurrence(false);
+        }
+      },
+      'Arrêter la récurrence ?',
+      'Arrêter',
+    );
   };
 
   const formatDate = (dateString: string) => {
@@ -364,6 +389,25 @@ export default function EventDetailScreen() {
                 <IconSymbol name="chevron.right" size={18} color="#3B82F6" />
               </View>
             </Pressable>
+          )}
+
+          {/* Événement récurrent */}
+          {currentEvent.seriesId && (
+            <View className="flex-row items-center gap-3 bg-gray-50 dark:bg-gray-900 rounded-2xl p-4 mb-6">
+              <View className="bg-white dark:bg-gray-800 rounded-full p-2.5">
+                <IconSymbol name="arrow.triangle.2.circlepath" size={18} color="#6B7280" />
+              </View>
+              <View className="flex-1">
+                <Text className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Fait partie d'une série récurrente
+                </Text>
+              </View>
+              <Pressable onPress={handleStopRecurrence} disabled={isStoppingRecurrence} className="active:opacity-70">
+                <Text className="text-xs font-semibold text-red-500">
+                  {isStoppingRecurrence ? '...' : 'Arrêter'}
+                </Text>
+              </Pressable>
+            </View>
           )}
 
           {/* Participants */}

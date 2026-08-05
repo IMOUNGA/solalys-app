@@ -185,6 +185,13 @@ export const apiService = {
         join: (id: number) => apiInstance.post(`/events/${id}/join`),
         leave: (id: number) => apiInstance.post(`/events/${id}/leave`),
     },
+    // Événements récurrents (série hebdomadaire, génération automatique)
+    recurringEvents: {
+        create: (groupId: number, data: any) => apiInstance.post(`/groups/${groupId}/recurring-series`, data),
+        getForGroup: (groupId: number) => apiInstance.get(`/groups/${groupId}/recurring-series`),
+        update: (id: number, data: { active?: boolean }) => apiInstance.patch(`/recurring-series/${id}`, data),
+        remove: (id: number) => apiInstance.delete(`/recurring-series/${id}`),
+    },
     // Groups
     groups: {
         getAll: (page = 1, limit = 20) => {

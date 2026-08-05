@@ -28,6 +28,7 @@ export default function CreateEventScreen() {
   const [link, setLink] = useState('');
   const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null);
   const [hasLimitedSeats, setHasLimitedSeats] = useState(false);
+  const [isRecurring, setIsRecurring] = useState(false);
   const [maxSeats, setMaxSeats] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedImages, setSelectedImages] = useState<ImagePicker.ImagePickerAsset[]>([]);
@@ -95,7 +96,11 @@ export default function CreateEventScreen() {
     }
 
     if (hasLimitedSeats) {
-      return maxSeats.trim().length > 0 && parseInt(maxSeats) > 0;
+      if (!(maxSeats.trim().length > 0 && parseInt(maxSeats) > 0)) return false;
+    }
+
+    if (isRecurring && !selectedGroupId) {
+      return false;
     }
 
     return true;
@@ -168,8 +173,14 @@ export default function CreateEventScreen() {
         eventData.maxParticipants = parseInt(maxSeats);
       }
 
-      const response = await apiService.events.create(eventData);
-      const createdEvent = response.data;
+      let createdEvent: any;
+      if (isRecurring && selectedGroupId) {
+        const response = await apiService.recurringEvents.create(selectedGroupId, eventData);
+        createdEvent = response.data.firstEvent;
+      } else {
+        const response = await apiService.events.create(eventData);
+        createdEvent = response.data;
+      }
 
       // Upload images if any
       const uploadedImageUrls: string[] = [];
@@ -211,7 +222,11 @@ export default function CreateEventScreen() {
         }
       }
 
-      showSuccess('Événement créé avec succès !');
+      showSuccess(
+        isRecurring
+          ? 'Événement récurrent créé — les prochaines occurrences seront générées automatiquement chaque semaine'
+          : 'Événement créé avec succès !'
+      );
 
       // Refresh events list
       await dispatch(fetchEventsThunk({}));
@@ -553,12 +568,37 @@ export default function CreateEventScreen() {
               )}
             </View>
 
-            {/* Group Selection (optional) */}
+            {/* Événement récurrent */}
+            <View className="mb-5">
+              <View className="flex-row items-center justify-between mb-1">
+                <View className="flex-1">
+                  <Text className="text-sm font-semibold text-gray-700 mb-1">
+                    Événement récurrent
+                  </Text>
+                  <Text className="text-xs text-gray-500">
+                    Se répète chaque semaine au même jour et à la même heure — nécessite un groupe et un abonnement Pro
+                  </Text>
+                </View>
+                <Switch
+                  value={isRecurring}
+                  onValueChange={setIsRecurring}
+                  trackColor={{ false: '#D1D5DB', true: '#3B82F6' }}
+                  thumbColor="#fff"
+                />
+              </View>
+            </View>
+
+            {/* Group Selection (optional, sauf si récurrent) */}
             {myGroups && myGroups.length > 0 && (
               <View className="mb-2">
                 <Text className="text-sm font-semibold text-gray-700 mb-2">
-                  Associer à un groupe (optionnel)
+                  Associer à un groupe {isRecurring ? '*' : '(optionnel)'}
                 </Text>
+                {isRecurring && !selectedGroupId && (
+                  <Text className="text-xs text-red-500 mb-2">
+                    Un événement récurrent doit être associé à un groupe
+                  </Text>
+                )}
                 <View className="gap-2">
                   <Pressable
                     onPress={() => setSelectedGroupId(null)}

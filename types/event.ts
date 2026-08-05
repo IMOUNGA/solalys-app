@@ -14,6 +14,7 @@ export interface Event {
   images?: string[];
   latitude?: number;
   longitude?: number;
+  seriesId?: number | null;
   user?: {
     id: number;
     firstname: string;
