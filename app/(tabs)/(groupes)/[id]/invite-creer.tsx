@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, Pressable, KeyboardAvoidingView, Platform, ScrollView, TextInput } from 'react-native';
+import { View, Text, Pressable, KeyboardAvoidingView, Platform, ScrollView, TextInput, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Calendar } from 'react-native-calendars';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useSuccessAlert, useErrorAlert } from '@/hooks/useAlert';
 import { apiService } from '@/services/apiService';
@@ -16,9 +17,14 @@ export default function CreateGuestScreen() {
   const [phone, setPhone] = useState('');
   const [metier, setMetier] = useState('');
   const [notes, setNotes] = useState('');
+  const [visitDate, setVisitDate] = useState<Date | null>(null);
+  const [showCalendar, setShowCalendar] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const showSuccess = useSuccessAlert();
   const showError = useErrorAlert();
+
+  const formatDate = (date: Date) =>
+    date.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
   const handleCreate = async () => {
     if (!firstname.trim() || !lastname.trim()) {
@@ -35,8 +41,9 @@ export default function CreateGuestScreen() {
         phone: phone.trim() || undefined,
         metier: metier.trim() || undefined,
         notes: notes.trim() || undefined,
+        visitDate: visitDate ? visitDate.toISOString().split('T')[0] : undefined,
       });
-      showSuccess('Invité enregistré');
+      showSuccess(`${firstname.trim()} a bien été ajouté(e)`, 'Invité ajouté');
       router.back();
     } catch (error: any) {
       showError(error?.response?.data?.message || "Impossible d'enregistrer cet invité");
@@ -98,6 +105,16 @@ export default function CreateGuestScreen() {
           </View>
 
           <View className="gap-2">
+            <Text className="text-sm font-medium text-gray-700 dark:text-gray-300">Date de venue (optionnel)</Text>
+            <Pressable onPress={() => setShowCalendar(true)} className={`${inputClass} flex-row items-center`}>
+              <IconSymbol name="calendar" size={18} color="#9ca3af" />
+              <Text className={`ml-2.5 ${visitDate ? 'text-gray-900 dark:text-white' : 'text-gray-400'}`}>
+                {visitDate ? formatDate(visitDate) : 'Choisir une date'}
+              </Text>
+            </Pressable>
+          </View>
+
+          <View className="gap-2">
             <Text className="text-sm font-medium text-gray-700 dark:text-gray-300">Note (optionnel)</Text>
             <TextInput
               className={inputClass}
@@ -124,6 +141,40 @@ export default function CreateGuestScreen() {
           </Pressable>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      <Modal visible={showCalendar} transparent animationType="slide" onRequestClose={() => setShowCalendar(false)}>
+        <View className="flex-1 bg-black/50 justify-end">
+          <View className="bg-white rounded-t-3xl overflow-hidden">
+            <SafeAreaView>
+              <View className="flex-row items-center justify-between px-6 py-4 border-b border-gray-200">
+                <Text className="text-lg font-bold text-gray-900">Date de venue</Text>
+                <Pressable onPress={() => setShowCalendar(false)}>
+                  <IconSymbol name="xmark.circle.fill" size={28} color="#6B7280" />
+                </Pressable>
+              </View>
+
+              <Calendar
+                current={(visitDate ?? new Date()).toISOString().split('T')[0]}
+                onDayPress={(day) => {
+                  setVisitDate(new Date(day.timestamp));
+                  setShowCalendar(false);
+                }}
+                markedDates={
+                  visitDate
+                    ? { [visitDate.toISOString().split('T')[0]]: { selected: true, selectedColor: '#8B5CF6' } }
+                    : {}
+                }
+                theme={{
+                  todayTextColor: '#8B5CF6',
+                  selectedDayBackgroundColor: '#8B5CF6',
+                  selectedDayTextColor: '#ffffff',
+                  arrowColor: '#8B5CF6',
+                }}
+              />
+            </SafeAreaView>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }

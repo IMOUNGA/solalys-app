@@ -2,6 +2,7 @@ import {DarkTheme, DefaultTheme, ThemeProvider} from '@react-navigation/native';
 import {Stack, useRouter} from 'expo-router';
 import {StatusBar} from 'expo-status-bar';
 import 'react-native-reanimated';
+import '@/lib/calendarLocale';
 
 import {useColorScheme} from '@/hooks/use-color-scheme';
 import {Provider} from "react-redux";
@@ -14,8 +15,9 @@ import {loadSessionThunk} from "@/store/thunks/authThunks";
 import {AlertProvider} from "@/contexts/AlertContext";
 import {Alert} from "@/components/ui/alert";
 import { ActivityIndicator, View } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import {useAppDispatch, useAppSelector} from "@/hooks/useRedux";
-import {registerForPushNotifications} from "@/services/pushNotifications";
+import {registerForPushNotifications, addNotificationTapListener} from "@/services/pushNotifications";
 import {initPurchases, loginPurchasesUser} from "@/services/purchasesService";
 
 export const unstable_settings = {
@@ -31,6 +33,9 @@ function SessionInitializer() {
         // Charger la session au démarrage de l'app
         initPurchases();
         dispatch(loadSessionThunk());
+
+        const removeTapListener = addNotificationTapListener();
+        return removeTapListener;
     }, [dispatch]);
 
     useEffect(() => {
@@ -54,30 +59,32 @@ export default function RootLayout() {
     const colorScheme = useColorScheme();
 
     return (
-        <Provider store={store}>
-            <PersistGate
-                loading={
-                    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-                        <ActivityIndicator size="large" />
-                    </View>
-                }
-                persistor={persistor}
-            >
-                <SessionInitializer />
-                <AlertProvider>
-                    <ThemeProvider value={DefaultTheme}>
-                        <Stack>
-                            <Stack.Screen name="(tabs)" options={{headerShown: false}}/>
-                            <Stack.Screen name="(auth)" options={{headerShown: false}}/>
-                            <Stack.Screen name="onboarding" options={{headerShown: false, gestureEnabled: false}}/>
-                            <Stack.Screen name="modal" options={{presentation: 'modal', title: 'Modal'}}/>
-                        </Stack>
-                        <StatusBar style="dark"/>
-                        <Alert />
-                    </ThemeProvider>
-                </AlertProvider>
-            </PersistGate>
-        </Provider>
-
+        <GestureHandlerRootView style={{ flex: 1 }}>
+            <Provider store={store}>
+                <PersistGate
+                    loading={
+                        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+                            <ActivityIndicator size="large" />
+                        </View>
+                    }
+                    persistor={persistor}
+                >
+                    <SessionInitializer />
+                    <AlertProvider>
+                        <ThemeProvider value={DefaultTheme}>
+                            <Stack>
+                                <Stack.Screen name="(tabs)" options={{headerShown: false}}/>
+                                <Stack.Screen name="(auth)" options={{headerShown: false}}/>
+                                <Stack.Screen name="onboarding" options={{headerShown: false, gestureEnabled: false}}/>
+                                <Stack.Screen name="modal" options={{presentation: 'modal', title: 'Modal'}}/>
+                                <Stack.Screen name="notifications" options={{headerShown: false}}/>
+                            </Stack>
+                            <StatusBar style="dark"/>
+                            <Alert />
+                        </ThemeProvider>
+                    </AlertProvider>
+                </PersistGate>
+            </Provider>
+        </GestureHandlerRootView>
     );
 }

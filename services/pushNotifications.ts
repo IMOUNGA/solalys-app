@@ -3,6 +3,7 @@ import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import { apiService } from './apiService';
+import { openNotificationTarget } from '@/lib/notificationLink';
 
 Notifications.setNotificationHandler({
     handleNotification: async () => ({
@@ -57,4 +58,21 @@ export async function registerForPushNotifications(): Promise<void> {
     } catch (error) {
         console.error('❌ Échec de récupération/enregistrement du token push:', error);
     }
+}
+
+/**
+ * Écoute le tap sur une notification push (app en arrière-plan ou fermée)
+ * et ouvre l'écran correspondant — même résolution de destination que le
+ * centre de notifications in-app, via le payload `data` envoyé par l'API.
+ * À appeler une fois au démarrage de l'app.
+ */
+export function addNotificationTapListener(): () => void {
+    const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
+        const data = response.notification.request.content.data as
+            | { entityType?: 'event' | 'guest_group'; entityId?: number | string; tab?: 'upcoming' | 'follow-up' }
+            | undefined;
+        if (data) openNotificationTarget(data);
+    });
+
+    return () => subscription.remove();
 }

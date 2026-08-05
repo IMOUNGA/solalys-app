@@ -9,6 +9,7 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { LinearGradient } from 'expo-linear-gradient';
 import { apiService } from '@/services/apiService';
 import { calculateDistance, formatDistance } from '@/utils/distance';
+import { NotificationBell } from '@/components/NotificationBell';
 
 export default function TrouverScreen() {
   const dispatch = useAppDispatch();
@@ -360,9 +361,12 @@ export default function TrouverScreen() {
       <SafeAreaView className="flex-1">
         {/* Header */}
         <View className="px-6 pt-4 pb-4">
-          <Text className="text-white text-3xl font-bold mb-2">
-            Événements
-          </Text>
+          <View className="flex-row items-start justify-between mb-2">
+            <Text className="text-white text-3xl font-bold flex-1">
+              Événements
+            </Text>
+            <NotificationBell />
+          </View>
           <Text className="text-white/90 text-base">
             Découvrez les événements près de chez vous
           </Text>

@@ -243,13 +243,26 @@ export const apiService = {
     },
     // Espace invités (12 mois glissants, palier Organisateur)
     guests: {
-        getForGroup: (groupId: number) => apiInstance.get(`/groups/${groupId}/guests`),
+        getUpcoming: (groupId: number) => apiInstance.get(`/groups/${groupId}/guests/upcoming`),
+        getFollowUp: (groupId: number) => apiInstance.get(`/groups/${groupId}/guests/follow-up`),
         create: (
             groupId: number,
-            data: { firstname: string; lastname: string; email?: string; phone?: string; metier?: string; notes?: string; eventId?: number }
+            data: { firstname: string; lastname: string; email?: string; phone?: string; metier?: string; notes?: string; eventId?: number; visitDate?: string }
         ) => apiInstance.post(`/groups/${groupId}/guests`, data),
-        update: (id: number, data: { status?: string; notes?: string }) => apiInstance.patch(`/guests/${id}`, data),
+        validate: (id: number) => apiInstance.post(`/guests/${id}/validate`),
+        markAttended: (id: number) => apiInstance.post(`/guests/${id}/mark-attended`),
+        update: (id: number, data: { status?: string; notes?: string; feedback?: string }) => apiInstance.patch(`/guests/${id}`, data),
         remove: (id: number) => apiInstance.delete(`/guests/${id}`),
+        exportCsv: (groupId: number) => apiInstance.get(`/groups/${groupId}/guests/export`, { responseType: 'text' }),
+    },
+    // Centre de notifications (rappels + validations d'invités)
+    notifications: {
+        getMine: () => apiInstance.get('/notifications/me'),
+        getUnreadCount: () => apiInstance.get('/notifications/me/unread-count'),
+        markRead: (id: number) => apiInstance.post(`/notifications/${id}/read`),
+        markAllRead: () => apiInstance.post('/notifications/me/read-all'),
+        remove: (id: number) => apiInstance.delete(`/notifications/${id}`),
+        removeMany: (ids: number[]) => apiInstance.post('/notifications/me/delete-many', { ids }),
     },
     // Rôles de gouvernance de groupe
     groupRoles: {
