@@ -35,9 +35,15 @@ export const fetchMyParticipationsThunk = createAsyncThunk(
 
 export const joinEventThunk = createAsyncThunk(
   'events/join',
-  async (id: number) => {
-    const response = await apiService.events.join(id);
-    return response.data;
+  async (id: number, { rejectWithValue }) => {
+    try {
+      const response = await apiService.events.join(id);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue({
+        message: error?.response?.data?.message || error?.message || 'Impossible de rejoindre cet événement',
+      });
+    }
   }
 );
 

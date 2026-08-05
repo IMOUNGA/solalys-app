@@ -168,6 +168,7 @@ export default function EventDetailScreen() {
   const participants = currentEvent.participants || [];
   const stackedParticipants = participants.slice(0, MAX_STACKED_AVATARS);
   const overflowCount = participants.length - stackedParticipants.length;
+  const isFull = !!currentEvent.maxParticipants && participants.length >= currentEvent.maxParticipants;
 
   return (
     <View style={{ flex: 1 }} className="bg-white dark:bg-gray-950">
@@ -417,13 +418,22 @@ export default function EventDetailScreen() {
           >
             <View className="flex-row items-center justify-between mb-2">
               <Text className="text-xs text-gray-500 dark:text-gray-400">
-                {participants.length > 0
+                {currentEvent.maxParticipants
+                  ? `Participants (${participants.length}/${currentEvent.maxParticipants})`
+                  : participants.length > 0
                   ? `Participants (${participants.length})`
                   : 'Personne ne participe pour l\'instant'}
               </Text>
-              {participants.length > 0 && (
-                <IconSymbol name="chevron.right" size={16} color="#9CA3AF" />
-              )}
+              <View className="flex-row items-center gap-2">
+                {isFull && (
+                  <View className="bg-red-50 dark:bg-red-950 rounded-full px-2 py-0.5">
+                    <Text className="text-xs font-bold text-red-500">Complet</Text>
+                  </View>
+                )}
+                {participants.length > 0 && (
+                  <IconSymbol name="chevron.right" size={16} color="#9CA3AF" />
+                )}
+              </View>
             </View>
             {participants.length > 0 ? (
               <View className="flex-row items-center">
@@ -463,15 +473,19 @@ export default function EventDetailScreen() {
       <SafeAreaView className="bg-white dark:bg-gray-950">
         <View className="p-5 pt-3 border-t border-gray-100 dark:border-gray-800">
           <Pressable
-            className={`rounded-2xl overflow-hidden ${isJoining ? 'opacity-60' : 'active:opacity-90'}`}
+            className={`rounded-2xl overflow-hidden ${isJoining || (isFull && !isParticipating) ? 'opacity-60' : 'active:opacity-90'}`}
             onPress={handleJoinLeave}
-            disabled={isJoining}
+            disabled={isJoining || (isFull && !isParticipating)}
           >
             {isParticipating ? (
               <View className="py-4 px-6 bg-red-500">
                 <Text className="text-white text-center font-bold text-lg">
                   {isJoining ? 'Chargement...' : 'Ne plus participer'}
                 </Text>
+              </View>
+            ) : isFull ? (
+              <View className="py-4 px-6 bg-gray-300 dark:bg-gray-700">
+                <Text className="text-white text-center font-bold text-lg">Complet</Text>
               </View>
             ) : (
               <LinearGradient
