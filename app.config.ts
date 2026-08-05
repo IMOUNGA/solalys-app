@@ -96,6 +96,9 @@ export default (): ExpoConfig => {
                 preprod: API_PREPROD,
                 prod: API_PROD,
             },
+            // Clé publique RevenueCat (iOS) — pas sensible, faite pour être
+            // embarquée dans l'app, comme une clé publiable Stripe.
+            revenueCatApiKey: process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY,
             eas: {
                 projectId: "89c65a33-33cb-4154-87d0-f8182879d1b3"
             }

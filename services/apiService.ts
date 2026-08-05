@@ -267,6 +267,7 @@ export const apiService = {
         getMyGroups: () => apiInstance.get('/users/me/groups'),
         getMyNetwork: () => apiInstance.get('/users/me/network'),
         getDeletionImpact: () => apiInstance.get('/users/me/deletion-impact'),
+        getSubscription: () => apiInstance.get('/users/me/subscription'),
         deleteAccount: (password: string) => apiInstance.delete('/users/me', { data: { password } }),
         registerPushToken: (token: string) => apiInstance.post('/users/me/push-token', { token }),
     },

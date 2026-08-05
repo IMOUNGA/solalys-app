@@ -12,6 +12,7 @@ import { fetchMyGroupsThunk } from '@/store/thunks/groupsThunks';
 import { fetchMyParticipationsThunk } from '@/store/thunks/eventsThunks';
 import { useSuccessAlert, useErrorAlert, useConfirmAlert } from '@/hooks/useAlert';
 import { apiService } from '@/services/apiService';
+import { logoutPurchasesUser } from '@/services/purchasesService';
 
 const { width } = Dimensions.get('window');
 const CURRENT_YEAR = new Date().getFullYear();
@@ -47,6 +48,7 @@ const CompteScreen = () => {
                 try {
                     await dispatch(logoutThunk()).unwrap();
                     dispatch(logoutState());
+                    await logoutPurchasesUser();
                     router.replace('/(tabs)/(trouver)');
                 } catch (error) {
                     // Error handled
@@ -305,6 +307,31 @@ const CompteScreen = () => {
                         </Text>
 
                         <View>
+                            <Pressable
+                                className="bg-white rounded-2xl p-4 flex-row items-center active:opacity-70 mb-3"
+                                style={{
+                                    shadowColor: '#000',
+                                    shadowOffset: { width: 0, height: 2 },
+                                    shadowOpacity: 0.05,
+                                    shadowRadius: 8,
+                                    elevation: 2,
+                                }}
+                                onPress={() => router.push('/(tabs)/(compte)/abonnement' as any)}
+                            >
+                                <View className="bg-violet-50 rounded-full p-3 mr-4">
+                                    <IconSymbol name="star.fill" size={24} color="#8B5CF6" />
+                                </View>
+                                <View className="flex-1">
+                                    <Text className="text-base font-semibold text-gray-900">
+                                        Mon abonnement
+                                    </Text>
+                                    <Text className="text-sm text-gray-600 mt-0.5">
+                                        Palier Pro/Organisateur, premier mois offert
+                                    </Text>
+                                </View>
+                                <IconSymbol name="chevron.right" size={20} color="#9CA3AF" />
+                            </Pressable>
+
                             <Pressable
                                 className="bg-white rounded-2xl p-4 flex-row items-center active:opacity-70 mb-3"
                                 style={{

@@ -8,6 +8,7 @@ import { logoutState } from '@/store/slices/authSlice';
 import { clearTokens } from '@/lib/secureToken';
 import { useErrorAlert } from '@/hooks/useAlert';
 import { apiService } from '@/services/apiService';
+import { logoutPurchasesUser } from '@/services/purchasesService';
 import { DeletionImpact } from '@/types/deletionImpact';
 
 export default function DeleteAccountScreen() {
@@ -42,6 +43,7 @@ export default function DeleteAccountScreen() {
       await apiService.users.deleteAccount(password);
       await clearTokens();
       dispatch(logoutState());
+      await logoutPurchasesUser();
       router.replace('/(tabs)/(trouver)');
     } catch (error: any) {
       showError(error?.response?.data?.message || 'Impossible de supprimer le compte');
