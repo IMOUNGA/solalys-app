@@ -272,10 +272,10 @@ const CompteScreen = () => {
                         </View>
                     </View>
 
-                    {/* Mon CA */}
+                    {/* Dashboard (CA + Opportunités + Invités, tous groupes confondus) */}
                     <View className="px-6 mb-6">
                         <Pressable
-                            onPress={() => router.push('/(tabs)/(compte)/mon-ca' as any)}
+                            onPress={() => router.push('/(tabs)/(compte)/dashboard' as any)}
                             className="active:opacity-90"
                         >
                             <LinearGradient
@@ -289,9 +289,9 @@ const CompteScreen = () => {
                                         <IconSymbol name="chart.line.uptrend.xyaxis" size={24} color="#fff" />
                                     </View>
                                     <View className="flex-1">
-                                        <Text className="text-white/80 text-xs font-medium">Mon CA {CURRENT_YEAR}</Text>
+                                        <Text className="text-white/80 text-xs font-medium">Dashboard</Text>
                                         <Text className="text-white text-xl font-bold">
-                                            {totalCA.toLocaleString('fr-FR')} €
+                                            {totalCA.toLocaleString('fr-FR')} € en {CURRENT_YEAR}
                                         </Text>
                                     </View>
                                     <IconSymbol name="chevron.right" size={20} color="#fff" />

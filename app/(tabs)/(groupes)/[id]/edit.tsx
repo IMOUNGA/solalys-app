@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, Pressable, TextInput, SafeAreaView, KeyboardAvoidingView, ActivityIndicator, Platform, Alert } from 'react-native';
+import { View, Text, ScrollView, Pressable, TextInput, SafeAreaView, KeyboardAvoidingView, ActivityIndicator, Platform, Alert, Image } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as ImagePicker from 'expo-image-picker';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useAppDispatch } from '@/hooks/useRedux';
 import { apiService } from '@/services/apiService';
@@ -9,6 +10,7 @@ import { fetchMyGroupsThunk } from '@/store/thunks/groupsThunks';
 import { useSuccessAlert, useErrorAlert } from '@/hooks/useAlert';
 
 const MAX_SLOGAN_LENGTH = 255;
+const MAX_IMAGES = 3;
 
 export default function EditGroupScreen() {
   const { id } = useLocalSearchParams();
@@ -21,6 +23,8 @@ export default function EditGroupScreen() {
   const [isDeleting, setIsDeleting] = useState(false);
 
   // Form fields
+  const [existingImages, setExistingImages] = useState<string[]>([]);
+  const [newImages, setNewImages] = useState<ImagePicker.ImagePickerAsset[]>([]);
   const [name, setName] = useState('');
   const [slogan, setSlogan] = useState('');
   const [city, setCity] = useState('');
@@ -38,6 +42,7 @@ export default function EditGroupScreen() {
       const response = await apiService.groups.getById(Number(id));
       const group = response.data;
 
+      setExistingImages(group.images || []);
       setName(group.name || '');
       setSlogan(group.slogan || '');
       setCity(group.city || '');
@@ -52,6 +57,41 @@ export default function EditGroupScreen() {
     }
   };
 
+  const totalImages = existingImages.length + newImages.length;
+
+  const pickImages = async () => {
+    if (totalImages >= MAX_IMAGES) {
+      showError(`Vous ne pouvez ajouter que ${MAX_IMAGES} images maximum`);
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsMultipleSelection: true,
+      quality: 0.8,
+      selectionLimit: MAX_IMAGES - totalImages,
+    });
+
+    if (!result.canceled && result.assets) {
+      const validImages = result.assets.filter((img) => {
+        if (img.fileSize && img.fileSize > 10 * 1024 * 1024) {
+          showError('Une ou plusieurs images dépassent 10 Mo');
+          return false;
+        }
+        return true;
+      });
+      setNewImages([...newImages, ...validImages]);
+    }
+  };
+
+  const removeExistingImage = (index: number) => {
+    setExistingImages(existingImages.filter((_, i) => i !== index));
+  };
+
+  const removeNewImage = (index: number) => {
+    setNewImages(newImages.filter((_, i) => i !== index));
+  };
+
   const handleUpdate = async () => {
     if (!name.trim() || !city.trim() || !country.trim()) {
       showError('Veuillez remplir tous les champs obligatoires');
@@ -60,7 +100,7 @@ export default function EditGroupScreen() {
 
     setIsSubmitting(true);
     try {
-      const updateData = {
+      const updateData: any = {
         name: name.trim(),
         slogan: slogan.trim() || undefined,
         city: city.trim(),
@@ -68,6 +108,32 @@ export default function EditGroupScreen() {
         adresse: address.trim() || undefined,
         link: link.trim() || undefined,
       };
+
+      const uploadedImageUrls: string[] = [];
+      for (let i = 0; i < newImages.length; i++) {
+        const image = newImages[i];
+        try {
+          const fileType = image.uri.split('.').pop()?.toLowerCase() || 'jpg';
+          const formData = new FormData();
+          formData.append('file', {
+            uri: image.uri,
+            name: `group-${id}-${Date.now()}-${i}.${fileType}`,
+            type: `image/${fileType}`,
+          } as any);
+          formData.append('type', 'groups');
+          formData.append('resourceId', String(id));
+          formData.append('index', String(existingImages.length + i));
+
+          const uploadResponse = await apiService.upload.image(formData);
+          if (uploadResponse.data.url) {
+            uploadedImageUrls.push(uploadResponse.data.url);
+          }
+        } catch {
+          // un échec d'upload individuel ne doit pas bloquer la mise à jour du reste
+        }
+      }
+
+      updateData.images = [...existingImages, ...uploadedImageUrls];
 
       await apiService.groups.update(Number(id), updateData);
 
@@ -136,7 +202,7 @@ export default function EditGroupScreen() {
             end={{ x: 1, y: 0 }}
             className="px-6 pt-4 pb-6"
           >
-            <View className="flex-row items-center justify-between mb-4">
+            <View className="flex-row items-center justify-between">
               <Pressable onPress={() => router.back()}>
                 <IconSymbol name="chevron.left" size={24} color="#fff" />
               </Pressable>
@@ -146,6 +212,48 @@ export default function EditGroupScreen() {
           </LinearGradient>
 
           <View className="px-6 py-6">
+            {/* Images */}
+            <View className="mb-5">
+              <Text className="text-gray-700 font-semibold mb-2">
+                Images ({totalImages}/{MAX_IMAGES})
+              </Text>
+              <View className="flex-row flex-wrap gap-2">
+                {existingImages.map((uri, index) => (
+                  <View key={`existing-${index}`} className="relative">
+                    <Image source={{ uri }} className="w-20 h-20 rounded-xl" resizeMode="cover" />
+                    <Pressable
+                      className="absolute -top-2 -right-2 bg-red-500 rounded-full p-1"
+                      onPress={() => removeExistingImage(index)}
+                    >
+                      <IconSymbol name="xmark" size={12} color="#fff" />
+                    </Pressable>
+                  </View>
+                ))}
+                {newImages.map((image, index) => (
+                  <View key={`new-${index}`} className="relative">
+                    <Image source={{ uri: image.uri }} className="w-20 h-20 rounded-xl" resizeMode="cover" />
+                    <Pressable
+                      className="absolute -top-2 -right-2 bg-red-500 rounded-full p-1"
+                      onPress={() => removeNewImage(index)}
+                    >
+                      <IconSymbol name="xmark" size={12} color="#fff" />
+                    </Pressable>
+                    <View className="absolute bottom-1 right-1 bg-blue-500 rounded-full px-2 py-0.5">
+                      <Text className="text-white text-xs font-bold">NEW</Text>
+                    </View>
+                  </View>
+                ))}
+                {totalImages < MAX_IMAGES && (
+                  <Pressable
+                    className="w-20 h-20 rounded-xl bg-gray-100 items-center justify-center active:bg-gray-200"
+                    onPress={pickImages}
+                  >
+                    <IconSymbol name="plus" size={24} color="#6B7280" />
+                  </Pressable>
+                )}
+              </View>
+            </View>
+
             {/* Name */}
             <View className="mb-5">
               <Text className="text-gray-700 font-semibold mb-2">Nom du groupe *</Text>

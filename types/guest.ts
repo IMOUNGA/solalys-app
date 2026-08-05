@@ -38,6 +38,7 @@ export interface Guest {
   status: UpcomingGuestStatus | GuestStatus;
   createdat: string;
   updatedat: string;
-  broughtBy: GuestBroughtBy;
+  broughtBy?: GuestBroughtBy;
   event?: { id: number; name: string } | null;
+  group?: { id: number; name: string };
 }

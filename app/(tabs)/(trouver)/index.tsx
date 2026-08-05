@@ -225,6 +225,7 @@ export default function TrouverScreen() {
     }
 
     const hasImage = item.images && item.images.length > 0;
+    const isParticipating = user && item.participants?.some((p: any) => p.userId === Number(user.id));
 
     return (
       <Pressable
@@ -241,9 +242,17 @@ export default function TrouverScreen() {
         <View className="flex-row gap-3 mb-3">
           {/* Contenu à gauche */}
           <View className="flex-1">
-            <Text className="text-lg font-bold text-gray-900 mb-2">
-              {item.name}
-            </Text>
+            <View className="flex-row items-center gap-2 mb-2">
+              <Text className="text-lg font-bold text-gray-900 flex-1" numberOfLines={1}>
+                {item.name}
+              </Text>
+              {isParticipating && (
+                <View className="flex-row items-center gap-1 bg-green-50 rounded-full px-2 py-1">
+                  <IconSymbol name="checkmark.circle.fill" size={12} color="#10B981" />
+                  <Text className="text-xs font-bold text-green-600">Inscrit</Text>
+                </View>
+              )}
+            </View>
             {item.description && (
               <Text className="text-sm text-gray-600 mb-2 leading-5">
                 {truncateDescription(item.description)}

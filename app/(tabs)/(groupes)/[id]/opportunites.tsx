@@ -9,6 +9,7 @@ import { apiService } from '@/services/apiService';
 import { Opportunity, OPPORTUNITY_TYPES } from '@/types/opportunity';
 
 type TabType = 'open' | 'closed';
+type ScopeType = 'group' | 'all';
 
 const typeInfo = (type: string) => OPPORTUNITY_TYPES.find((t) => t.value === type) ?? OPPORTUNITY_TYPES[4];
 
@@ -23,6 +24,7 @@ export default function OpportunitiesScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>('open');
+  const [scope, setScope] = useState<ScopeType>('group');
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [busyId, setBusyId] = useState<number | null>(null);
   const showSuccess = useSuccessAlert();
@@ -30,12 +32,14 @@ export default function OpportunitiesScreen() {
 
   const load = useCallback(async () => {
     try {
-      const response = await apiService.opportunities.getForGroup(groupId);
+      const response = scope === 'all'
+        ? await apiService.opportunities.getMine()
+        : await apiService.opportunities.getForGroup(groupId);
       setOpportunities(response.data || []);
     } catch (error: any) {
       showError(error?.response?.data?.message || 'Impossible de charger le board d\'opportunités');
     }
-  }, [groupId]);
+  }, [groupId, scope]);
 
   useEffect(() => {
     (async () => {
@@ -142,6 +146,13 @@ export default function OpportunitiesScreen() {
               <Text className="text-xs font-semibold text-gray-500 dark:text-gray-400">Clôturée</Text>
             </View>
           )}
+          {scope === 'all' && item.group && (
+            <View className="bg-violet-50 dark:bg-violet-950 rounded-full px-2.5 py-1 flex-1">
+              <Text className="text-xs font-semibold text-violet-600 dark:text-violet-400" numberOfLines={1}>
+                {item.group.name}
+              </Text>
+            </View>
+          )}
         </View>
 
         <Text className="text-base font-bold text-gray-900 dark:text-white mb-1">{item.title}</Text>
@@ -235,6 +246,19 @@ export default function OpportunitiesScreen() {
           className="w-9 h-9 items-center justify-center bg-violet-500 rounded-full active:opacity-80"
         >
           <IconSymbol name="plus" size={18} color="#fff" />
+        </Pressable>
+      </View>
+
+      <View className="flex-row items-center gap-4 px-5 pt-3 bg-white dark:bg-gray-900">
+        <Pressable onPress={() => setScope('group')} className="active:opacity-70">
+          <Text className={`text-xs font-semibold ${scope === 'group' ? 'text-violet-600 dark:text-violet-400' : 'text-gray-400 dark:text-gray-500'}`}>
+            Ce groupe
+          </Text>
+        </Pressable>
+        <Pressable onPress={() => setScope('all')} className="active:opacity-70">
+          <Text className={`text-xs font-semibold ${scope === 'all' ? 'text-violet-600 dark:text-violet-400' : 'text-gray-400 dark:text-gray-500'}`}>
+            Tous mes groupes
+          </Text>
         </Pressable>
       </View>
 

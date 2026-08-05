@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, Pressable, ActivityIndicator, Linking, SafeAreaView, Image, Dimensions } from 'react-native';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams, useSegments } from 'expo-router';
 import * as Location from 'expo-location';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux';
@@ -8,6 +8,7 @@ import { fetchEventByIdThunk, joinEventThunk, leaveEventThunk } from '@/store/th
 import { clearCurrentEvent } from '@/store/slices/eventsSlice';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Avatar } from '@/components/Avatar';
+import { BackButton } from '@/components/ui/BackButton';
 import { useSuccessAlert, useErrorAlert } from '@/hooks/useAlert';
 import { calculateDistance, formatDistance } from '@/utils/distance';
 
@@ -17,6 +18,11 @@ const MAX_STACKED_AVATARS = 5;
 
 export default function EventDetailScreen() {
   const { id } = useLocalSearchParams();
+  const segments = useSegments();
+  // Cet écran est monté à la fois sous (trouver) et sous (events) (voir
+  // (events)/[id]/index.tsx, simple ré-export) — on reste dans l'onglet
+  // d'où on vient pour que le bouton retour ne saute pas de tab.
+  const currentTab = (segments as string[]).includes('(events)') ? '(events)' : '(trouver)';
   const dispatch = useAppDispatch();
   const { currentEvent, status } = useAppSelector((state) => state.events);
   const { user } = useAppSelector((state) => state.auth);
@@ -201,12 +207,9 @@ export default function EventDetailScreen() {
 
           {/* Bouton retour flottant */}
           <SafeAreaView style={{ position: 'absolute', top: 0, left: 0 }}>
-            <Pressable
-              onPress={() => router.back()}
-              className="m-4 bg-black/30 rounded-full w-10 h-10 items-center justify-center active:bg-black/50"
-            >
-              <IconSymbol name="chevron.left" size={22} color="#fff" />
-            </Pressable>
+            <View className="m-4">
+              <BackButton />
+            </View>
           </SafeAreaView>
         </View>
 
@@ -338,7 +341,12 @@ export default function EventDetailScreen() {
           {/* Groupe organisateur — mise en avant */}
           {currentEvent.group && (
             <Pressable
-              onPress={() => router.push(`/(tabs)/(groupes)/${currentEvent.group!.id}` as any)}
+              onPress={() =>
+                router.push({
+                  pathname: `/(tabs)/(groupes)/${currentEvent.group!.id}` as any,
+                  params: { returnTo: `/(tabs)/${currentTab}/${currentEvent.id}` },
+                })
+              }
               className="active:opacity-80 mb-6"
             >
               <View className="flex-row items-center gap-3 bg-blue-50 dark:bg-blue-950 rounded-2xl p-4">
@@ -360,7 +368,7 @@ export default function EventDetailScreen() {
 
           {/* Participants */}
           <Pressable
-            onPress={() => router.push(`/(tabs)/(trouver)/${currentEvent.id}/participants`)}
+            onPress={() => router.push(`/(tabs)/${currentTab}/${currentEvent.id}/participants` as any)}
             className="active:opacity-70"
           >
             <View className="flex-row items-center justify-between mb-2">

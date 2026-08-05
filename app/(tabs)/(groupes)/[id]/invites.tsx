@@ -282,7 +282,7 @@ export default function GuestsScreen() {
                 </View>
                 <View className="mb-3">
                   <Text className="text-xs text-gray-500 dark:text-gray-400">
-                    {item.metier ? `${item.metier} · ` : ''}Proposé par {item.broughtBy.firstname} {item.broughtBy.lastname}
+                    {item.metier ? `${item.metier} · ` : ''}Proposé par {item.broughtBy?.firstname} {item.broughtBy?.lastname}
                   </Text>
                   {item.visitDate && (
                     <View className="flex-row items-center gap-1.5 mt-1">
@@ -435,7 +435,7 @@ export default function GuestsScreen() {
                   </View>
 
                   <Text className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                    {item.metier ? `${item.metier} · ` : ''}Amené par {item.broughtBy.firstname} {item.broughtBy.lastname} · {formatShortDate(item.createdat)}
+                    {item.metier ? `${item.metier} · ` : ''}Amené par {item.broughtBy?.firstname} {item.broughtBy?.lastname} · {formatShortDate(item.createdat)}
                   </Text>
 
                   {item.notes && !isExpanded && (

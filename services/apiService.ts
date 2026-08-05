@@ -213,6 +213,7 @@ export const apiService = {
     // Opportunités (board d'opportunités business par groupe)
     opportunities: {
         getForGroup: (groupId: number) => apiInstance.get(`/groups/${groupId}/opportunities`),
+        getMine: () => apiInstance.get('/opportunities/mine'),
         create: (groupId: number, data: { type: string; title: string; description: string }) =>
             apiInstance.post(`/groups/${groupId}/opportunities`, data),
         getOne: (id: number) => apiInstance.get(`/opportunities/${id}`),
@@ -246,6 +247,7 @@ export const apiService = {
         getUpcoming: (groupId: number) => apiInstance.get(`/groups/${groupId}/guests/upcoming`),
         getFollowUp: (groupId: number) => apiInstance.get(`/groups/${groupId}/guests/follow-up`),
         getMine: (groupId: number) => apiInstance.get(`/groups/${groupId}/guests/mine`),
+        getAllMine: () => apiInstance.get('/guests/mine'),
         create: (
             groupId: number,
             data: { firstname: string; lastname: string; email?: string; phone?: string; metier?: string; notes?: string; eventId?: number; visitDate?: string }

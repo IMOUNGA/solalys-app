@@ -97,7 +97,7 @@ export default function MyEventsScreen() {
     >
       <Pressable
         className="active:opacity-70"
-        onPress={() => router.push(`/(tabs)/(trouver)/${item.id}`)}
+        onPress={() => router.push(`/(tabs)/(events)/${item.id}` as any)}
       >
         <View className="flex-row justify-between items-start mb-3">
           <View className="flex-1 pr-3">
@@ -154,7 +154,7 @@ export default function MyEventsScreen() {
         <View className="flex-row gap-2 mt-4 pt-4 border-t border-gray-100">
           <Pressable
             className="flex-1 py-3 px-4 rounded-xl bg-blue-50 active:bg-blue-100 flex-row items-center justify-center gap-2"
-            onPress={() => router.push(`/(tabs)/(trouver)/${item.id}/edit` as any)}
+            onPress={() => router.push(`/(tabs)/(events)/${item.id}/edit` as any)}
           >
             <IconSymbol name="pencil" size={18} color="#3B82F6" />
             <Text className="text-blue-600 font-semibold">Modifier</Text>

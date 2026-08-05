@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, FlatList, Pressable, RefreshControl, ActivityIndicator, Dimensions, SafeAreaView } from 'react-native';
+import { View, Text, FlatList, Pressable, RefreshControl, ActivityIndicator, Dimensions, SafeAreaView, Image } from 'react-native';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux';
@@ -71,15 +71,24 @@ export default function GroupesScreen() {
         className="active:opacity-70"
         onPress={() => router.push(`/(tabs)/(groupes)/${item.id}`)}
       >
-        <View className="mb-3">
-          <Text className="text-lg font-bold text-gray-900 mb-2">
-            {item.name}
-          </Text>
-          {item.slogan && (
-            <Text className="text-sm text-gray-600 italic">
-              "{item.slogan}"
-            </Text>
+        <View className="flex-row items-center gap-3 mb-3">
+          {item.images?.[0] ? (
+            <Image source={{ uri: item.images[0] }} style={{ width: 44, height: 44, borderRadius: 12 }} />
+          ) : (
+            <View className="bg-gray-100 rounded-xl items-center justify-center" style={{ width: 44, height: 44 }}>
+              <IconSymbol name="person.3.fill" size={20} color="#9CA3AF" />
+            </View>
           )}
+          <View className="flex-1">
+            <Text className="text-lg font-bold text-gray-900">
+              {item.name}
+            </Text>
+            {item.slogan && (
+              <Text className="text-sm text-gray-600 italic" numberOfLines={1}>
+                "{item.slogan}"
+              </Text>
+            )}
+          </View>
         </View>
 
         <View className="flex-row items-center gap-2 mb-3">

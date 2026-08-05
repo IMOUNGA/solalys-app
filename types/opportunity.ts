@@ -16,10 +16,16 @@ export interface OpportunityAuthor {
   metier?: string | null;
 }
 
+export interface OpportunityGroup {
+  id: number;
+  name: string;
+}
+
 export interface Opportunity {
   id: number;
   groupId: number;
   userId: number;
+  group?: OpportunityGroup;
   type: OpportunityType;
   title: string;
   description: string;

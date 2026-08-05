@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, Pressable, ActivityIndicator, SafeAreaView } from 'react-native';
+import { View, Text, ScrollView, Pressable, ActivityIndicator, SafeAreaView, Image } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux';
@@ -7,6 +7,7 @@ import { fetchGroupByIdThunk, leaveGroupThunk } from '@/store/thunks/groupsThunk
 import { clearCurrentGroup } from '@/store/slices/groupsSlice';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Avatar } from '@/components/Avatar';
+import { BackButton } from '@/components/ui/BackButton';
 import { useSuccessAlert, useErrorAlert } from '@/hooks/useAlert';
 
 const MAX_STACKED_AVATARS = 5;
@@ -110,24 +111,25 @@ export default function GroupDetailScreen() {
       <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 24 }} bounces={false}>
         {/* Hero */}
         <View style={{ height: 180 }}>
-          <LinearGradient
-            colors={['#8B5CF6', '#EC4899']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
-          >
-            <View className="bg-white/15 rounded-full p-6">
-              <IconSymbol name="person.2.fill" size={40} color="#fff" />
-            </View>
-          </LinearGradient>
+          {currentGroup.images?.[0] ? (
+            <Image source={{ uri: currentGroup.images[0] }} style={{ flex: 1 }} resizeMode="cover" />
+          ) : (
+            <LinearGradient
+              colors={['#8B5CF6', '#EC4899']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
+            >
+              <View className="bg-white/15 rounded-full p-6">
+                <IconSymbol name="person.2.fill" size={40} color="#fff" />
+              </View>
+            </LinearGradient>
+          )}
 
           <SafeAreaView style={{ position: 'absolute', top: 0, left: 0 }}>
-            <Pressable
-              onPress={() => router.back()}
-              className="m-4 bg-black/30 rounded-full w-10 h-10 items-center justify-center active:bg-black/50"
-            >
-              <IconSymbol name="chevron.left" size={22} color="#fff" />
-            </Pressable>
+            <View className="m-4">
+              <BackButton />
+            </View>
           </SafeAreaView>
         </View>
 
@@ -144,6 +146,19 @@ export default function GroupDetailScreen() {
             <Text className="text-base text-gray-500 dark:text-gray-400 italic mb-4">
               "{currentGroup.slogan}"
             </Text>
+          )}
+
+          {currentGroup.images && currentGroup.images.length > 1 && (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-4" contentContainerStyle={{ gap: 8 }}>
+              {currentGroup.images.map((uri, index) => (
+                <Image
+                  key={index}
+                  source={{ uri }}
+                  style={{ width: 96, height: 72, borderRadius: 12 }}
+                  resizeMode="cover"
+                />
+              ))}
+            </ScrollView>
           )}
 
           {/* Chips résumé */}
@@ -354,7 +369,12 @@ export default function GroupDetailScreen() {
                 {upcomingEvents.map((event) => (
                   <Pressable
                     key={event.id}
-                    onPress={() => router.push(`/(tabs)/(trouver)/${event.id}` as any)}
+                    onPress={() =>
+                      router.push({
+                        pathname: `/(tabs)/(trouver)/${event.id}` as any,
+                        params: { returnTo: `/(tabs)/(groupes)/${currentGroup.id}` },
+                      })
+                    }
                     className="flex-row items-center gap-3 bg-gray-50 dark:bg-gray-900 rounded-2xl p-3 active:opacity-70"
                   >
                     <View className="bg-white dark:bg-gray-800 rounded-full p-2">

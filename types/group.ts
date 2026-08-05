@@ -7,6 +7,7 @@ export interface Group {
   adresse?: string;
   link?: string;
   slogan?: string;
+  images?: string[];
   groupcreation?: string;
   groupcreator: number;
   creator?: {
@@ -50,6 +51,7 @@ export interface CreateGroupDTO {
   adresse?: string;
   link?: string;
   slogan?: string;
+  images?: string[];
 }
 
 export interface UpdateGroupDTO extends Partial<CreateGroupDTO> {}
