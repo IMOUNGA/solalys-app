@@ -232,10 +232,10 @@ export default function GroupDetailScreen() {
               </View>
               <View className="flex-1">
                 <Text className="text-base font-bold text-gray-900 dark:text-white">
-                  Ask de la semaine
+                  Ma demande de la semaine
                 </Text>
                 <Text className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                  Dites ce que vous recherchez cette semaine
+                  Ce que vous recherchez, à jour chaque semaine
                 </Text>
               </View>
               <IconSymbol name="chevron.right" size={18} color="#EC4899" />

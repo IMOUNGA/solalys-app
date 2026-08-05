@@ -34,7 +34,7 @@ export default function WeeklyAskScreen() {
       const response = await apiService.weeklyAsks.getForGroup(groupId);
       setAsks(response.data || []);
     } catch (error: any) {
-      showError(error?.response?.data?.message || "Impossible de charger les asks de la semaine");
+      showError(error?.response?.data?.message || "Impossible de charger les demandes de la semaine");
     }
   }, [groupId]);
 
@@ -67,7 +67,7 @@ export default function WeeklyAskScreen() {
     setSaving(true);
     try {
       await apiService.weeklyAsks.upsert(groupId, content.trim());
-      showSuccess(myAsk ? 'Ask mis à jour' : 'Ask publié pour la semaine');
+      showSuccess(myAsk ? 'Demande mise à jour' : 'Demande publiée pour la semaine');
       setEditing(false);
       await load();
     } catch (error: any) {
@@ -151,7 +151,7 @@ export default function WeeklyAskScreen() {
           >
             <View className="flex-row items-center gap-1.5 mb-2">
               <IconSymbol name="pin.fill" size={12} color="#8B5CF6" />
-              <Text className="text-xs font-bold text-violet-600 dark:text-violet-400">Votre ask cette semaine</Text>
+              <Text className="text-xs font-bold text-violet-600 dark:text-violet-400">Votre demande cette semaine</Text>
               <View className="flex-1" />
               <IconSymbol name="pencil" size={14} color="#8B5CF6" />
             </View>
@@ -181,8 +181,8 @@ export default function WeeklyAskScreen() {
           <IconSymbol name="chevron.left" size={22} color="#000" />
         </Pressable>
         <View className="flex-1">
-          <Text className="text-lg font-bold text-gray-900 dark:text-white">Ask de la semaine</Text>
-          <Text className="text-xs text-gray-500 dark:text-gray-400">Ce que chacun recherche, semaine par semaine</Text>
+          <Text className="text-lg font-bold text-gray-900 dark:text-white">Ma demande de la semaine</Text>
+          <Text className="text-xs text-gray-500 dark:text-gray-400">Votre demande personnelle, remise à jour chaque semaine</Text>
         </View>
       </View>
 
