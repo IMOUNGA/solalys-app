@@ -245,6 +245,7 @@ export const apiService = {
     guests: {
         getUpcoming: (groupId: number) => apiInstance.get(`/groups/${groupId}/guests/upcoming`),
         getFollowUp: (groupId: number) => apiInstance.get(`/groups/${groupId}/guests/follow-up`),
+        getMine: (groupId: number) => apiInstance.get(`/groups/${groupId}/guests/mine`),
         create: (
             groupId: number,
             data: { firstname: string; lastname: string; email?: string; phone?: string; metier?: string; notes?: string; eventId?: number; visitDate?: string }

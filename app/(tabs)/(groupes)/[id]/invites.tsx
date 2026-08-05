@@ -30,6 +30,7 @@ export default function GuestsScreen() {
   const [upcoming, setUpcoming] = useState<Guest[]>([]);
   const [followUp, setFollowUp] = useState<Guest[]>([]);
   const [followUpRestricted, setFollowUpRestricted] = useState(false);
+  const [myGuests, setMyGuests] = useState<Guest[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [busyId, setBusyId] = useState<number | null>(null);
@@ -56,6 +57,12 @@ export default function GuestsScreen() {
     } catch {
       // 403 attendu si pas Pro+ / pas gouvernance — écran dédié plutôt qu'une alerte
       setFollowUpRestricted(true);
+      try {
+        const mine = await apiService.guests.getMine(groupId);
+        setMyGuests(mine.data || []);
+      } catch {
+        // silencieux
+      }
     }
   }, [groupId]);
 
@@ -242,7 +249,7 @@ export default function GuestsScreen() {
           className={`flex-1 py-2.5 rounded-xl ${tab === 'follow-up' ? 'bg-violet-500' : 'bg-gray-100 dark:bg-gray-800'}`}
         >
           <Text className={`text-center font-semibold text-sm ${tab === 'follow-up' ? 'text-white' : 'text-gray-600 dark:text-gray-300'}`}>
-            À suivre {followUpRestricted ? '🔒' : `(${followUp.length})`}
+            Relances {followUpRestricted ? '🔒' : `(${followUp.length})`}
           </Text>
         </Pressable>
       </View>
@@ -330,17 +337,56 @@ export default function GuestsScreen() {
           }
         />
       ) : followUpRestricted ? (
-        <View className="flex-1 items-center justify-center px-8">
-          <View className="bg-white dark:bg-gray-900 rounded-full p-6 mb-4">
-            <IconSymbol name="lock.fill" size={36} color="#9CA3AF" />
-          </View>
-          <Text className="text-gray-900 dark:text-white font-semibold text-lg mb-1 text-center">
-            Accès réservé
-          </Text>
-          <Text className="text-gray-500 dark:text-gray-400 text-center">
-            Le suivi des invités (conversion, relances, export) est réservé au président, vice-président ou secrétaire du groupe, avec un abonnement Pro ou supérieur.
-          </Text>
-        </View>
+        <FlatList
+          data={myGuests}
+          keyExtractor={(item) => String(item.id)}
+          contentContainerStyle={{ padding: 20, paddingBottom: 40 }}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#8B5CF6" />}
+          ListHeaderComponent={
+            <View className="flex-row gap-2.5 bg-violet-50 dark:bg-violet-950/40 rounded-2xl p-3.5 mb-4">
+              <IconSymbol name="lock.fill" size={16} color="#8B5CF6" />
+              <Text className="text-xs text-violet-700 dark:text-violet-300 flex-1">
+                Les relances (conversion, export) sont réservées au président, vice-président ou secrétaire, avec un abonnement Pro ou supérieur.
+                {myGuests.length > 0 ? ' Voici où en sont les invités que tu as amenés :' : ''}
+              </Text>
+            </View>
+          }
+          renderItem={({ item }) => {
+            const info = followUpStatusInfo(item.status);
+            return (
+              <View
+                className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-3"
+                style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 }}
+              >
+                <View className="flex-row items-center justify-between mb-1">
+                  <Text className="text-base font-bold text-gray-900 dark:text-white flex-1">
+                    {item.firstname} {item.lastname}
+                  </Text>
+                  <View className="rounded-full px-2.5 py-1" style={{ backgroundColor: `${info.color}22` }}>
+                    <Text className="text-xs font-semibold" style={{ color: info.color }}>{info.label}</Text>
+                  </View>
+                </View>
+                {item.metier && <Text className="text-xs text-gray-500 dark:text-gray-400">{item.metier}</Text>}
+                {item.feedback && (
+                  <Text className="text-sm text-violet-600 dark:text-violet-400 italic mt-1.5">"{item.feedback}"</Text>
+                )}
+              </View>
+            );
+          }}
+          ListEmptyComponent={
+            <View className="items-center justify-center py-16 px-8">
+              <View className="bg-white dark:bg-gray-900 rounded-full p-6 mb-4">
+                <IconSymbol name="lock.fill" size={36} color="#9CA3AF" />
+              </View>
+              <Text className="text-gray-900 dark:text-white font-semibold text-lg mb-1 text-center">
+                Accès réservé
+              </Text>
+              <Text className="text-gray-500 dark:text-gray-400 text-center">
+                Tu n'as pas encore d'invité passé en relance — dès qu'un de tes invités sera marqué venu, tu pourras suivre son évolution ici.
+              </Text>
+            </View>
+          }
+        />
       ) : (
         <SectionList
           ListHeaderComponent={
