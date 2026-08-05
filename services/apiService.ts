@@ -241,6 +241,16 @@ export const apiService = {
             apiInstance.post(`/groups/${groupId}/weekly-asks`, { content }),
         remove: (id: number) => apiInstance.delete(`/weekly-asks/${id}`),
     },
+    // Espace invités (12 mois glissants, palier Organisateur)
+    guests: {
+        getForGroup: (groupId: number) => apiInstance.get(`/groups/${groupId}/guests`),
+        create: (
+            groupId: number,
+            data: { firstname: string; lastname: string; email?: string; phone?: string; metier?: string; notes?: string; eventId?: number }
+        ) => apiInstance.post(`/groups/${groupId}/guests`, data),
+        update: (id: number, data: { status?: string; notes?: string }) => apiInstance.patch(`/guests/${id}`, data),
+        remove: (id: number) => apiInstance.delete(`/guests/${id}`),
+    },
     // Rôles de gouvernance de groupe
     groupRoles: {
         getForGroup: (groupId: number) => apiInstance.get(`/groups/${groupId}/roles`),
