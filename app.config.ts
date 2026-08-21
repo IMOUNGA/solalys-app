@@ -34,6 +34,10 @@ export default (): ExpoConfig => {
         ios: {
             supportsTablet: true,
             bundleIdentifier: "com.lilvinssou.solalysapp",
+            // Build 1 (version 1.3.0) déjà envoyé et testé sur TestFlight
+            // (voir capture ASC du 21/08) : on avance juste le build number,
+            // pas la version marketing.
+            buildNumber: "2",
             infoPlist: {
                 ITSAppUsesNonExemptEncryption: false,
                 NSLocationWhenInUseUsageDescription: "Solalys utilise votre position pour vous montrer les événements proches de vous.",
