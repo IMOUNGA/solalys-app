@@ -3,7 +3,7 @@ import {Stack} from "expo-router";
 
 const FavorisStackLayout = () => {
     return (
-        <Stack screenOptions={{ headerShown: false }}>
+        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#fff' } }}>
             {/*<Stack.Screen name="favoris" options={{headerShown: false}}></Stack.Screen>*/}
         </Stack>
     );

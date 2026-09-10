@@ -2,7 +2,7 @@ import {Stack} from "expo-router";
 
 const ExplorerStackLayout = () => {
     return (
-        <Stack screenOptions={{ headerShown: false }}>
+        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#fff' } }}>
             {/*<Stack.Screen name="explorer" options={{headerShown: false}}></Stack.Screen>*/}
         </Stack>
     )

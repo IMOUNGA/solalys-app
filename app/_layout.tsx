@@ -78,7 +78,7 @@ export default function RootLayout() {
                     <SessionInitializer />
                     <AlertProvider>
                         <ThemeProvider value={DefaultTheme}>
-                            <Stack>
+                            <Stack screenOptions={{contentStyle: {backgroundColor: '#fff'}}}>
                                 <Stack.Screen name="(tabs)" options={{headerShown: false}}/>
                                 <Stack.Screen name="(auth)" options={{headerShown: false}}/>
                                 <Stack.Screen name="onboarding" options={{headerShown: false, gestureEnabled: false}}/>
