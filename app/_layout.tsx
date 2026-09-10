@@ -3,6 +3,12 @@ import {Stack, useRouter} from 'expo-router';
 import {StatusBar} from 'expo-status-bar';
 import 'react-native-reanimated';
 import '@/lib/calendarLocale';
+import {colorScheme} from 'nativewind';
+
+// Mode clair forcé (décision produit du 2026-09-10) : darkMode:'class' dans
+// tailwind.config.js permet cet appel sans throw, mais sans lui NativeWind
+// retombe quand même sur le thème système par défaut pour les classes dark:.
+colorScheme.set('light');
 
 import {useColorScheme} from '@/hooks/use-color-scheme';
 import {Provider} from "react-redux";
