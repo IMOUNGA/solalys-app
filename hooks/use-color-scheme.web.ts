@@ -1,21 +1,5 @@
-import { useEffect, useState } from 'react';
-import { useColorScheme as useRNColorScheme } from 'react-native';
-
-/**
- * To support static rendering, this value needs to be re-calculated on the client side for web
- */
-export function useColorScheme() {
-  const [hasHydrated, setHasHydrated] = useState(false);
-
-  useEffect(() => {
-    setHasHydrated(true);
-  }, []);
-
-  const colorScheme = useRNColorScheme();
-
-  if (hasHydrated) {
-    return colorScheme;
-  }
-
+// L'app reste volontairement toujours en mode clair (décision produit du
+// 2026-09-10) : on ignore le thème système plutôt que de suivre l'OS.
+export function useColorScheme(): 'light' {
   return 'light';
 }
