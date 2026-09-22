@@ -20,14 +20,14 @@ const ScreenScroll = ({
                       }: Props) => {
 
     return (
-        <SafeAreaView className={`px-5 ${className}`} edges={['top']} style={{flex: 1, backgroundColor: 'rgb(242, 242, 242)'}}>
+        <SafeAreaView className={`px-5 ${className}`} edges={['top']} style={{flex: 1, backgroundColor: '#fff'}}>
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={{flex: 1}}
                 keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}>
                 <ScrollView
                     contentContainerClassName={contentClassName}
-                    style={{backgroundColor: 'rgb(242, 242, 242)', ...(style as any)}}
+                    style={{backgroundColor: '#fff', ...(style as any)}}
                     contentContainerStyle={contentContainerStyle}
                     showsVerticalScrollIndicator={showsVerticalScrollIndicator}
                     keyboardShouldPersistTaps="handled">
