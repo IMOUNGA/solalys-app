@@ -227,11 +227,11 @@ export default function AbonnementScreen() {
                   <IconSymbol name="gift.fill" size={30} color="#fff" />
                 </View>
                 <Text className="text-white text-lg font-bold text-center mb-2">
-                  Gratuit jusqu'au 1ᵉʳ octobre
+                  Gratuit jusqu'au 30 novembre
                 </Text>
                 <Text className="text-white text-center text-sm leading-5" style={{ opacity: 0.92 }}>
                   Profitez de toutes les fonctionnalités de Solalys sans restriction. Les abonnements Pro et
-                  Organisateur ouvriront à la rentrée, le 1ᵉʳ octobre 2026.
+                  Organisateur ouvriront le 1ᵉʳ décembre 2026.
                 </Text>
               </LinearGradient>
             </View>
