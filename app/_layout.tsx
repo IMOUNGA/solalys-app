@@ -83,6 +83,8 @@ export default function RootLayout() {
                                 <Stack.Screen name="(auth)" options={{headerShown: false}}/>
                                 <Stack.Screen name="onboarding" options={{headerShown: false, gestureEnabled: false}}/>
                                 <Stack.Screen name="notifications" options={{headerShown: false}}/>
+                                <Stack.Screen name="reinitialiser-mot-de-passe" options={{headerShown: false}}/>
+                                <Stack.Screen name="invitation" options={{headerShown: false}}/>
                             </Stack>
                             <StatusBar style="dark"/>
                             <Alert />

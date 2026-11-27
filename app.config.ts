@@ -34,6 +34,10 @@ export default (): ExpoConfig => {
         ios: {
             supportsTablet: true,
             bundleIdentifier: "com.lilvinssou.solalysapp",
+            // Liens universels : les liens solalys.com des emails (mot de passe
+            // oublié, invitation) ouvrent directement l'app quand elle est
+            // installée (déclaré côté site dans apple-app-site-association).
+            associatedDomains: ["applinks:solalys.com"],
             // Pas de buildNumber ici : cli.appVersionSource="remote" dans
             // eas.json délègue son suivi/incrémentation à EAS (synchronisé
             // à 2 le 21/08, le build 1 sur TestFlight était déjà pris).
