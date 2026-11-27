@@ -15,6 +15,7 @@ import { useSuccessAlert, useErrorAlert, useConfirmAlert } from '@/hooks/useAler
 import { calculateDistance, formatDistance } from '@/utils/distance';
 import { apiService } from '@/services/apiService';
 import { AttendanceCard } from '@/components/event/AttendanceCard';
+import { GroupCover } from '@/components/group/GroupCover';
 
 const { width } = Dimensions.get('window');
 const HERO_HEIGHT = width * 0.72;
@@ -182,7 +183,8 @@ export default function EventDetailScreen() {
     <View style={{ flex: 1 }} className="bg-white dark:bg-gray-950">
       <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 24 }} bounces={false}>
         {/* Hero */}
-        <View style={{ height: HERO_HEIGHT }}>
+        {/* Sans photo : couverture bleu roi plus courte, aux initiales du groupe */}
+        <View style={{ height: hasImages ? HERO_HEIGHT : 220 }}>
           {hasImages ? (
             <>
               <ScrollView
@@ -227,16 +229,7 @@ export default function EventDetailScreen() {
               )}
             </>
           ) : (
-            <LinearGradient
-              colors={['#3B82F6', '#8B5CF6']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
-            >
-              <View className="bg-white/15 rounded-full p-6">
-                <IconSymbol name="calendar" size={44} color="#fff" />
-              </View>
-            </LinearGradient>
+            <GroupCover name={currentEvent.group?.name ?? currentEvent.name} height={220} />
           )}
 
           {/* Bouton retour flottant */}

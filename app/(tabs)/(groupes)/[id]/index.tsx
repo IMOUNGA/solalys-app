@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, Pressable, ActivityIndicator, SafeAreaView, Image } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux';
 import { fetchGroupByIdThunk, leaveGroupThunk } from '@/store/thunks/groupsThunks';
 import { clearCurrentGroup } from '@/store/slices/groupsSlice';
@@ -10,9 +9,11 @@ import { Avatar } from '@/components/Avatar';
 import { BackButton } from '@/components/ui/BackButton';
 import { useSuccessAlert, useErrorAlert, useConfirmAlert } from '@/hooks/useAlert';
 import { GroupHighlights } from '@/components/group/GroupHighlights';
+import { GroupCover } from '@/components/group/GroupCover';
+import { BRAND } from '@/lib/brand';
 import { weeklyRhythm } from '@/lib/rhythm';
 
-const MAX_STACKED_AVATARS = 5;
+const MAX_STACKED_AVATARS = 6;
 
 export default function GroupDetailScreen() {
   const { id } = useLocalSearchParams();
@@ -117,26 +118,34 @@ export default function GroupDetailScreen() {
       minute: '2-digit',
     });
 
+  const nextMeeting = upcomingEvents[0];
+  const otherEvents = upcomingEvents.slice(1, 4);
+  const openEvent = (eventId: number) =>
+    router.push({
+      pathname: `/(tabs)/(trouver)/${eventId}` as any,
+      params: { returnTo: `/(tabs)/(groupes)/${currentGroup.id}` },
+    });
+  const go = (path: string) => router.push(`/(tabs)/(groupes)/${currentGroup.id}/${path}` as any);
+
+  // Outils du groupe (membres) : grille compacte plutôt qu'une carte par outil.
+  const tools: { key: string; label: string; icon: string; path: string; show: boolean }[] = [
+    { key: 'referrals', label: 'Recos et CA', icon: 'chart.line.uptrend.xyaxis', path: 'referrals', show: canInvite },
+    { key: 'presence', label: 'Présence', icon: 'checkmark.circle.fill', path: 'presence', show: isMember },
+    { key: 'ask', label: 'Ma demande', icon: 'bubble.left.and.bubble.right.fill', path: 'ask-hebdomadaire', show: canInvite },
+    { key: 'opps', label: 'Opportunités', icon: 'lightbulb.fill', path: 'opportunites', show: canInvite },
+    { key: 'guests', label: 'Invités', icon: 'person.crop.circle.badge.plus', path: 'invites', show: canInvite },
+    { key: 'invite', label: 'Inviter', icon: 'person.badge.plus', path: 'inviter', show: canInvite },
+    { key: 'gov', label: 'Gouvernance', icon: 'crown.fill', path: 'gouvernance', show: canInvite },
+    { key: 'directory', label: 'Annuaire', icon: 'book.fill', path: 'annuaire', show: canInvite },
+  ];
+  const visibleTools = tools.filter((t) => t.show);
+
   return (
     <View style={{ flex: 1 }} className="bg-white dark:bg-gray-950">
       <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 24 }} bounces={false}>
-        {/* Hero */}
-        <View style={{ height: 180 }}>
-          {currentGroup.images?.[0] ? (
-            <Image source={{ uri: currentGroup.images[0] }} style={{ flex: 1 }} resizeMode="cover" />
-          ) : (
-            <LinearGradient
-              colors={['#8B5CF6', '#EC4899']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
-            >
-              <View className="bg-white/15 rounded-full p-6">
-                <IconSymbol name="person.2.fill" size={40} color="#fff" />
-              </View>
-            </LinearGradient>
-          )}
-
+        {/* Couverture : photo du groupe, sinon bleu roi et initiales */}
+        <View>
+          <GroupCover name={currentGroup.name} image={currentGroup.images?.[0]} height={220} />
           <SafeAreaView style={{ position: 'absolute', top: 0, left: 0 }}>
             <View className="m-4">
               <BackButton />
@@ -149,12 +158,12 @@ export default function GroupDetailScreen() {
           className="bg-white dark:bg-gray-950 px-5 pt-6 pb-8"
           style={{ marginTop: -20, borderTopLeftRadius: 24, borderTopRightRadius: 24 }}
         >
-          <Text className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+          <Text className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
             {currentGroup.name}
           </Text>
 
           {currentGroup.slogan && (
-            <Text className="text-base text-gray-500 dark:text-gray-400 italic mb-4">
+            <Text className="text-base text-gray-500 dark:text-gray-400 italic mb-3">
               “{currentGroup.slogan}”
             </Text>
           )}
@@ -172,259 +181,129 @@ export default function GroupDetailScreen() {
             </ScrollView>
           )}
 
-          {/* Chips résumé */}
-          <View className="flex-row flex-wrap gap-2 mb-6">
+          {/* Repères : ville, rythme des réunions, taille du groupe */}
+          <View className="flex-row flex-wrap gap-2 mb-5">
             <View className="flex-row items-center gap-1.5 bg-gray-100 dark:bg-gray-900 rounded-full px-3 py-1.5">
-              <IconSymbol name="location.fill" size={14} color="#EF4444" />
+              <IconSymbol name="location.fill" size={13} color="#6B7280" />
               <Text className="text-xs font-semibold text-gray-700 dark:text-gray-300">
                 {currentGroup.city}, {currentGroup.country}
-              </Text>
-            </View>
-            <View className="flex-row items-center gap-1.5 bg-gray-100 dark:bg-gray-900 rounded-full px-3 py-1.5">
-              <IconSymbol name="person.2.fill" size={14} color="#8B5CF6" />
-              <Text className="text-xs font-semibold text-gray-700 dark:text-gray-300">
-                {memberCount} membre{memberCount > 1 ? 's' : ''}
               </Text>
             </View>
             {(currentGroup.meetings || []).map((m) => (
               <View
                 key={`${m.dayOfWeek}-${m.startTime}`}
-                className="flex-row items-center gap-1.5 bg-blue-50 dark:bg-blue-950 rounded-full px-3 py-1.5"
+                style={{ backgroundColor: '#EAF0FF' }}
+                className="flex-row items-center gap-1.5 rounded-full px-3 py-1.5"
               >
-                <IconSymbol name="arrow.triangle.2.circlepath" size={14} color="#3B82F6" />
-                <Text className="text-xs font-semibold text-blue-700 dark:text-blue-300">
+                <IconSymbol name="arrow.triangle.2.circlepath" size={13} color={BRAND.blue} />
+                <Text style={{ color: BRAND.blueText }} className="text-xs font-semibold">
                   {weeklyRhythm(m.dayOfWeek, m.startTime)}
                 </Text>
               </View>
             ))}
-            {currentGroup.events && currentGroup.events.length > 0 && (
-              <View className="flex-row items-center gap-1.5 bg-gray-100 dark:bg-gray-900 rounded-full px-3 py-1.5">
-                <IconSymbol name="calendar" size={14} color="#3B82F6" />
-                <Text className="text-xs font-semibold text-gray-700 dark:text-gray-300">
-                  {currentGroup.events.length} événement{currentGroup.events.length > 1 ? 's' : ''}
+            <View className="flex-row items-center gap-1.5 bg-gray-100 dark:bg-gray-900 rounded-full px-3 py-1.5">
+              <IconSymbol name="person.2.fill" size={13} color="#6B7280" />
+              <Text className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                {memberCount} membre{memberCount > 1 ? 's' : ''}
+              </Text>
+            </View>
+          </View>
+
+          {/* Prochaine réunion */}
+          {nextMeeting && (
+            <Pressable
+              onPress={() => openEvent(nextMeeting.id)}
+              className="flex-row items-center gap-3 rounded-2xl border border-gray-200 dark:border-gray-800 p-3 mb-5 active:opacity-70"
+            >
+              <View style={{ backgroundColor: '#FFF6E0', width: 46 }} className="rounded-xl items-center py-1.5">
+                <Text style={{ color: '#9A6A00' }} className="text-[10px] font-semibold uppercase">
+                  {new Date(nextMeeting.hours).toLocaleDateString('fr-FR', { weekday: 'short' }).replace('.', '')}
+                </Text>
+                <Text style={{ color: '#7A5200' }} className="text-lg font-extrabold leading-5">
+                  {new Date(nextMeeting.hours).getDate()}
                 </Text>
               </View>
-            )}
-          </View>
+              <View className="flex-1">
+                <Text className="text-xs text-gray-500 dark:text-gray-400">Prochaine réunion</Text>
+                <Text className="text-sm font-semibold text-gray-900 dark:text-white" numberOfLines={1}>
+                  {`${nextMeeting.name} · ${new Date(nextMeeting.hours).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`}
+                </Text>
+              </View>
+              <View style={{ backgroundColor: BRAND.blue }} className="rounded-xl px-3 py-2">
+                <Text className="text-xs font-semibold text-white">Voir</Text>
+              </View>
+            </Pressable>
+          )}
 
           <GroupHighlights stats={currentGroup.stats} memberCount={memberCount} />
 
-          {/* Annuaire — réservé aux membres */}
-          {canInvite && (
-            <Pressable
-              onPress={() => router.push(`/(tabs)/(groupes)/${currentGroup.id}/annuaire` as any)}
-              className="active:opacity-80 mb-3"
-            >
-              <LinearGradient
-                colors={['#EEF2FF', '#FCE7F3']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={{ borderRadius: 16, padding: 16 }}
-              >
-                <View className="flex-row items-center gap-3">
-                  <View className="bg-white rounded-full p-2.5">
-                    <IconSymbol name="book.fill" size={20} color="#8B5CF6" />
+          {/* Visages des membres — réservé aux membres */}
+          {canInvite && memberships.length > 0 && (
+            <Pressable onPress={() => go('annuaire')} className="flex-row items-center mb-5 active:opacity-70">
+              <View className="flex-row items-center flex-1">
+                {stackedMembers.map((m, index) => (
+                  <View key={m.id} style={{ marginLeft: index === 0 ? 0 : -10, zIndex: stackedMembers.length - index }}>
+                    <Avatar
+                      name={m.user ? `${m.user.firstname} ${m.user.lastname}` : '?'}
+                      size={36}
+                      style={{ borderWidth: 2, borderColor: '#fff' }}
+                    />
                   </View>
-                  <View className="flex-1">
-                    <Text className="text-base font-bold text-gray-900">
-                      Annuaire des membres
-                    </Text>
-                    <Text className="text-xs text-gray-600 mt-0.5">
-                      Métiers, offres et recherches de chacun
-                    </Text>
+                ))}
+                {overflowCount > 0 && (
+                  <View
+                    className="bg-gray-100 dark:bg-gray-800 rounded-full items-center justify-center"
+                    style={{ width: 36, height: 36, marginLeft: -10, borderWidth: 2, borderColor: '#fff' }}
+                  >
+                    <Text className="text-xs font-bold text-gray-600 dark:text-gray-300">+{overflowCount}</Text>
                   </View>
-                  <IconSymbol name="chevron.right" size={18} color="#8B5CF6" />
-                </View>
-              </LinearGradient>
+                )}
+              </View>
+              <Text style={{ color: BRAND.blue }} className="text-sm font-semibold">
+                Annuaire
+              </Text>
+              <IconSymbol name="chevron.right" size={14} color={BRAND.blue} />
             </Pressable>
           )}
 
-          {/* Recommandations & CA — réservé aux membres */}
-          {canInvite && (
-            <Pressable
-              onPress={() => router.push(`/(tabs)/(groupes)/${currentGroup.id}/referrals` as any)}
-              className="active:opacity-70 mb-3 flex-row items-center gap-3 bg-green-50 dark:bg-green-950 rounded-2xl p-4"
-            >
-              <View className="bg-white dark:bg-gray-800 rounded-full p-2.5">
-                <IconSymbol name="chart.line.uptrend.xyaxis" size={20} color="#10B981" />
-              </View>
-              <View className="flex-1">
-                <Text className="text-base font-bold text-gray-900 dark:text-white">
-                  Recommandations & CA
-                </Text>
-                <Text className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                  Recommander un membre, suivre vos affaires
-                </Text>
-              </View>
-              <IconSymbol name="chevron.right" size={18} color="#10B981" />
-            </Pressable>
-          )}
-
-          {/* Présence aux réunions — réservé aux membres */}
-          {isMember && (
-            <Pressable
-              onPress={() => router.push(`/(tabs)/(groupes)/${currentGroup.id}/presence` as any)}
-              className="active:opacity-70 mb-3 flex-row items-center gap-3 bg-emerald-50 dark:bg-emerald-950 rounded-2xl p-4"
-            >
-              <View className="bg-white dark:bg-gray-800 rounded-full p-2.5">
-                <IconSymbol name="checkmark.circle.fill" size={20} color="#10B981" />
-              </View>
-              <View className="flex-1">
-                <Text className="text-base font-bold text-gray-900 dark:text-white">Présence aux réunions</Text>
-                <Text className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                  {'Historique et taux de présence sur 6 mois'}
-                </Text>
-              </View>
-              <IconSymbol name="chevron.right" size={18} color="#10B981" />
-            </Pressable>
-          )}
-
-          {/* Ask hebdomadaire — réservé aux membres */}
-          {canInvite && (
-            <Pressable
-              onPress={() => router.push(`/(tabs)/(groupes)/${currentGroup.id}/ask-hebdomadaire` as any)}
-              className="active:opacity-70 mb-3 flex-row items-center gap-3 bg-pink-50 dark:bg-pink-950 rounded-2xl p-4"
-            >
-              <View className="bg-white dark:bg-gray-800 rounded-full p-2.5">
-                <IconSymbol name="bubble.left.and.bubble.right.fill" size={20} color="#EC4899" />
-              </View>
-              <View className="flex-1">
-                <Text className="text-base font-bold text-gray-900 dark:text-white">
-                  Ma demande de la semaine
-                </Text>
-                <Text className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                  Ce que vous recherchez, à jour chaque semaine
-                </Text>
-              </View>
-              <IconSymbol name="chevron.right" size={18} color="#EC4899" />
-            </Pressable>
-          )}
-
-          {/* Espace invités — réservé aux membres (créateur/président + palier Organisateur côté API) */}
-          {canInvite && (
-            <Pressable
-              onPress={() => router.push(`/(tabs)/(groupes)/${currentGroup.id}/invites` as any)}
-              className="active:opacity-70 mb-3 flex-row items-center gap-3 bg-orange-50 dark:bg-orange-950 rounded-2xl p-4"
-            >
-              <View className="bg-white dark:bg-gray-800 rounded-full p-2.5">
-                <IconSymbol name="person.crop.circle.badge.plus" size={20} color="#EA580C" />
-              </View>
-              <View className="flex-1">
-                <Text className="text-base font-bold text-gray-900 dark:text-white">
-                  Espace invités
-                </Text>
-                <Text className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                  Suivre et convertir les invités en membres
-                </Text>
-              </View>
-              <IconSymbol name="chevron.right" size={18} color="#EA580C" />
-            </Pressable>
-          )}
-
-          {/* Board d'opportunités — réservé aux membres */}
-          {canInvite && (
-            <Pressable
-              onPress={() => router.push(`/(tabs)/(groupes)/${currentGroup.id}/opportunites` as any)}
-              className="active:opacity-70 mb-3 flex-row items-center gap-3 bg-amber-50 dark:bg-amber-950 rounded-2xl p-4"
-            >
-              <View className="bg-white dark:bg-gray-800 rounded-full p-2.5">
-                <IconSymbol name="lightbulb.fill" size={20} color="#D97706" />
-              </View>
-              <View className="flex-1">
-                <Text className="text-base font-bold text-gray-900 dark:text-white">
-                  Board d&apos;opportunités
-                </Text>
-                <Text className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                  Prestataires, partenariats, recrutements...
-                </Text>
-              </View>
-              <IconSymbol name="chevron.right" size={18} color="#D97706" />
-            </Pressable>
-          )}
-
-          {/* Inviter un membre — visible uniquement des membres */}
-          {canInvite && (
-            <Pressable
-              onPress={() => router.push(`/(tabs)/(groupes)/${currentGroup.id}/inviter` as any)}
-              className="active:opacity-70 mb-3 flex-row items-center gap-3 bg-gray-50 dark:bg-gray-900 rounded-2xl p-4"
-            >
-              <View className="bg-white dark:bg-gray-800 rounded-full p-2.5">
-                <IconSymbol name="person.badge.plus" size={20} color="#10B981" />
-              </View>
-              <View className="flex-1">
-                <Text className="text-base font-bold text-gray-900 dark:text-white">
-                  Inviter un membre
-                </Text>
-                <Text className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                  Ce groupe fonctionne uniquement sur invitation
-                </Text>
-              </View>
-              <IconSymbol name="chevron.right" size={18} color="#9CA3AF" />
-            </Pressable>
-          )}
-
-          {/* Gouvernance — réservé aux membres */}
-          {canInvite && (
-            <Pressable
-              onPress={() => router.push(`/(tabs)/(groupes)/${currentGroup.id}/gouvernance` as any)}
-              className="active:opacity-70 mb-6 flex-row items-center gap-3 bg-blue-50 dark:bg-blue-950 rounded-2xl p-4"
-            >
-              <View className="bg-white dark:bg-gray-800 rounded-full p-2.5">
-                <IconSymbol name="crown.fill" size={20} color="#3B82F6" />
-              </View>
-              <View className="flex-1">
-                <Text className="text-base font-bold text-gray-900 dark:text-white">
-                  Gouvernance
-                </Text>
-                <Text className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                  Rôles du groupe et CA généré
-                </Text>
-              </View>
-              <IconSymbol name="chevron.right" size={18} color="#3B82F6" />
-            </Pressable>
-          )}
-
-          <View className="border-t border-gray-100 dark:border-gray-800 mb-6" />
-
-          {/* Créateur */}
-          {currentGroup.creator && (
-            <View className="mb-6">
-              <Text className="text-xs text-gray-500 dark:text-gray-400 mb-2">Créé par</Text>
-              <View className="flex-row items-center gap-3">
-                <Avatar
-                  name={`${currentGroup.creator.firstname} ${currentGroup.creator.lastname}`}
-                  size={44}
-                />
-                <Text className="text-base text-gray-900 dark:text-white font-semibold">
-                  {currentGroup.creator.firstname} {currentGroup.creator.lastname}
-                </Text>
-              </View>
+          {/* Outils du groupe — réservé aux membres */}
+          {visibleTools.length > 0 && (
+            <View className="flex-row flex-wrap mb-4" style={{ marginHorizontal: -5 }}>
+              {visibleTools.map((tool) => (
+                <Pressable
+                  key={tool.key}
+                  onPress={() => go(tool.path)}
+                  style={{ width: '25%', paddingHorizontal: 5 }}
+                  className="items-center mb-4 active:opacity-60"
+                >
+                  <View
+                    style={{ backgroundColor: BRAND.blueSoft, height: 54 }}
+                    className="w-full rounded-2xl items-center justify-center dark:bg-gray-900"
+                  >
+                    <IconSymbol name={tool.icon as any} size={22} color={BRAND.blue} />
+                  </View>
+                  <Text className="text-[11px] text-gray-700 dark:text-gray-300 mt-1.5 text-center" numberOfLines={1}>
+                    {tool.label}
+                  </Text>
+                </Pressable>
+              ))}
             </View>
           )}
 
-          {/* Prochains événements — visible de tous, membre ou non */}
-          {upcomingEvents.length > 0 && (
+          {/* Autres réunions à venir — visibles de tous */}
+          {otherEvents.length > 0 && (
             <View className="mb-6">
-              <Text className="text-xs text-gray-500 dark:text-gray-400 mb-2">
-                Prochains événements
-              </Text>
+              <Text className="text-xs text-gray-500 dark:text-gray-400 mb-2">Ensuite</Text>
               <View className="gap-2">
-                {upcomingEvents.map((event) => (
+                {otherEvents.map((event) => (
                   <Pressable
                     key={event.id}
-                    onPress={() =>
-                      router.push({
-                        pathname: `/(tabs)/(trouver)/${event.id}` as any,
-                        params: { returnTo: `/(tabs)/(groupes)/${currentGroup.id}` },
-                      })
-                    }
+                    onPress={() => openEvent(event.id)}
                     className="flex-row items-center gap-3 bg-gray-50 dark:bg-gray-900 rounded-2xl p-3 active:opacity-70"
                   >
-                    <View className="bg-white dark:bg-gray-800 rounded-full p-2">
-                      <IconSymbol name="calendar" size={16} color="#3B82F6" />
-                    </View>
+                    <IconSymbol name="calendar" size={16} color={BRAND.blue} />
                     <View className="flex-1">
-                      <Text className="text-sm font-semibold text-gray-900 dark:text-white">
+                      <Text className="text-sm font-semibold text-gray-900 dark:text-white" numberOfLines={1}>
                         {event.name}
                       </Text>
                       <Text className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 capitalize">
@@ -438,47 +317,19 @@ export default function GroupDetailScreen() {
             </View>
           )}
 
-          {/* Membres — réservé aux membres */}
-          {canInvite && memberships.length > 0 && (
-            <Pressable
-              onPress={() => router.push(`/(tabs)/(groupes)/${currentGroup.id}/annuaire` as any)}
-              className="active:opacity-70"
-            >
-              <View className="flex-row items-center justify-between mb-2">
-                <Text className="text-xs text-gray-500 dark:text-gray-400">
-                  Membres ({memberships.length})
-                </Text>
-                <IconSymbol name="chevron.right" size={16} color="#9CA3AF" />
-              </View>
-              <View className="flex-row items-center">
-                {stackedMembers.map((m, index) => (
-                  <View
-                    key={m.id}
-                    style={{ marginLeft: index === 0 ? 0 : -12, zIndex: stackedMembers.length - index }}
-                  >
-                    <Avatar
-                      name={m.user ? `${m.user.firstname} ${m.user.lastname}` : '?'}
-                      size={36}
-                      style={{ borderWidth: 2, borderColor: '#fff' }}
-                    />
-                  </View>
-                ))}
-                {overflowCount > 0 && (
-                  <View
-                    className="bg-gray-200 dark:bg-gray-800 rounded-full items-center justify-center"
-                    style={{ width: 36, height: 36, marginLeft: -12, borderWidth: 2, borderColor: '#fff' }}
-                  >
-                    <Text className="text-xs font-bold text-gray-600 dark:text-gray-300">
-                      +{overflowCount}
-                    </Text>
-                  </View>
-                )}
-              </View>
-            </Pressable>
+          {/* Créateur */}
+          {currentGroup.creator && (
+            <View className="flex-row items-center gap-2 mt-2">
+              <Avatar name={`${currentGroup.creator.firstname} ${currentGroup.creator.lastname}`} size={28} />
+              <Text className="text-xs text-gray-500 dark:text-gray-400">
+                {`Créé par ${currentGroup.creator.firstname} ${currentGroup.creator.lastname}`}
+              </Text>
+            </View>
           )}
+
           {/* Quitter : action rare, volontairement discrète en fin de page */}
           {isMember && !isCreator && (
-            <Pressable onPress={handleLeave} disabled={isLeaving} className="mt-10 py-3 items-center active:opacity-60">
+            <Pressable onPress={handleLeave} disabled={isLeaving} className="mt-8 py-3 items-center active:opacity-60">
               <Text className="text-sm font-semibold text-red-500">
                 {isLeaving ? 'Un instant...' : 'Quitter le groupe'}
               </Text>
@@ -496,16 +347,11 @@ export default function GroupDetailScreen() {
             onPress={() => router.push('/(auth)')}
             className="rounded-2xl overflow-hidden active:opacity-90"
           >
-            <LinearGradient
-              colors={['#8B5CF6', '#EC4899']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={{ paddingVertical: 16, paddingHorizontal: 24 }}
-            >
+            <View style={{ backgroundColor: BRAND.blue, paddingVertical: 16, paddingHorizontal: 24 }}>
               <Text className="text-white text-center font-bold text-lg">
                 Se connecter pour rejoindre
               </Text>
-            </LinearGradient>
+            </View>
           </Pressable>
         ) : (
           <View className="py-4 px-6 rounded-2xl bg-gray-50 dark:bg-gray-900 flex-row items-center gap-3">

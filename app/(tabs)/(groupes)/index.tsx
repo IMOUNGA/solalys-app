@@ -6,6 +6,7 @@ import { useAppDispatch, useAppSelector } from '@/hooks/useRedux';
 import { fetchMyGroupsThunk } from '@/store/thunks/groupsThunks';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { apiService } from '@/services/apiService';
+import { GroupBadge } from '@/components/group/GroupCover';
 
 type TabType = 'member' | 'creator';
 
@@ -75,9 +76,7 @@ export default function GroupesScreen() {
           {item.images?.[0] ? (
             <Image source={{ uri: item.images[0] }} style={{ width: 44, height: 44, borderRadius: 12 }} />
           ) : (
-            <View className="bg-gray-100 rounded-xl items-center justify-center" style={{ width: 44, height: 44 }}>
-              <IconSymbol name="person.3.fill" size={20} color="#9CA3AF" />
-            </View>
+            <GroupBadge name={item.name} size={44} inverted />
           )}
           <View className="flex-1">
             <Text className="text-lg font-bold text-gray-900">
@@ -85,7 +84,7 @@ export default function GroupesScreen() {
             </Text>
             {item.slogan && (
               <Text className="text-sm text-gray-600 italic" numberOfLines={1}>
-                "{item.slogan}"
+                “{item.slogan}”
               </Text>
             )}
           </View>
