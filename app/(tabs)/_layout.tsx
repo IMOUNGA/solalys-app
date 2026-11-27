@@ -50,7 +50,7 @@ export default function TabLayout() {
             <Tabs.Screen
                 name="(events)"
                 options={{
-                    title: 'Mes évènements',
+                    title: 'Mes événements',
                     tabBarIcon: ({ color }) => <IconSymbol size={28} name="calendar" color={color} />,
                 }}
                 listeners={resetOnPress}
@@ -59,7 +59,7 @@ export default function TabLayout() {
                 name="(groupes)"
                 options={{
                     title: 'Groupes',
-                    tabBarIcon: ({ color }) => <IconSymbol size={28} name="airplane.circle" color={color} />,
+                    tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.3.fill" color={color} />,
                 }}
                 listeners={resetOnPress}
             />

@@ -8,7 +8,7 @@ import { clearCurrentGroup } from '@/store/slices/groupsSlice';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Avatar } from '@/components/Avatar';
 import { BackButton } from '@/components/ui/BackButton';
-import { useSuccessAlert, useErrorAlert } from '@/hooks/useAlert';
+import { useSuccessAlert, useErrorAlert, useConfirmAlert } from '@/hooks/useAlert';
 import { GroupHighlights } from '@/components/group/GroupHighlights';
 import { weeklyRhythm } from '@/lib/rhythm';
 
@@ -23,6 +23,7 @@ export default function GroupDetailScreen() {
   const [isLeaving, setIsLeaving] = useState(false);
   const showSuccess = useSuccessAlert();
   const showError = useErrorAlert();
+  const showConfirm = useConfirmAlert();
 
   useEffect(() => {
     if (id && !isNaN(Number(id))) {
@@ -42,19 +43,25 @@ export default function GroupDetailScreen() {
     }
   }, [currentGroup, user]);
 
-  const handleLeave = async () => {
+  const handleLeave = () => {
     if (!currentGroup) return;
-
-    setIsLeaving(true);
-    try {
-      await dispatch(leaveGroupThunk(currentGroup.id)).unwrap();
-      showSuccess('Vous avez quitté le groupe');
-      await dispatch(fetchGroupByIdThunk(currentGroup.id));
-    } catch (error: any) {
-      showError(error.message || 'Une erreur est survenue');
-    } finally {
-      setIsLeaving(false);
-    }
+    showConfirm(
+      `Vous ne verrez plus les réunions, l'annuaire ni les recommandations de ${currentGroup.name}. Pour revenir, il faudra une nouvelle invitation.`,
+      async () => {
+        setIsLeaving(true);
+        try {
+          await dispatch(leaveGroupThunk(currentGroup.id)).unwrap();
+          showSuccess('Vous avez quitté le groupe');
+          await dispatch(fetchGroupByIdThunk(currentGroup.id));
+        } catch (error: any) {
+          showError(error.message || 'Une erreur est survenue');
+        } finally {
+          setIsLeaving(false);
+        }
+      },
+      'Quitter le groupe ?',
+      'Quitter',
+    );
   };
 
   if (status === 'failed' && !currentGroup) {
@@ -469,10 +476,19 @@ export default function GroupDetailScreen() {
               </View>
             </Pressable>
           )}
+          {/* Quitter : action rare, volontairement discrète en fin de page */}
+          {isMember && !isCreator && (
+            <Pressable onPress={handleLeave} disabled={isLeaving} className="mt-10 py-3 items-center active:opacity-60">
+              <Text className="text-sm font-semibold text-red-500">
+                {isLeaving ? 'Un instant...' : 'Quitter le groupe'}
+              </Text>
+            </Pressable>
+          )}
         </View>
       </ScrollView>
 
-      {/* Bas de page : statut d'adhésion */}
+      {/* Bas de page : seulement pour un visiteur (connexion ou adhésion sur invitation) */}
+      {(!user || (!isMember && !isCreator)) && (
       <SafeAreaView className="bg-white dark:bg-gray-950">
       <View className="p-5 pt-3 border-t border-gray-100 dark:border-gray-800">
         {!user ? (
@@ -491,24 +507,6 @@ export default function GroupDetailScreen() {
               </Text>
             </LinearGradient>
           </Pressable>
-        ) : isCreator ? (
-          <View className="py-4 px-6 rounded-2xl bg-gray-100 dark:bg-gray-900">
-            <Text className="text-gray-500 dark:text-gray-400 text-center font-bold text-lg">
-              Vous êtes le créateur
-            </Text>
-          </View>
-        ) : isMember ? (
-          <Pressable
-            onPress={handleLeave}
-            disabled={isLeaving}
-            className={`rounded-2xl overflow-hidden ${isLeaving ? 'opacity-60' : 'active:opacity-90'}`}
-          >
-            <View className="py-4 px-6 bg-red-500">
-              <Text className="text-white text-center font-bold text-lg">
-                {isLeaving ? 'Chargement...' : 'Quitter le groupe'}
-              </Text>
-            </View>
-          </Pressable>
         ) : (
           <View className="py-4 px-6 rounded-2xl bg-gray-50 dark:bg-gray-900 flex-row items-center gap-3">
             <IconSymbol name="lock.fill" size={18} color="#9CA3AF" />
@@ -519,6 +517,7 @@ export default function GroupDetailScreen() {
         )}
       </View>
       </SafeAreaView>
+      )}
     </View>
   );
 }
