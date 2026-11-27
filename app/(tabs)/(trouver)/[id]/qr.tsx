@@ -109,6 +109,7 @@ export default function AttendanceQrScreen() {
           <Text className="text-center text-base font-bold text-gray-900">
             {`${arrived} arrivé${arrived > 1 ? 's' : ''} sur ${summary.total}`}
             {summary.excused ? ` · ${summary.excused} excusé${summary.excused > 1 ? 's' : ''}` : ''}
+            {summary.guests ? ` · ${summary.guests} invité${summary.guests > 1 ? 's' : ''}` : ''}
           </Text>
         )}
         <Pressable

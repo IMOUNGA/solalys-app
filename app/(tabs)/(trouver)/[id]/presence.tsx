@@ -91,6 +91,7 @@ export default function AttendanceSheetScreen() {
             <Count label="Présents" value={sheet.summary.present + sheet.summary.late} color="#15803D" />
             <Count label="Excusés" value={sheet.summary.excused} color="#4338CA" />
             <Count label={sheet.finalized ? 'Absents' : 'Pas encore là'} value={sheet.summary.absent + sheet.summary.unknown} color="#B91C1C" />
+            <Count label="Invités" value={sheet.summary.guests} color="#DB2777" />
           </View>
 
           {sheet.canManage && (
@@ -131,6 +132,23 @@ export default function AttendanceSheetScreen() {
               </Pressable>
             );
           })}
+
+          {sheet.guests.length > 0 && (
+            <>
+              <Text className="text-base font-bold text-gray-900 dark:text-white mt-6 mb-1">
+                {`Invités venus (${sheet.guests.length})`}
+              </Text>
+              {sheet.guests.map((g) => (
+                <View key={g.id} className="flex-row items-center gap-3 py-3 border-b border-gray-100 dark:border-gray-800">
+                  <Avatar name={`${g.firstname} ${g.lastname}`} size={40} />
+                  <View className="flex-1">
+                    <Text className="text-sm font-semibold text-gray-900 dark:text-white">{`${g.firstname} ${g.lastname}`}</Text>
+                    {g.metier ? <Text className="text-xs text-gray-500 dark:text-gray-400">{g.metier}</Text> : null}
+                  </View>
+                </View>
+              ))}
+            </>
+          )}
         </ScrollView>
       )}
     </SafeAreaView>

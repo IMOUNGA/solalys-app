@@ -59,13 +59,15 @@ export interface AttendanceSheet {
   closesAt: string;
   finalized: boolean;
   canManage: boolean;
-  summary: { present: number; late: number; excused: number; absent: number; unknown: number; total: number };
+  summary: { present: number; late: number; excused: number; absent: number; unknown: number; total: number; guests: number };
   members: {
     user: { id: number; firstname: string; lastname: string; avatar?: string | null; metier?: string | null };
     status: AttendanceStatus | null;
     checkedInAt: string | null;
     note: string | null;
   }[];
+  // Invités venus à la réunion (pointés sur place ou marqués venus).
+  guests: { id: number; firstname: string; lastname: string; metier: string | null }[];
 }
 
 export interface EventParticipant {
