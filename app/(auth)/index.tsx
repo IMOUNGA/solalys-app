@@ -6,6 +6,7 @@ import { ThemedText } from '@/components/themed-text';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useAppSelector } from '@/hooks/useRedux';
 import Constants from 'expo-constants';
+import { getPostAuthRedirect } from '@/lib/postAuthRedirect';
 
 const { width } = Dimensions.get('window');
 
@@ -15,7 +16,7 @@ const AuthLandingScreen = () => {
     // Redirection automatique si déjà authentifié
     useEffect(() => {
         if (status === 'authenticated' && user) {
-            router.replace('/(tabs)/(compte)');
+            router.replace((getPostAuthRedirect() ?? '/(tabs)/(compte)') as any);
         }
     }, [status, user]);
 

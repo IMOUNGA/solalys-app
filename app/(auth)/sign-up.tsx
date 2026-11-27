@@ -9,6 +9,7 @@ import { registerThunk } from '@/store/thunks/authThunks';
 import { validateFirstName, validateLastName, validateEmail, validatePassword } from '@/utils/validation';
 import { useErrorAlert } from '@/hooks/useAlert';
 import { openSitePage } from '@/lib/links';
+import { getPostAuthRedirect } from '@/lib/postAuthRedirect';
 
 const { width } = Dimensions.get('window');
 
@@ -31,7 +32,7 @@ const SignUp = () => {
     // Redirection automatique si déjà authentifié
     useEffect(() => {
         if (status === 'authenticated' && user) {
-            router.replace('/(tabs)/(compte)');
+            router.replace((getPostAuthRedirect() ?? '/(tabs)/(compte)') as any);
         }
     }, [status, user]);
 
@@ -68,7 +69,7 @@ const SignUp = () => {
 
         try {
             await dispatch(registerThunk({ firstname: firstName, lastname: lastName, email, password })).unwrap();
-            router.replace('/(tabs)/(trouver)');
+            router.replace((getPostAuthRedirect() ?? '/(tabs)/(trouver)') as any);
         } catch (err: any) {
             showErrorAlert(
                 err.message || 'Une erreur est survenue lors de la création du compte',

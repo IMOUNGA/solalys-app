@@ -4,6 +4,27 @@ import {getAccessToken, getRefreshToken, saveTokens, clearTokens} from "@/lib/se
 import {logoutState} from "@/store/slices/authSlice";
 import {API_URL} from "@/lib/env";
 
+export interface InviteLink {
+    url: string;
+    token: string;
+    expiresat: string;
+    createdat: string;
+    uses: number;
+}
+
+export interface InviteLinkPreview {
+    group: {
+        id: number;
+        name: string;
+        city: string;
+        country: string;
+        slogan?: string | null;
+        images?: string[];
+        memberCount: number;
+    };
+    isMember: boolean;
+}
+
 const BASE_URL = `${API_URL}/v1`;
 
 const apiInstance = axios.create({
@@ -206,6 +227,21 @@ export const apiService = {
         decline: (id: number) => apiInstance.post(`/invitations/${id}/decline`),
         getForGroup: (groupId: number) => apiInstance.get(`/groups/${groupId}/invitations`),
         cancel: (id: number) => apiInstance.post(`/invitations/${id}/cancel`),
+        createMany: (groupId: number, emails: string[]) =>
+            apiInstance.post<{ sent: string[]; skipped: { email: string; reason: string }[] }>(
+                `/groups/${groupId}/invitations/bulk`,
+                { emails },
+            ),
+    },
+    // Lien d'invitation de groupe à partager (WhatsApp, email...)
+    inviteLinks: {
+        getForGroup: (groupId: number) => apiInstance.get<{ link: InviteLink | null }>(`/groups/${groupId}/invite-link`),
+        regenerate: (groupId: number) => apiInstance.post<{ link: InviteLink }>(`/groups/${groupId}/invite-link`),
+        revoke: (groupId: number) => apiInstance.delete(`/groups/${groupId}/invite-link`),
+        preview: (token: string) =>
+            apiInstance.get<InviteLinkPreview>(`/invite-links/${encodeURIComponent(token)}`),
+        join: (token: string) =>
+            apiInstance.post<{ groupId: number; message: string }>(`/invite-links/${encodeURIComponent(token)}/join`),
     },
     // Opportunités (board d'opportunités business par groupe)
     opportunities: {

@@ -8,6 +8,7 @@ import { useAppDispatch, useAppSelector } from '@/hooks/useRedux';
 import { setCredentialsThunk } from '@/store/thunks/authThunks';
 import { validateEmail, validatePassword } from '@/utils/validation';
 import { useErrorAlert } from '@/hooks/useAlert';
+import { getPostAuthRedirect } from '@/lib/postAuthRedirect';
 
 const { width } = Dimensions.get('window');
 
@@ -23,7 +24,7 @@ const SignIn = () => {
     // Redirection automatique si déjà authentifié
     useEffect(() => {
         if (status === 'authenticated' && user) {
-            router.replace('/(tabs)/(compte)');
+            router.replace((getPostAuthRedirect() ?? '/(tabs)/(compte)') as any);
         }
     }, [status, user]);
 
@@ -47,7 +48,7 @@ const SignIn = () => {
 
         try {
             await dispatch(setCredentialsThunk({ email, password })).unwrap();
-            router.replace('/(tabs)/(trouver)');
+            router.replace((getPostAuthRedirect() ?? '/(tabs)/(trouver)') as any);
         } catch (err: any) {
             showErrorAlert(
                 err.message || 'Une erreur est survenue lors de la connexion',
