@@ -1,0 +1,6 @@
+<!-- Marque Solalys (provisoire) : « S » géométrique et soleil doré. Fichier source des icônes. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <path d="M 668 330 A 168 150 0 1 0 512 512 A 168 150 0 1 1 356 694"
+        fill="none" stroke="#FFFFFF" stroke-width="118" stroke-linecap="round"/>
+  <circle cx="788" cy="236" r="66" fill="#F2B632"/>
+</svg>

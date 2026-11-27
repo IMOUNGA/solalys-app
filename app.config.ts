@@ -55,7 +55,7 @@ export default (): ExpoConfig => {
         },
         android: {
             adaptiveIcon: {
-                backgroundColor: "#E6F4FE",
+                backgroundColor: "#2345C2",
                 foregroundImage: "./assets/images/android-icon-foreground.png",
                 backgroundImage: "./assets/images/android-icon-background.png",
                 monochromeImage: "./assets/images/android-icon-monochrome.png"
@@ -107,7 +107,7 @@ export default (): ExpoConfig => {
                 "expo-notifications",
                 {
                     icon: "./assets/images/icon.png",
-                    color: "#3B82F6"
+                    color: "#2345C2"
                 }
             ]
         ],

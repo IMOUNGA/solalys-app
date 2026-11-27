@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Pressable, Text, View, Dimensions } from 'react-native';
+import { Pressable, Text, View, Dimensions, Image } from 'react-native';
 import { Link, router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ThemedText } from '@/components/themed-text';
@@ -30,9 +30,11 @@ const AuthLandingScreen = () => {
             >
                 <View className="flex-1 items-center justify-center px-6">
                     {/* Icon */}
-                    <View className="bg-white/20 rounded-full p-6 mb-6">
-                        <IconSymbol name="sparkles" size={64} color="#fff" />
-                    </View>
+                    <Image
+                        source={require('@/assets/images/logo-mark.png')}
+                        style={{ width: 96, height: 96, borderRadius: 22, marginBottom: 24 }}
+                        accessibilityLabel="Solalys"
+                    />
 
                     {/* Titre */}
                     <Text className="text-white text-4xl font-bold mb-3 text-center">
