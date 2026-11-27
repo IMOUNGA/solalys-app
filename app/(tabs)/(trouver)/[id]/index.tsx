@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, ScrollView, Pressable, ActivityIndicator, Linking, SafeAreaView, Image, Dimensions } from 'react-native';
-import { router, useLocalSearchParams, useSegments } from 'expo-router';
+import { router, useFocusEffect, useLocalSearchParams, useSegments } from 'expo-router';
 import * as Location from 'expo-location';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux';
 import { fetchEventByIdThunk, joinEventThunk, leaveEventThunk } from '@/store/thunks/eventsThunks';
-import { clearCurrentEvent } from '@/store/slices/eventsSlice';
 import type { Event } from '@/types/event';
 import { weeklyRhythm } from '@/lib/rhythm';
 import { IconSymbol } from '@/components/ui/icon-symbol';
@@ -16,6 +15,7 @@ import { calculateDistance, formatDistance } from '@/utils/distance';
 import { apiService } from '@/services/apiService';
 import { AttendanceCard } from '@/components/event/AttendanceCard';
 import { GroupCover } from '@/components/group/GroupCover';
+import { BRAND } from '@/lib/brand';
 
 const { width } = Dimensions.get('window');
 const HERO_HEIGHT = width * 0.72;
@@ -34,7 +34,11 @@ export default function EventDetailScreen() {
   // d'où on vient pour que le bouton retour ne saute pas de tab.
   const currentTab = (segments as string[]).includes('(events)') ? '(events)' : '(trouver)';
   const dispatch = useAppDispatch();
-  const { currentEvent, status } = useAppSelector((state) => state.events);
+  const eventId = Number(id);
+  const { currentEvent: storedEvent, status } = useAppSelector((state) => state.events);
+  // Le store ne garde qu'un événement à la fois, partagé par tous les écrans
+  // ouverts (plusieurs onglets) : on n'affiche que celui de CET écran.
+  const currentEvent = storedEvent && storedEvent.id === eventId ? storedEvent : null;
   const { user } = useAppSelector((state) => state.auth);
   const [isParticipating, setIsParticipating] = useState(false);
   const [isJoining, setIsJoining] = useState(false);
@@ -45,14 +49,15 @@ export default function EventDetailScreen() {
   const showConfirm = useConfirmAlert();
   const [isStoppingRecurrence, setIsStoppingRecurrence] = useState(false);
 
-  useEffect(() => {
-    if (id && !isNaN(Number(id))) {
-      dispatch(fetchEventByIdThunk(Number(id)));
-    }
-    return () => {
-      dispatch(clearCurrentEvent());
-    };
-  }, [id]);
+  // À chaque retour sur l'écran : recharger si le store contient un autre événement.
+  // (Pas d'effacement au démontage : il vidait l'événement d'un autre écran resté ouvert.)
+  useFocusEffect(
+    useCallback(() => {
+      if (!isNaN(eventId) && storedEvent?.id !== eventId) {
+        dispatch(fetchEventByIdThunk(eventId));
+      }
+    }, [dispatch, eventId, storedEvent?.id]),
+  );
 
   useEffect(() => {
     if (currentEvent && user) {
@@ -153,18 +158,41 @@ export default function EventDetailScreen() {
     });
   };
 
-  if (status === 'loading' || !currentEvent) {
+  if (!currentEvent) {
     return (
       <SafeAreaView style={{ flex: 1 }} className="bg-white dark:bg-gray-950">
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#3B82F6" />
-          <Text className="text-gray-500 dark:text-gray-400 mt-4">Chargement...</Text>
+        <View className="flex-1 items-center justify-center px-8">
+          {status === 'failed' ? (
+            <>
+              <IconSymbol name="exclamationmark.triangle.fill" size={40} color="#F59E0B" />
+              <Text className="text-gray-900 dark:text-white font-semibold text-lg mt-4 text-center">
+                {'Impossible de charger cet événement'}
+              </Text>
+              <Pressable
+                onPress={() => dispatch(fetchEventByIdThunk(eventId))}
+                style={{ backgroundColor: BRAND.blue }}
+                className="mt-5 px-6 py-3 rounded-xl active:opacity-80"
+              >
+                <Text className="text-white font-semibold">Réessayer</Text>
+              </Pressable>
+              <Pressable onPress={() => router.back()} className="mt-3 py-2 active:opacity-60">
+                <Text className="text-gray-500 dark:text-gray-400">Retour</Text>
+              </Pressable>
+            </>
+          ) : (
+            <>
+              <ActivityIndicator size="large" color={BRAND.blue} />
+              <Text className="text-gray-500 dark:text-gray-400 mt-4">Chargement...</Text>
+            </>
+          )}
         </View>
       </SafeAreaView>
     );
   }
 
   const hasImages = currentEvent.images && currentEvent.images.length > 0;
+  // Terminé : après la fin (ou le début si pas d'heure de fin), comme le refuse le serveur.
+  const isFinished = new Date(currentEvent.endTime ?? currentEvent.hours).getTime() < Date.now();
   const distance =
     userLocation && currentEvent.latitude && currentEvent.longitude
       ? calculateDistance(
@@ -483,37 +511,40 @@ export default function EventDetailScreen() {
         </View>
       </ScrollView>
 
-      {/* Join/Leave Button */}
+      {/* Participer / ne plus participer (rien à faire sur un événement terminé) */}
       <SafeAreaView className="bg-white dark:bg-gray-950">
         <View className="p-5 pt-3 border-t border-gray-100 dark:border-gray-800">
-          <Pressable
-            className={`rounded-2xl overflow-hidden ${isJoining || (isFull && !isParticipating) ? 'opacity-60' : 'active:opacity-90'}`}
-            onPress={handleJoinLeave}
-            disabled={isJoining || (isFull && !isParticipating)}
-          >
-            {isParticipating ? (
-              <View className="py-4 px-6 bg-red-500">
-                <Text className="text-white text-center font-bold text-lg">
-                  {isJoining ? 'Chargement...' : 'Ne plus participer'}
-                </Text>
-              </View>
-            ) : isFull ? (
-              <View className="py-4 px-6 bg-gray-300 dark:bg-gray-700">
-                <Text className="text-white text-center font-bold text-lg">Complet</Text>
-              </View>
-            ) : (
-              <LinearGradient
-                colors={['#3B82F6', '#8B5CF6']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={{ paddingVertical: 16, paddingHorizontal: 24 }}
-              >
-                <Text className="text-white text-center font-bold text-lg">
-                  {!user ? 'Se connecter pour participer' : isJoining ? 'Chargement...' : 'Participer'}
-                </Text>
-              </LinearGradient>
-            )}
-          </Pressable>
+          {isFinished ? (
+            <View className="py-4 px-6 rounded-2xl bg-gray-100 dark:bg-gray-900">
+              <Text className="text-gray-500 dark:text-gray-400 text-center font-semibold text-base">
+                {'Événement terminé'}
+              </Text>
+            </View>
+          ) : (
+            <Pressable
+              className={`rounded-2xl overflow-hidden ${isJoining || (isFull && !isParticipating) ? 'opacity-60' : 'active:opacity-90'}`}
+              onPress={handleJoinLeave}
+              disabled={isJoining || (isFull && !isParticipating)}
+            >
+              {isParticipating ? (
+                <View className="py-4 px-6 rounded-2xl border border-red-200 dark:border-red-900 bg-white dark:bg-gray-950">
+                  <Text className="text-red-500 text-center font-bold text-lg">
+                    {isJoining ? 'Un instant...' : 'Ne plus participer'}
+                  </Text>
+                </View>
+              ) : isFull ? (
+                <View className="py-4 px-6 bg-gray-300 dark:bg-gray-700">
+                  <Text className="text-white text-center font-bold text-lg">Complet</Text>
+                </View>
+              ) : (
+                <View style={{ backgroundColor: BRAND.blue, paddingVertical: 16, paddingHorizontal: 24 }}>
+                  <Text className="text-white text-center font-bold text-lg">
+                    {!user ? 'Se connecter pour participer' : isJoining ? 'Un instant...' : 'Participer'}
+                  </Text>
+                </View>
+              )}
+            </Pressable>
+          )}
         </View>
       </SafeAreaView>
     </View>

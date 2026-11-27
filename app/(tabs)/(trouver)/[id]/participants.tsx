@@ -10,7 +10,9 @@ import type { EventParticipant } from '@/types/event';
 export default function EventParticipantsScreen() {
   const { id } = useLocalSearchParams();
   const dispatch = useAppDispatch();
-  const { currentEvent, status } = useAppSelector((state) => state.events);
+  const { currentEvent: storedEvent, status } = useAppSelector((state) => state.events);
+  // Ne pas afficher les participants d'un autre événement resté dans le store.
+  const currentEvent = storedEvent && storedEvent.id === Number(id) ? storedEvent : null;
 
   useEffect(() => {
     if (id && !isNaN(Number(id))) {
@@ -86,7 +88,7 @@ export default function EventParticipantsScreen() {
       ) : (
         <View className="flex-1 items-center justify-center px-8">
           <Text className="text-base text-gray-400 dark:text-gray-500 text-center">
-            Personne ne participe pour l'instant. Soyez le premier !
+            {"Personne ne participe pour l'instant. Soyez le premier !"}
           </Text>
         </View>
       )}
