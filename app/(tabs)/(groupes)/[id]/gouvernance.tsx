@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, Text, ScrollView, Pressable, ActivityIndicator, SafeAreaView, RefreshControl, Modal } from 'react-native';
+import { View, Text, ScrollView, Pressable, ActivityIndicator, SafeAreaView, RefreshControl, Modal, Switch } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { File, Paths } from 'expo-file-system';
@@ -11,6 +11,7 @@ import { useErrorAlert, useConfirmAlert } from '@/hooks/useAlert';
 import { useSubscriptionTier } from '@/hooks/useSubscriptionTier';
 import { apiService } from '@/services/apiService';
 import { GroupRole, GroupRevenueSummary } from '@/types/groupRole';
+import { roleManagesAttendance } from '@/lib/attendance';
 
 const CURRENT_YEAR = new Date().getFullYear();
 
@@ -76,6 +77,16 @@ export default function GouvernanceScreen() {
     setRefreshing(true);
     await load(selectedYear);
     setRefreshing(false);
+  };
+
+  const handleToggleAttendance = async (role: GroupRole, value: boolean) => {
+    setRoles((prev) => prev.map((r) => (r.id === role.id ? { ...r, manageAttendance: value } : r)));
+    try {
+      await apiService.groupRoles.update(groupId, role.id, { manageAttendance: value });
+    } catch (error: any) {
+      setRoles((prev) => prev.map((r) => (r.id === role.id ? role : r)));
+      showError(error?.response?.data?.message || 'Impossible de modifier le rôle');
+    }
   };
 
   const handleRemove = (role: GroupRole) => {
@@ -408,6 +419,17 @@ export default function GouvernanceScreen() {
                           </Pressable>
                         )}
                       </View>
+                      {canManageActions && (
+                        <View className="flex-row items-center gap-2 mt-3 pt-3 border-t border-gray-100 dark:border-gray-800">
+                          <Text className="flex-1 text-xs text-gray-600 dark:text-gray-300">
+                            {'Gère la présence (QR code, pointage)'}
+                          </Text>
+                          <Switch
+                            value={roleManagesAttendance(role)}
+                            onValueChange={(value) => handleToggleAttendance(role, value)}
+                          />
+                        </View>
+                      )}
                       {isOwnPresidentRole && hasOrganisateur && (
                         <Pressable
                           onPress={() => router.push(`/(tabs)/(groupes)/${groupId}/ceder-presidence` as any)}

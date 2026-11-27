@@ -51,7 +51,11 @@ export function GroupHighlights({ stats, memberCount }: Props) {
       <View className="flex-row gap-2.5">
         <StatTile value={String(stats.referralsThisMonth)} label="Recommandations ce mois-ci" color="#8B5CF6" />
         <StatTile value={String(stats.convertedReferrals)} label="Affaires conclues" color="#F59E0B" />
-        <StatTile value={String(memberCount)} label={memberCount > 1 ? 'Membres' : 'Membre'} color="#3B82F6" />
+        {stats.attendanceRate !== null ? (
+          <StatTile value={`${stats.attendanceRate} %`} label="Présence aux réunions" color="#10B981" />
+        ) : (
+          <StatTile value={String(memberCount)} label={memberCount > 1 ? 'Membres' : 'Membre'} color="#3B82F6" />
+        )}
       </View>
     </View>
   );

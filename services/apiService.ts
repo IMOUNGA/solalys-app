@@ -3,6 +3,8 @@ import {store} from "@/store";
 import {getAccessToken, getRefreshToken, saveTokens, clearTokens} from "@/lib/secureToken";
 import {logoutState} from "@/store/slices/authSlice";
 import {API_URL} from "@/lib/env";
+import type { AttendanceSheet, AttendanceStatus } from '@/types/event';
+import type { AttendanceHistory } from '@/types/group';
 
 export interface InviteLink {
     url: string;
@@ -233,6 +235,24 @@ export const apiService = {
                 { emails },
             ),
     },
+    // Présence aux réunions (QR code)
+    attendance: {
+        sheet: (eventId: number) => apiInstance.get<AttendanceSheet>(`/events/${eventId}/attendance`),
+        qr: (eventId: number) =>
+            apiInstance.get<{ url: string; refreshInMs: number; closesAt: string }>(`/events/${eventId}/attendance/qr`),
+        checkIn: (eventId: number, code: string) =>
+            apiInstance.post<{ status: AttendanceStatus; alreadyCheckedIn: boolean; eventName: string }>(
+                `/events/${eventId}/attendance/check-in`,
+                { code },
+            ),
+        excuse: (eventId: number, replacement?: string) =>
+            apiInstance.post(`/events/${eventId}/attendance/excuse`, replacement ? { replacement } : {}),
+        cancelExcuse: (eventId: number) => apiInstance.delete(`/events/${eventId}/attendance/excuse`),
+        mark: (eventId: number, userId: number, status: AttendanceStatus) =>
+            apiInstance.put(`/events/${eventId}/attendance/${userId}`, { status }),
+        reset: (eventId: number, userId: number) => apiInstance.delete(`/events/${eventId}/attendance/${userId}`),
+        groupHistory: (groupId: number) => apiInstance.get<AttendanceHistory>(`/groups/${groupId}/attendance`),
+    },
     // Lien d'invitation de groupe à partager (WhatsApp, email...)
     inviteLinks: {
         getForGroup: (groupId: number) => apiInstance.get<{ link: InviteLink | null }>(`/groups/${groupId}/invite-link`),
@@ -306,6 +326,8 @@ export const apiService = {
         create: (groupId: number, data: { userId: number; title: string }) =>
             apiInstance.post(`/groups/${groupId}/roles`, data),
         remove: (groupId: number, roleId: number) => apiInstance.delete(`/groups/${groupId}/roles/${roleId}`),
+        update: (groupId: number, roleId: number, data: { manageAttendance: boolean | null }) =>
+            apiInstance.patch(`/groups/${groupId}/roles/${roleId}`, data),
         transferPresident: (groupId: number, toUserId: number) =>
             apiInstance.post(`/groups/${groupId}/roles/transfer-president`, { toUserId }),
     },

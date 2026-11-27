@@ -33,6 +33,7 @@ export default function EditGroupScreen() {
   const [address, setAddress] = useState('');
   const [link, setLink] = useState('');
   const [publicStats, setPublicStats] = useState(true);
+  const [absenceThreshold, setAbsenceThreshold] = useState(3);
 
   useEffect(() => {
     loadGroupData();
@@ -52,6 +53,7 @@ export default function EditGroupScreen() {
       setAddress(group.adresse || '');
       setLink(group.link || '');
       setPublicStats(group.publicStats !== false);
+      setAbsenceThreshold(group.absenceAlertThreshold ?? 3);
     } catch (error: any) {
       showError(error.message || 'Erreur lors du chargement du groupe');
       router.back();
@@ -111,6 +113,7 @@ export default function EditGroupScreen() {
         adresse: address.trim() || undefined,
         link: link.trim() || undefined,
         publicStats,
+        absenceAlertThreshold: absenceThreshold,
       };
 
       const uploadedImageUrls: string[] = [];
@@ -302,6 +305,33 @@ export default function EditGroupScreen() {
                 </Text>
               </View>
               <Switch value={publicStats} onValueChange={setPublicStats} />
+            </View>
+
+            {/* Alerte d'absences */}
+            <View className="mb-5 flex-row items-center gap-3 bg-gray-50 p-4 rounded-xl">
+              <View className="flex-1">
+                <Text className="text-gray-700 font-semibold">{"Alerte d'absences"}</Text>
+                <Text className="text-gray-500 text-xs mt-1">
+                  {absenceThreshold === 0
+                    ? 'Désactivée.'
+                    : `Les responsables sont prévenus quand un membre manque ${absenceThreshold} réunion${absenceThreshold > 1 ? 's' : ''} de suite.`}
+                </Text>
+              </View>
+              <View className="flex-row items-center gap-2">
+                <Pressable
+                  onPress={() => setAbsenceThreshold((v) => Math.max(0, v - 1))}
+                  className="w-9 h-9 rounded-full bg-white items-center justify-center active:opacity-70"
+                >
+                  <Text className="text-lg font-bold text-gray-700">−</Text>
+                </Pressable>
+                <Text className="w-6 text-center text-base font-bold text-gray-900">{absenceThreshold}</Text>
+                <Pressable
+                  onPress={() => setAbsenceThreshold((v) => Math.min(20, v + 1))}
+                  className="w-9 h-9 rounded-full bg-white items-center justify-center active:opacity-70"
+                >
+                  <Text className="text-lg font-bold text-gray-700">+</Text>
+                </Pressable>
+              </View>
             </View>
 
             {/* City */}

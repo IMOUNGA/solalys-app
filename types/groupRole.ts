@@ -3,6 +3,8 @@ export interface GroupRole {
   groupId: number;
   userId: number;
   title: string;
+  // Gère la présence (QR code, pointage) ; null = valeur par défaut selon l'intitulé.
+  manageAttendance?: boolean | null;
   createdat: string;
   user: {
     id: number;

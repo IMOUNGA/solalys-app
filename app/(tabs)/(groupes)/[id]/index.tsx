@@ -253,6 +253,25 @@ export default function GroupDetailScreen() {
             </Pressable>
           )}
 
+          {/* Présence aux réunions — réservé aux membres */}
+          {isMember && (
+            <Pressable
+              onPress={() => router.push(`/(tabs)/(groupes)/${currentGroup.id}/presence` as any)}
+              className="active:opacity-70 mb-3 flex-row items-center gap-3 bg-emerald-50 dark:bg-emerald-950 rounded-2xl p-4"
+            >
+              <View className="bg-white dark:bg-gray-800 rounded-full p-2.5">
+                <IconSymbol name="checkmark.circle.fill" size={20} color="#10B981" />
+              </View>
+              <View className="flex-1">
+                <Text className="text-base font-bold text-gray-900 dark:text-white">Présence aux réunions</Text>
+                <Text className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                  {'Historique et taux de présence sur 6 mois'}
+                </Text>
+              </View>
+              <IconSymbol name="chevron.right" size={18} color="#10B981" />
+            </Pressable>
+          )}
+
           {/* Ask hebdomadaire — réservé aux membres */}
           {canInvite && (
             <Pressable

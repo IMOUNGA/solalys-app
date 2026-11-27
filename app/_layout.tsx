@@ -86,6 +86,7 @@ export default function RootLayout() {
                                 <Stack.Screen name="reinitialiser-mot-de-passe" options={{headerShown: false}}/>
                                 <Stack.Screen name="invitation" options={{headerShown: false}}/>
                                 <Stack.Screen name="rejoindre/[token]" options={{headerShown: false}}/>
+                                <Stack.Screen name="presence/[eventId]/[code]" options={{headerShown: false}}/>
                             </Stack>
                             <StatusBar style="dark"/>
                             <Alert />

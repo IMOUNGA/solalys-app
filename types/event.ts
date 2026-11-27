@@ -25,6 +25,14 @@ export interface Event {
   } | null;
   // Auteur de la série, créateur ou président du groupe (calculé par le serveur).
   canManageSeries?: boolean;
+  // Peut afficher le QR code de présence et pointer à la main (réunion de groupe).
+  canManageAttendance?: boolean;
+  // Ma présence à cette réunion (membres du groupe), null si rien d'enregistré.
+  myAttendance?: {
+    status: AttendanceStatus;
+    checkedInAt: string | null;
+    note: string | null;
+  } | null;
   // Adresse, lien et position exacte masqués (position arrondie à ~1 km).
   detailsHidden?: boolean;
   // Organisateur : visible seulement des membres du groupe et des participants.
@@ -41,6 +49,23 @@ export interface Event {
   participants?: EventParticipant[];
   participantCount?: number;
   distance?: number;
+}
+
+export type AttendanceStatus = 'present' | 'late' | 'excused' | 'absent';
+
+export interface AttendanceSheet {
+  event: { id: number; name: string; hours: string };
+  opensAt: string;
+  closesAt: string;
+  finalized: boolean;
+  canManage: boolean;
+  summary: { present: number; late: number; excused: number; absent: number; unknown: number; total: number };
+  members: {
+    user: { id: number; firstname: string; lastname: string; avatar?: string | null; metier?: string | null };
+    status: AttendanceStatus | null;
+    checkedInAt: string | null;
+    note: string | null;
+  }[];
 }
 
 export interface EventParticipant {

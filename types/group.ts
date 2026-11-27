@@ -27,6 +27,8 @@ export interface Group {
   stats?: GroupStats | null;
   // Envoyé aux membres seulement : chiffres visibles des non-membres.
   publicStats?: boolean;
+  // Alerte aux responsables après N absences de suite (0 = désactivée).
+  absenceAlertThreshold?: number;
 }
 
 export interface GroupStats {
@@ -37,6 +39,22 @@ export interface GroupStats {
   revenueRounded: boolean;
   referralsThisMonth: number;
   convertedReferrals: number;
+  // % de présence sur 3 mois (absences prévenues non comptées), null si jamais prise.
+  attendanceRate: number | null;
+}
+
+export interface AttendanceHistory {
+  months: number;
+  meetings: number;
+  canManage: boolean;
+  members: {
+    user: { id: number; firstname: string; lastname: string; avatar?: string | null; metier?: string | null };
+    present: number;
+    late: number;
+    excused: number;
+    absent: number;
+    rate: number | null;
+  }[];
 }
 
 export interface GroupMembership {
@@ -72,6 +90,7 @@ export interface CreateGroupDTO {
   slogan?: string;
   images?: string[];
   publicStats?: boolean;
+  absenceAlertThreshold?: number;
 }
 
 export interface UpdateGroupDTO extends Partial<CreateGroupDTO> {}

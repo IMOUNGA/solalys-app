@@ -14,6 +14,7 @@ import { BackButton } from '@/components/ui/BackButton';
 import { useSuccessAlert, useErrorAlert, useConfirmAlert } from '@/hooks/useAlert';
 import { calculateDistance, formatDistance } from '@/utils/distance';
 import { apiService } from '@/services/apiService';
+import { AttendanceCard } from '@/components/event/AttendanceCard';
 
 const { width } = Dimensions.get('window');
 const HERO_HEIGHT = width * 0.72;
@@ -428,6 +429,8 @@ export default function EventDetailScreen() {
               )}
             </View>
           )}
+
+          <AttendanceCard event={currentEvent} onChanged={() => dispatch(fetchEventByIdThunk(currentEvent.id))} />
 
           {/* Participants */}
           <Pressable
