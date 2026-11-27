@@ -6,6 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux';
 import { fetchEventByIdThunk, joinEventThunk, leaveEventThunk } from '@/store/thunks/eventsThunks';
 import { clearCurrentEvent } from '@/store/slices/eventsSlice';
+import type { Event } from '@/types/event';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Avatar } from '@/components/Avatar';
 import { BackButton } from '@/components/ui/BackButton';
@@ -16,6 +17,14 @@ import { apiService } from '@/services/apiService';
 const { width } = Dimensions.get('window');
 const HERO_HEIGHT = width * 0.72;
 const MAX_STACKED_AVATARS = 5;
+
+const WEEKDAYS = ['dimanches', 'lundis', 'mardis', 'mercredis', 'jeudis', 'vendredis', 'samedis'];
+
+/** « Tous les mardis à 08h00 » ; texte générique si le rythme n'est pas connu. */
+function seriesRhythm(series: Event['series']): string {
+  if (!series || !WEEKDAYS[series.dayOfWeek]) return "Fait partie d'une série récurrente";
+  return `Tous les ${WEEKDAYS[series.dayOfWeek]} à ${series.startTime.replace(':', 'h')}`;
+}
 
 export default function EventDetailScreen() {
   const { id } = useLocalSearchParams();
@@ -317,8 +326,14 @@ export default function EventDetailScreen() {
                 <Text className="text-base text-gray-900 dark:text-white font-medium">
                   {currentEvent.adress || `${currentEvent.city}, ${currentEvent.country}`}
                 </Text>
+                {currentEvent.detailsHidden && (
+                  <Text className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                    {"L'adresse exacte s'affiche une fois inscrit."}
+                  </Text>
+                )}
                 {distance !== null && (
                   <Text className="text-sm text-blue-600 dark:text-blue-400 font-semibold mt-0.5">
+                    {currentEvent.detailsHidden ? 'Environ ' : ''}
                     {formatDistance(distance)} de vous
                   </Text>
                 )}
@@ -400,14 +415,19 @@ export default function EventDetailScreen() {
               </View>
               <View className="flex-1">
                 <Text className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                  Fait partie d'une série récurrente
+                  {seriesRhythm(currentEvent.series)}
                 </Text>
+                {currentEvent.series && !currentEvent.series.active && (
+                  <Text className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Récurrence arrêtée</Text>
+                )}
               </View>
-              <Pressable onPress={handleStopRecurrence} disabled={isStoppingRecurrence} className="active:opacity-70">
-                <Text className="text-xs font-semibold text-red-500">
-                  {isStoppingRecurrence ? '...' : 'Arrêter'}
-                </Text>
-              </Pressable>
+              {currentEvent.canManageSeries && currentEvent.series?.active !== false && (
+                <Pressable onPress={handleStopRecurrence} disabled={isStoppingRecurrence} className="active:opacity-70">
+                  <Text className="text-xs font-semibold text-red-500">
+                    {isStoppingRecurrence ? '...' : 'Arrêter'}
+                  </Text>
+                </Pressable>
+              )}
             </View>
           )}
 
