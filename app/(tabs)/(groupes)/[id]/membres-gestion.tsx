@@ -112,14 +112,14 @@ export default function MembresGestionScreen() {
 
       {loading || tierLoading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#3B82F6" />
+          <ActivityIndicator size="large" color="#2345C2" />
         </View>
       ) : !hasOrganisateur ? (
         <UpgradeRequired message="La gestion des membres et des invitations nécessite l'abonnement Organisateur." />
       ) : (
         <ScrollView
           contentContainerStyle={{ padding: 20, paddingBottom: 40 }}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#3B82F6" />}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#2345C2" />}
         >
           <Text className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">
             Membres ({members.length})

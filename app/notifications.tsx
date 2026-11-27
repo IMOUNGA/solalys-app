@@ -9,8 +9,8 @@ import { AppNotification } from '@/types/notification';
 import { openNotificationTarget } from '@/lib/notificationLink';
 
 const TYPE_ICON: Record<AppNotification['type'], { name: any; color: string }> = {
-  event_reminder: { name: 'calendar', color: '#3B82F6' },
-  guest_visit_reminder: { name: 'person.crop.circle.badge.plus', color: '#8B5CF6' },
+  event_reminder: { name: 'calendar', color: '#2345C2' },
+  guest_visit_reminder: { name: 'person.crop.circle.badge.plus', color: '#2345C2' },
   guest_followup_reminder: { name: 'hourglass', color: '#F59E0B' },
   guest_request_validated: { name: 'checkmark.circle.fill', color: '#10B981' },
   guest_request_rejected: { name: 'xmark.circle.fill', color: '#9CA3AF' },
@@ -148,7 +148,7 @@ export default function NotificationsScreen() {
         {selectMode ? (
           <View className="flex-row items-center gap-4">
             <Pressable onPress={toggleSelectAll} className="active:opacity-70">
-              <Text className="text-xs font-semibold text-violet-500">
+              <Text className="text-xs font-semibold text-brand-600">
                 {selectedIds.size === notifications.length ? 'Aucune' : 'Tout'}
               </Text>
             </Pressable>
@@ -160,7 +160,7 @@ export default function NotificationsScreen() {
           <View className="flex-row items-center gap-4">
             {unreadCount > 0 && (
               <Pressable onPress={handleMarkAllRead} className="active:opacity-70">
-                <Text className="text-xs font-semibold text-violet-500">Tout lire</Text>
+                <Text className="text-xs font-semibold text-brand-600">Tout lire</Text>
               </Pressable>
             )}
             {notifications.length > 0 && (
@@ -174,14 +174,14 @@ export default function NotificationsScreen() {
 
       {loading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#8B5CF6" />
+          <ActivityIndicator size="large" color="#2345C2" />
         </View>
       ) : (
         <FlatList
           data={notifications}
           keyExtractor={(item) => String(item.id)}
           contentContainerStyle={{ padding: 20, paddingBottom: 40 }}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#8B5CF6" />}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#2345C2" />}
           renderItem={({ item }) => {
             const icon = TYPE_ICON[item.type] ?? { name: 'bell', color: '#6B7280' };
             const isSelected = selectedIds.has(item.id);
@@ -195,7 +195,7 @@ export default function NotificationsScreen() {
                   {selectMode && (
                     <View
                       className="w-5 h-5 rounded-full items-center justify-center border-2"
-                      style={{ backgroundColor: isSelected ? '#8B5CF6' : 'transparent', borderColor: isSelected ? '#8B5CF6' : '#D1D5DB' }}
+                      style={{ backgroundColor: isSelected ? '#2345C2' : 'transparent', borderColor: isSelected ? '#2345C2' : '#D1D5DB' }}
                     >
                       {isSelected && <IconSymbol name="checkmark" size={11} color="#fff" />}
                     </View>
@@ -205,7 +205,7 @@ export default function NotificationsScreen() {
                   </View>
                   <View className="flex-1">
                     <View className="flex-row items-center gap-1.5 mb-0.5">
-                      {!item.read && <View className="w-2 h-2 rounded-full bg-violet-500" />}
+                      {!item.read && <View className="w-2 h-2 rounded-full bg-brand" />}
                       <Text className="text-sm font-bold text-gray-900 dark:text-white flex-1" numberOfLines={1}>
                         {item.title}
                       </Text>

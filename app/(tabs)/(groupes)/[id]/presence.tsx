@@ -35,7 +35,7 @@ export default function GroupAttendanceScreen() {
         </View>
       ) : !data ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#8B5CF6" />
+          <ActivityIndicator size="large" color="#2345C2" />
         </View>
       ) : (
         <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 40 }}>

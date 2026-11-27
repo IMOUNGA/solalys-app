@@ -66,8 +66,8 @@ export default function GroupDirectoryScreen() {
           </View>
           {item.metier ? (
             <View className="flex-row items-center gap-1 mt-1">
-              <IconSymbol name="briefcase.fill" size={12} color="#8B5CF6" />
-              <Text className="text-sm text-violet-600 dark:text-violet-400 font-medium">
+              <IconSymbol name="briefcase.fill" size={12} color="#2345C2" />
+              <Text className="text-sm text-brand-600 dark:text-brand-300 font-medium">
                 {item.metier}
               </Text>
             </View>
@@ -92,7 +92,7 @@ export default function GroupDirectoryScreen() {
           )}
           {item.recherche && (
             <View className="flex-row items-start gap-2">
-              <IconSymbol name="magnifyingglass" size={14} color="#3B82F6" />
+              <IconSymbol name="magnifyingglass" size={14} color="#2345C2" />
               <Text className="flex-1 text-sm text-gray-700 dark:text-gray-300">
                 <Text className="font-semibold">Recherche : </Text>
                 {item.recherche}
@@ -140,7 +140,7 @@ export default function GroupDirectoryScreen() {
 
       {membersStatus === 'loading' && groupMembers.length === 0 ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#8B5CF6" />
+          <ActivityIndicator size="large" color="#2345C2" />
         </View>
       ) : (
         <FlatList

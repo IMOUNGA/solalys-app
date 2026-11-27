@@ -31,7 +31,7 @@ export default function TabLayout() {
     return (
         <Tabs
             screenOptions={{
-                tabBarActiveTintColor: '#000000', // Noir pour l'onglet actif
+                tabBarActiveTintColor: '#2345C2', // Bleu roi (couleur de la marque) pour l'onglet actif
                 tabBarInactiveTintColor: '#8E8E93', // Gris pour les onglets inactifs
                 headerShown: false,
                 tabBarButton: HapticTab,

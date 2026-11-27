@@ -246,7 +246,7 @@ export default function TrouverScreen() {
               {item.name}
             </Text>
             {item.group && (
-              <Text className="text-xs text-violet-600 font-semibold mt-0.5 mb-1">
+              <Text className="text-xs text-brand-600 font-semibold mt-0.5 mb-1">
                 {item.group.name}
               </Text>
             )}
@@ -256,8 +256,8 @@ export default function TrouverScreen() {
               </Text>
             )}
             <View className="flex-row items-center gap-2">
-              <View className="bg-blue-50 rounded-full p-1.5">
-                <IconSymbol name="calendar" size={16} color="#3B82F6" />
+              <View className="bg-brand-50 rounded-full p-1.5">
+                <IconSymbol name="calendar" size={16} color="#2345C2" />
               </View>
               <Text className="text-sm text-gray-600 font-medium">
                 {formatDate(item.hours)}
@@ -285,8 +285,8 @@ export default function TrouverScreen() {
               {item.city}, {item.country}
             </Text>
             {distance !== null && (
-              <View className="bg-blue-50 px-2 py-1 rounded-full">
-                <Text className="text-xs font-bold text-blue-600">
+              <View className="bg-brand-50 px-2 py-1 rounded-full">
+                <Text className="text-xs font-bold text-brand-600">
                   {formatDistance(distance)}
                 </Text>
               </View>
@@ -325,7 +325,7 @@ export default function TrouverScreen() {
     return (
       <View className="flex-1 bg-white">
         <LinearGradient
-          colors={['#3B82F6', '#8B5CF6', '#FFFFFF']}
+          colors={['#2345C2', '#3A5FE0', '#FFFFFF']}
           locations={[0, 0.3, 0.7]}
           style={{ flex: 1 }}
         >
@@ -343,7 +343,7 @@ export default function TrouverScreen() {
   return (
     <View className="flex-1 bg-white">
       <LinearGradient
-        colors={['#3B82F6', '#8B5CF6', '#FFFFFF']}
+        colors={['#2345C2', '#3A5FE0', '#FFFFFF']}
         locations={[0, 0.4, 0.8]}
         style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 280 }}
       />
@@ -383,7 +383,7 @@ export default function TrouverScreen() {
             {/* Input recherche */}
             <View className="flex-row items-center px-4 py-3 border-b border-gray-100">
               {isSearching ? (
-                <ActivityIndicator size="small" color="#3B82F6" />
+                <ActivityIndicator size="small" color="#2345C2" />
               ) : (
                 <IconSymbol name="magnifyingglass" size={20} color="#6B7280" />
               )}
@@ -408,7 +408,7 @@ export default function TrouverScreen() {
                 className="flex-row items-center justify-between"
               >
                 <View className="flex-row items-center gap-2">
-                  <IconSymbol name="line.3.horizontal.decrease.circle" size={20} color="#3B82F6" />
+                  <IconSymbol name="line.3.horizontal.decrease.circle" size={20} color="#2345C2" />
                   <Text className="text-sm font-semibold text-gray-700">
                     Filtres {useGeolocation && `(${radius}km)`}
                   </Text>
@@ -441,7 +441,7 @@ export default function TrouverScreen() {
                         <Text className="text-sm font-medium text-gray-700">
                           Rayon de recherche
                         </Text>
-                        <Text className="text-sm font-bold text-blue-600">
+                        <Text className="text-sm font-bold text-brand-600">
                           {radius} km
                         </Text>
                       </View>
@@ -451,9 +451,9 @@ export default function TrouverScreen() {
                         minimumValue={1}
                         maximumValue={100}
                         step={1}
-                        minimumTrackTintColor="#3B82F6"
+                        minimumTrackTintColor="#2345C2"
                         maximumTrackTintColor="#D1D5DB"
-                        thumbTintColor="#3B82F6"
+                        thumbTintColor="#2345C2"
                       />
                       <View className="flex-row justify-between">
                         <Text className="text-xs text-gray-400">1 km</Text>
@@ -471,7 +471,7 @@ export default function TrouverScreen() {
                 className={`mt-3 py-3 px-4 rounded-xl ${isSearching ? 'opacity-50' : 'active:opacity-80'}`}
               >
                 <LinearGradient
-                  colors={isSearching ? ['#9CA3AF', '#9CA3AF'] : ['#3B82F6', '#8B5CF6']}
+                  colors={isSearching ? ['#9CA3AF', '#9CA3AF'] : ['#2345C2', '#3A5FE0']}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                   style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 12 }}
@@ -538,7 +538,7 @@ export default function TrouverScreen() {
           }}
         >
           <LinearGradient
-            colors={['#3B82F6', '#8B5CF6']}
+            colors={['#2345C2', '#3A5FE0']}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={{ width: 64, height: 64, borderRadius: 32, alignItems: 'center', justifyContent: 'center' }}

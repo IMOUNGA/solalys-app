@@ -196,7 +196,7 @@ export default function EditEventScreen() {
     return (
       <SafeAreaView className="flex-1 bg-white">
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#8B5CF6" />
+          <ActivityIndicator size="large" color="#2345C2" />
           <Text className="text-gray-500 mt-4">Chargement...</Text>
         </View>
       </SafeAreaView>
@@ -214,7 +214,7 @@ export default function EditEventScreen() {
         <ScrollView className="flex-1">
           {/* Header */}
           <LinearGradient
-            colors={['#8B5CF6', '#EC4899']}
+            colors={['#2345C2', '#3A5FE0']}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
             className="px-6 pt-4 pb-6"
@@ -299,7 +299,7 @@ export default function EditEventScreen() {
                     >
                       <IconSymbol name="xmark" size={12} color="#fff" />
                     </Pressable>
-                    <View className="absolute bottom-1 right-1 bg-blue-500 rounded-full px-2 py-0.5">
+                    <View className="absolute bottom-1 right-1 bg-brand rounded-full px-2 py-0.5">
                       <Text className="text-white text-xs font-bold">NEW</Text>
                     </View>
                   </View>
@@ -386,7 +386,7 @@ export default function EditEventScreen() {
                 disabled={isSubmitting}
               >
                 <LinearGradient
-                  colors={['#8B5CF6', '#EC4899']}
+                  colors={['#2345C2', '#3A5FE0']}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                   style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 12 }}

@@ -56,7 +56,7 @@ const AccountSettingsScreen = () => {
     if (!user) {
         return (
             <SafeAreaView style={{ flex: 1 }} className="items-center justify-center bg-white">
-                <ActivityIndicator size="large" color="#3B82F6" />
+                <ActivityIndicator size="large" color="#2345C2" />
             </SafeAreaView>
         );
     }
@@ -71,7 +71,7 @@ const AccountSettingsScreen = () => {
                     {/* Header */}
                     <View>
                         <LinearGradient
-                            colors={['#3B82F6', '#8B5CF6']}
+                            colors={['#2345C2', '#3A5FE0']}
                             start={{ x: 0, y: 0 }}
                             end={{ x: 1, y: 1 }}
                             style={{ paddingBottom: 32 }}
@@ -157,9 +157,9 @@ const AccountSettingsScreen = () => {
                             </View>
 
                             {metier.trim().length > 0 && (
-                                <View className="flex-row items-start gap-2 bg-blue-50 dark:bg-blue-950 rounded-xl p-3 mt-4">
-                                    <IconSymbol name="info.circle.fill" size={16} color="#3B82F6" />
-                                    <Text className="flex-1 text-xs text-blue-700 dark:text-blue-300 leading-4">
+                                <View className="flex-row items-start gap-2 bg-brand-50 dark:bg-brand-950 rounded-xl p-3 mt-4">
+                                    <IconSymbol name="info.circle.fill" size={16} color="#2345C2" />
+                                    <Text className="flex-1 text-xs text-brand-600 dark:text-brand-300 leading-4">
                                         Un seul membre par métier est autorisé par groupe. Vous ne pourrez pas rejoindre un groupe où votre métier est déjà pris.
                                     </Text>
                                 </View>
@@ -172,7 +172,7 @@ const AccountSettingsScreen = () => {
                             className={`rounded-2xl overflow-hidden mt-2 ${isSaving ? 'opacity-60' : 'active:opacity-90'}`}
                         >
                             <LinearGradient
-                                colors={['#3B82F6', '#8B5CF6']}
+                                colors={['#2345C2', '#3A5FE0']}
                                 start={{ x: 0, y: 0 }}
                                 end={{ x: 1, y: 0 }}
                                 style={{ paddingVertical: 16 }}

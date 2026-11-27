@@ -84,12 +84,12 @@ export default function AttendanceQrScreen() {
           <View className="items-center">
             <IconSymbol name="exclamationmark.triangle.fill" size={40} color="#F59E0B" />
             <Text className="text-base font-semibold text-gray-900 mt-4 text-center">{error}</Text>
-            <Pressable onPress={loadCode} className="mt-6 px-6 py-3 rounded-xl bg-violet-500 active:opacity-80">
+            <Pressable onPress={loadCode} className="mt-6 px-6 py-3 rounded-xl bg-brand active:opacity-80">
               <Text className="text-white font-semibold">Réessayer</Text>
             </Pressable>
           </View>
         ) : !url ? (
-          <ActivityIndicator size="large" color="#8B5CF6" />
+          <ActivityIndicator size="large" color="#2345C2" />
         ) : (
           <>
             <Text className="text-base text-gray-600 text-center mb-5">

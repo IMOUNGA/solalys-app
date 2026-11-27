@@ -52,7 +52,7 @@ export default function CheckInScreen() {
       <View className="flex-1 items-center justify-center px-8">
         {!result && !error && (
           <>
-            <ActivityIndicator size="large" color="#8B5CF6" />
+            <ActivityIndicator size="large" color="#2345C2" />
             <Text className="text-gray-500 dark:text-gray-400 mt-4">Enregistrement de votre présence...</Text>
           </>
         )}
@@ -78,7 +78,7 @@ export default function CheckInScreen() {
           </>
         )}
         {(result || error) && (
-          <Pressable onPress={goToEvent} className="mt-8 px-6 py-3 rounded-xl bg-violet-500 active:opacity-80">
+          <Pressable onPress={goToEvent} className="mt-8 px-6 py-3 rounded-xl bg-brand active:opacity-80">
             <Text className="text-white font-semibold">{'Voir la réunion'}</Text>
           </Pressable>
         )}

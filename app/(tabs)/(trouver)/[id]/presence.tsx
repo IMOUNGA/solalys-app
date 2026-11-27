@@ -74,7 +74,7 @@ export default function AttendanceSheetScreen() {
         </View>
       ) : !sheet ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#8B5CF6" />
+          <ActivityIndicator size="large" color="#2345C2" />
         </View>
       ) : (
         <ScrollView

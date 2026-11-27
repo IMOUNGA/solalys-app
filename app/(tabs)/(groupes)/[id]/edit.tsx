@@ -210,7 +210,7 @@ export default function EditGroupScreen() {
         <ScrollView className="flex-1">
           {/* Header */}
           <LinearGradient
-            colors={['#10B981', '#3B82F6']}
+            colors={['#2345C2', '#3A5FE0']}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
             className="px-6 pt-4 pb-6"
@@ -251,7 +251,7 @@ export default function EditGroupScreen() {
                     >
                       <IconSymbol name="xmark" size={12} color="#fff" />
                     </Pressable>
-                    <View className="absolute bottom-1 right-1 bg-blue-500 rounded-full px-2 py-0.5">
+                    <View className="absolute bottom-1 right-1 bg-brand rounded-full px-2 py-0.5">
                       <Text className="text-white text-xs font-bold">NEW</Text>
                     </View>
                   </View>
@@ -392,7 +392,7 @@ export default function EditGroupScreen() {
                 disabled={isSubmitting}
               >
                 <LinearGradient
-                  colors={['#10B981', '#3B82F6']}
+                  colors={['#2345C2', '#3A5FE0']}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                   style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 12 }}

@@ -60,7 +60,7 @@ export default function CreateRevenueScreen() {
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <View>
           <LinearGradient
-            colors={['#10B981', '#3B82F6']}
+            colors={['#2345C2', '#3A5FE0']}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={{ paddingBottom: 20 }}
@@ -159,7 +159,7 @@ export default function CreateRevenueScreen() {
             className={`rounded-2xl overflow-hidden mt-2 ${isSending ? 'opacity-60' : 'active:opacity-90'}`}
           >
             <LinearGradient
-              colors={['#10B981', '#3B82F6']}
+              colors={['#2345C2', '#3A5FE0']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={{ paddingVertical: 16 }}

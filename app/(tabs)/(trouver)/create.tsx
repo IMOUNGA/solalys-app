@@ -297,7 +297,7 @@ export default function CreateEventScreen() {
     <View className="flex-1 bg-white">
       {/* Header with solid color */}
       <View
-        className="bg-blue-500"
+        className="bg-brand"
         style={{
           borderBottomWidth: 1,
           borderBottomColor: '#E5E7EB',
@@ -331,7 +331,7 @@ export default function CreateEventScreen() {
       >
         {tierLoading ? (
           <View className="flex-1 items-center justify-center">
-            <ActivityIndicator size="large" color="#3B82F6" />
+            <ActivityIndicator size="large" color="#2345C2" />
           </View>
         ) : !hasPro ? (
           <UpgradeRequired message="La création d'événements nécessite un abonnement Pro ou supérieur." />
@@ -566,7 +566,7 @@ export default function CreateEventScreen() {
                 <Switch
                   value={hasLimitedSeats}
                   onValueChange={setHasLimitedSeats}
-                  trackColor={{ false: '#D1D5DB', true: '#3B82F6' }}
+                  trackColor={{ false: '#D1D5DB', true: '#2345C2' }}
                   thumbColor="#fff"
                 />
               </View>
@@ -596,7 +596,7 @@ export default function CreateEventScreen() {
                 <Switch
                   value={isRecurring}
                   onValueChange={setIsRecurring}
-                  trackColor={{ false: '#D1D5DB', true: '#3B82F6' }}
+                  trackColor={{ false: '#D1D5DB', true: '#2345C2' }}
                   thumbColor="#fff"
                 />
               </View>
@@ -618,12 +618,12 @@ export default function CreateEventScreen() {
                     onPress={() => setSelectedGroupId(null)}
                     className={`border-2 rounded-xl px-4 py-3 ${
                       selectedGroupId === null
-                        ? 'border-blue-500 bg-blue-50'
+                        ? 'border-brand bg-brand-50'
                         : 'border-gray-200 bg-gray-50'
                     }`}
                   >
                     <Text className={`text-base ${
-                      selectedGroupId === null ? 'text-blue-600 font-semibold' : 'text-gray-700'
+                      selectedGroupId === null ? 'text-brand-600 font-semibold' : 'text-gray-700'
                     }`}>
                       Aucun groupe
                     </Text>
@@ -634,12 +634,12 @@ export default function CreateEventScreen() {
                       onPress={() => setSelectedGroupId(group.id)}
                       className={`border-2 rounded-xl px-4 py-3 ${
                         selectedGroupId === group.id
-                          ? 'border-blue-500 bg-blue-50'
+                          ? 'border-brand bg-brand-50'
                           : 'border-gray-200 bg-gray-50'
                       }`}
                     >
                       <Text className={`text-base ${
-                        selectedGroupId === group.id ? 'text-blue-600 font-semibold' : 'text-gray-700'
+                        selectedGroupId === group.id ? 'text-brand-600 font-semibold' : 'text-gray-700'
                       }`}>
                         {group.name}
                       </Text>
@@ -661,7 +661,7 @@ export default function CreateEventScreen() {
             }`}
           >
             <LinearGradient
-              colors={!canSubmit() || isSubmitting ? ['#9CA3AF', '#9CA3AF'] : ['#3B82F6', '#8B5CF6']}
+              colors={!canSubmit() || isSubmitting ? ['#9CA3AF', '#9CA3AF'] : ['#2345C2', '#3A5FE0']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 16 }}
@@ -715,14 +715,14 @@ export default function CreateEventScreen() {
                 markedDates={{
                   [date.toISOString().split('T')[0]]: {
                     selected: true,
-                    selectedColor: '#3B82F6',
+                    selectedColor: '#2345C2',
                   },
                 }}
                 theme={{
-                  todayTextColor: '#3B82F6',
-                  selectedDayBackgroundColor: '#3B82F6',
+                  todayTextColor: '#2345C2',
+                  selectedDayBackgroundColor: '#2345C2',
                   selectedDayTextColor: '#ffffff',
-                  arrowColor: '#3B82F6',
+                  arrowColor: '#2345C2',
                   monthTextColor: '#111827',
                   textMonthFontWeight: 'bold',
                   textMonthFontSize: 18,

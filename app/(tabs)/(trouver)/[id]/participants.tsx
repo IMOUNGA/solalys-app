@@ -42,7 +42,7 @@ export default function EventParticipantsScreen() {
             <Text className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{metier}</Text>
           )}
           {isOrganizer && (
-            <Text className="text-xs text-blue-600 dark:text-blue-400 font-medium mt-0.5">
+            <Text className="text-xs text-brand-600 dark:text-brand-300 font-medium mt-0.5">
               Organisateur
             </Text>
           )}
@@ -68,7 +68,7 @@ export default function EventParticipantsScreen() {
 
       {status === 'loading' && allParticipants.length === 0 ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#3B82F6" />
+          <ActivityIndicator size="large" color="#2345C2" />
         </View>
       ) : participants.length > 0 ? (
         <FlatList

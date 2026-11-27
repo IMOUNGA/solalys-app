@@ -23,7 +23,7 @@ const AuthLandingScreen = () => {
     return (
         <View className="flex-1 bg-white">
             <LinearGradient
-                colors={['#3B82F6', '#8B5CF6']}
+                colors={['#2345C2', '#3A5FE0']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={{ flex: 1 }}
@@ -50,7 +50,7 @@ const AuthLandingScreen = () => {
                         <Link href="/(auth)/sign-in" asChild>
                             <Pressable className="py-4 px-6 rounded-2xl active:opacity-80 shadow-lg">
                                 <LinearGradient
-                                    colors={['#3B82F6', '#8B5CF6']}
+                                    colors={['#2345C2', '#3A5FE0']}
                                     start={{ x: 0, y: 0 }}
                                     end={{ x: 1, y: 0 }}
                                     style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 16 }}
@@ -68,8 +68,8 @@ const AuthLandingScreen = () => {
                         <Link href="/(auth)/sign-up" asChild>
                             <Pressable className="bg-white/95 py-4 px-6 rounded-2xl active:bg-white shadow-md">
                                 <View className="flex-row items-center justify-center gap-3">
-                                    <IconSymbol name="person.badge.plus.fill" size={24} color="#3B82F6" />
-                                    <Text className="text-blue-600 text-center font-bold text-lg">
+                                    <IconSymbol name="person.badge.plus.fill" size={24} color="#2345C2" />
+                                    <Text className="text-brand-600 text-center font-bold text-lg">
                                         Créer un compte
                                     </Text>
                                 </View>

@@ -112,9 +112,9 @@ export default function DeleteAccountScreen() {
               </View>
             ))}
 
-            <View className="flex-row items-start gap-2 bg-blue-50 dark:bg-blue-950 rounded-xl p-3">
-              <IconSymbol name="info.circle.fill" size={16} color="#3B82F6" />
-              <Text className="flex-1 text-sm text-blue-800 dark:text-blue-200 leading-5">
+            <View className="flex-row items-start gap-2 bg-brand-50 dark:bg-brand-950 rounded-xl p-3">
+              <IconSymbol name="info.circle.fill" size={16} color="#2345C2" />
+              <Text className="flex-1 text-sm text-brand-600 dark:text-blue-200 leading-5">
                 Abonnement pris dans l'app ? Apple ne permet pas de le résilier à notre place : pensez à l'annuler dans Réglages › votre nom › Abonnements.{' '}
                 <Text className="font-bold underline" onPress={() => Linking.openURL('https://apps.apple.com/account/subscriptions')}>
                   Ouvrir mes abonnements

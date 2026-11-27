@@ -83,7 +83,7 @@ const SignUp = () => {
     return (
         <View className="flex-1">
             <LinearGradient
-                colors={['#3B82F6', '#8B5CF6']}
+                colors={['#2345C2', '#3A5FE0']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={{ flex: 1 }}
@@ -205,7 +205,7 @@ const SignUp = () => {
                                     disabled={isLoading}
                                 >
                                     <LinearGradient
-                                        colors={isLoading ? ['#9ca3af', '#9ca3af'] : ['#3B82F6', '#8B5CF6']}
+                                        colors={isLoading ? ['#9ca3af', '#9ca3af'] : ['#2345C2', '#3A5FE0']}
                                         start={{ x: 0, y: 0 }}
                                         end={{ x: 1, y: 0 }}
                                         style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 16 }}
@@ -231,7 +231,7 @@ const SignUp = () => {
                                     </Text>
                                     <Link href="/(auth)/sign-in" asChild>
                                         <Pressable className="active:opacity-60" disabled={isLoading}>
-                                            <Text className="text-blue-600 font-bold text-base underline">
+                                            <Text className="text-brand-600 font-bold text-base underline">
                                                 Se connecter
                                             </Text>
                                         </Pressable>

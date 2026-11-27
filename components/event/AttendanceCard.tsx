@@ -69,7 +69,7 @@ export function AttendanceCard({ event, onChanged }: Props) {
   return (
     <View className="bg-gray-50 dark:bg-gray-900 rounded-2xl p-4 mb-6">
       <View className="flex-row items-center gap-2 mb-2">
-        <IconSymbol name="checkmark.circle.fill" size={18} color="#8B5CF6" />
+        <IconSymbol name="checkmark.circle.fill" size={18} color="#2345C2" />
         <Text className="text-base font-bold text-gray-900 dark:text-white flex-1">Présence</Text>
         {mine && color && (
           <View style={{ backgroundColor: color.bg }} className="rounded-full px-3 py-1">
@@ -98,7 +98,7 @@ export function AttendanceCard({ event, onChanged }: Props) {
           <Pressable
             onPress={() => router.push(`/(tabs)/(trouver)/${event.id}/qr` as any)}
             disabled={!open}
-            className={`rounded-xl bg-violet-500 px-4 py-2.5 ${open ? 'active:opacity-80' : 'opacity-40'}`}
+            className={`rounded-xl bg-brand px-4 py-2.5 ${open ? 'active:opacity-80' : 'opacity-40'}`}
           >
             <Text className="text-white text-sm font-semibold">Afficher le QR code</Text>
           </Pressable>
@@ -120,7 +120,7 @@ export function AttendanceCard({ event, onChanged }: Props) {
             disabled={busy}
             className="rounded-xl px-4 py-2.5 active:opacity-70"
           >
-            <Text className="text-sm font-semibold text-violet-600">Je viendrai finalement</Text>
+            <Text className="text-sm font-semibold text-brand-600">Je viendrai finalement</Text>
           </Pressable>
         )}
       </View>

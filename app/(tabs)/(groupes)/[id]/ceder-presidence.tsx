@@ -59,7 +59,7 @@ export default function TransferPresidentScreen() {
     <View style={{ flex: 1 }} className="bg-white dark:bg-gray-950">
       <View>
         <LinearGradient
-          colors={['#3B82F6', '#8B5CF6']}
+          colors={['#2345C2', '#3A5FE0']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={{ paddingBottom: 20 }}
@@ -90,7 +90,7 @@ export default function TransferPresidentScreen() {
           return (
             <Pressable
               onPress={() => setSelectedId(item.id)}
-              className={`flex-row items-center gap-3 p-3 rounded-xl mb-2 ${isSelected ? 'bg-blue-50 dark:bg-blue-950 border-2 border-blue-500' : 'bg-gray-50 dark:bg-gray-900 border-2 border-transparent'}`}
+              className={`flex-row items-center gap-3 p-3 rounded-xl mb-2 ${isSelected ? 'bg-brand-50 dark:bg-brand-950 border-2 border-brand' : 'bg-gray-50 dark:bg-gray-900 border-2 border-transparent'}`}
             >
               <Avatar name={`${item.firstname} ${item.lastname}`} uri={item.avatar} size={40} />
               <View className="flex-1">
@@ -101,7 +101,7 @@ export default function TransferPresidentScreen() {
                   <Text className="text-xs text-gray-500 dark:text-gray-400">Créateur du groupe</Text>
                 )}
               </View>
-              {isSelected && <IconSymbol name="checkmark.circle.fill" size={22} color="#3B82F6" />}
+              {isSelected && <IconSymbol name="checkmark.circle.fill" size={22} color="#2345C2" />}
             </Pressable>
           );
         }}
@@ -115,7 +115,7 @@ export default function TransferPresidentScreen() {
             className={`rounded-2xl overflow-hidden ${isSending ? 'opacity-60' : 'active:opacity-90'}`}
           >
             <LinearGradient
-              colors={['#3B82F6', '#8B5CF6']}
+              colors={['#2345C2', '#3A5FE0']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={{ paddingVertical: 16 }}

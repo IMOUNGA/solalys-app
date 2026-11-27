@@ -146,7 +146,7 @@ export default function InviteMemberScreen() {
     <View style={{ flex: 1 }} className="bg-white dark:bg-gray-950">
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingBottom: 40 }}>
-          <LinearGradient colors={['#8B5CF6', '#EC4899']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ paddingBottom: 28 }}>
+          <LinearGradient colors={['#2345C2', '#3A5FE0']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ paddingBottom: 28 }}>
             <SafeAreaView edges={['top']}>
               <View className="flex-row items-center px-5 pt-3 pb-4">
                 <Pressable onPress={() => router.back()} className="w-9 h-9 items-center justify-center -ml-2 mr-2">
@@ -170,11 +170,11 @@ export default function InviteMemberScreen() {
 
           <View className="px-5 pt-6 gap-6">
             {/* Lien d'invitation (créateur ou président) */}
-            {link === undefined && <ActivityIndicator color="#8B5CF6" />}
+            {link === undefined && <ActivityIndicator color="#2345C2" />}
             {link !== undefined && link !== false && (
-              <View className="bg-violet-50 dark:bg-violet-950 rounded-2xl p-4">
+              <View className="bg-brand-50 dark:bg-brand-950 rounded-2xl p-4">
                 <View className="flex-row items-center gap-2 mb-1">
-                  <IconSymbol name="link" size={16} color="#8B5CF6" />
+                  <IconSymbol name="link" size={16} color="#2345C2" />
                   <Text className="text-base font-bold text-gray-900 dark:text-white">{"Lien d'invitation"}</Text>
                 </View>
                 <Text className="text-xs text-gray-600 dark:text-gray-300 leading-4 mb-3">
@@ -183,7 +183,7 @@ export default function InviteMemberScreen() {
 
                 {link ? (
                   <>
-                    <Text selectable className="text-xs text-violet-700 dark:text-violet-300 mb-1" numberOfLines={1}>
+                    <Text selectable className="text-xs text-brand-600 dark:text-brand-300 mb-1" numberOfLines={1}>
                       {link.url}
                     </Text>
                     <Text className="text-xs text-gray-500 dark:text-gray-400 mb-3">
@@ -194,13 +194,13 @@ export default function InviteMemberScreen() {
                       disabled={linkBusy}
                       className="rounded-xl overflow-hidden active:opacity-90"
                     >
-                      <LinearGradient colors={['#8B5CF6', '#EC4899']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ paddingVertical: 12 }}>
+                      <LinearGradient colors={['#2345C2', '#3A5FE0']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ paddingVertical: 12 }}>
                         <Text className="text-white text-center font-bold">Partager le lien</Text>
                       </LinearGradient>
                     </Pressable>
                     <View className="flex-row justify-center gap-6 mt-3">
                       <Pressable onPress={confirmRegenerate} disabled={linkBusy} className="active:opacity-70">
-                        <Text className="text-xs font-semibold text-violet-700 dark:text-violet-300">Nouveau lien</Text>
+                        <Text className="text-xs font-semibold text-brand-600 dark:text-brand-300">Nouveau lien</Text>
                       </Pressable>
                       <Pressable onPress={confirmRevoke} disabled={linkBusy} className="active:opacity-70">
                         <Text className="text-xs font-semibold text-red-500">Désactiver</Text>
@@ -213,7 +213,7 @@ export default function InviteMemberScreen() {
                     disabled={linkBusy}
                     className={`rounded-xl overflow-hidden ${linkBusy ? 'opacity-60' : 'active:opacity-90'}`}
                   >
-                    <LinearGradient colors={['#8B5CF6', '#EC4899']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ paddingVertical: 12 }}>
+                    <LinearGradient colors={['#2345C2', '#3A5FE0']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ paddingVertical: 12 }}>
                       <Text className="text-white text-center font-bold">
                         {linkBusy ? 'Création...' : 'Créer et partager un lien'}
                       </Text>
@@ -242,14 +242,14 @@ export default function InviteMemberScreen() {
                 style={{ minHeight: 110, textAlignVertical: 'top' }}
               />
               {emails.length > 1 && (
-                <Text className="text-xs text-violet-700 dark:text-violet-300 mt-2">
+                <Text className="text-xs text-brand-600 dark:text-brand-300 mt-2">
                   {`${emails.length} adresses trouvées`}
                 </Text>
               )}
             </View>
 
             <View className="flex-row items-start gap-2 bg-gray-50 dark:bg-gray-900 rounded-xl p-3">
-              <IconSymbol name="info.circle.fill" size={16} color="#8B5CF6" />
+              <IconSymbol name="info.circle.fill" size={16} color="#2345C2" />
               <Text className="flex-1 text-xs text-gray-600 dark:text-gray-300 leading-4">
                 {"Les personnes sans compte Solalys reçoivent un email pour en créer un avec cette adresse et rejoindre le groupe."}
               </Text>
@@ -260,7 +260,7 @@ export default function InviteMemberScreen() {
               disabled={isSending}
               className={`rounded-2xl overflow-hidden ${isSending ? 'opacity-60' : 'active:opacity-90'}`}
             >
-              <LinearGradient colors={['#8B5CF6', '#EC4899']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ paddingVertical: 16 }}>
+              <LinearGradient colors={['#2345C2', '#3A5FE0']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ paddingVertical: 16 }}>
                 <Text className="text-white text-center font-bold text-base">
                   {isSending
                     ? 'Envoi...'

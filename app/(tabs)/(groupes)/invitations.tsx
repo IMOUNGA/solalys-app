@@ -83,8 +83,8 @@ export default function InvitationsScreen() {
         }}
       >
         <View className="flex-row items-center gap-3 mb-3">
-          <View className="bg-violet-100 dark:bg-violet-950 rounded-full p-2.5">
-            <IconSymbol name="person.badge.plus" size={20} color="#8B5CF6" />
+          <View className="bg-brand-50 dark:bg-brand-950 rounded-full p-2.5">
+            <IconSymbol name="person.badge.plus" size={20} color="#2345C2" />
           </View>
           <View className="flex-1">
             <Text className="text-base font-bold text-gray-900 dark:text-white">
@@ -107,7 +107,7 @@ export default function InvitationsScreen() {
           <Pressable
             onPress={() => handleAccept(item)}
             disabled={isProcessing}
-            className={`flex-1 py-3 rounded-xl bg-violet-500 items-center ${isProcessing ? 'opacity-50' : 'active:bg-violet-600'}`}
+            className={`flex-1 py-3 rounded-xl bg-brand items-center ${isProcessing ? 'opacity-50' : 'active:bg-brand'}`}
           >
             {isProcessing ? (
               <ActivityIndicator size="small" color="#fff" />
@@ -131,7 +131,7 @@ export default function InvitationsScreen() {
 
       {loading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#8B5CF6" />
+          <ActivityIndicator size="large" color="#2345C2" />
         </View>
       ) : (
         <FlatList
@@ -139,7 +139,7 @@ export default function InvitationsScreen() {
           keyExtractor={(item) => String(item.id)}
           renderItem={renderInvitation}
           contentContainerStyle={{ padding: 20, paddingBottom: 40 }}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#8B5CF6" />}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#2345C2" />}
           ListEmptyComponent={
             <View className="items-center justify-center py-20 px-8">
               <View className="bg-white dark:bg-gray-900 rounded-full p-6 mb-4">

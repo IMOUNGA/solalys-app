@@ -60,7 +60,7 @@ export default function CreateGuestScreen() {
   return (
     <View style={{ flex: 1 }} className="bg-white dark:bg-gray-950">
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <LinearGradient colors={['#EC4899', '#8B5CF6']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ paddingBottom: 20 }}>
+        <LinearGradient colors={['#2345C2', '#3A5FE0']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ paddingBottom: 20 }}>
           <SafeAreaView edges={['top']}>
             <View className="flex-row items-center px-5 pt-3 pb-4">
               <Pressable onPress={goBack} className="w-9 h-9 items-center justify-center -ml-2 mr-2">
@@ -135,7 +135,7 @@ export default function CreateGuestScreen() {
             disabled={isSending}
             className={`rounded-2xl overflow-hidden mt-2 ${isSending ? 'opacity-60' : 'active:opacity-90'}`}
           >
-            <LinearGradient colors={['#EC4899', '#8B5CF6']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ paddingVertical: 16 }}>
+            <LinearGradient colors={['#2345C2', '#3A5FE0']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ paddingVertical: 16 }}>
               <Text className="text-white text-center font-bold text-base">
                 {isSending ? 'Enregistrement...' : "Enregistrer l'invité"}
               </Text>
@@ -163,14 +163,14 @@ export default function CreateGuestScreen() {
                 }}
                 markedDates={
                   visitDate
-                    ? { [visitDate.toISOString().split('T')[0]]: { selected: true, selectedColor: '#8B5CF6' } }
+                    ? { [visitDate.toISOString().split('T')[0]]: { selected: true, selectedColor: '#2345C2' } }
                     : {}
                 }
                 theme={{
-                  todayTextColor: '#8B5CF6',
-                  selectedDayBackgroundColor: '#8B5CF6',
+                  todayTextColor: '#2345C2',
+                  selectedDayBackgroundColor: '#2345C2',
                   selectedDayTextColor: '#ffffff',
-                  arrowColor: '#8B5CF6',
+                  arrowColor: '#2345C2',
                 }}
               />
             </SafeAreaView>

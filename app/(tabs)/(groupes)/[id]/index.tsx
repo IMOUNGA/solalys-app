@@ -75,7 +75,7 @@ export default function GroupDetailScreen() {
           </Text>
           <Pressable
             onPress={() => dispatch(fetchGroupByIdThunk(Number(id)))}
-            className="mt-4 px-6 py-3 rounded-xl bg-violet-500 active:opacity-80"
+            className="mt-4 px-6 py-3 rounded-xl bg-brand active:opacity-80"
           >
             <Text className="text-white font-semibold">Réessayer</Text>
           </Pressable>
@@ -88,7 +88,7 @@ export default function GroupDetailScreen() {
     return (
       <SafeAreaView style={{ flex: 1 }} className="bg-white dark:bg-gray-950">
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#8B5CF6" />
+          <ActivityIndicator size="large" color="#2345C2" />
           <Text className="text-gray-500 dark:text-gray-400 mt-4">Chargement...</Text>
         </View>
       </SafeAreaView>
@@ -192,7 +192,7 @@ export default function GroupDetailScreen() {
             {(currentGroup.meetings || []).map((m) => (
               <View
                 key={`${m.dayOfWeek}-${m.startTime}`}
-                style={{ backgroundColor: '#EAF0FF' }}
+                style={{ backgroundColor: '#EEF2FF' }}
                 className="flex-row items-center gap-1.5 rounded-full px-3 py-1.5"
               >
                 <IconSymbol name="arrow.triangle.2.circlepath" size={13} color={BRAND.blue} />

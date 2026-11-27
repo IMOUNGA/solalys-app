@@ -188,8 +188,8 @@ export default function GouvernanceScreen() {
           disabled={isExporting || !summary}
           className={`flex-row items-center gap-1.5 bg-gray-100 dark:bg-gray-800 rounded-full px-3 py-2 ${isExporting ? 'opacity-50' : 'active:opacity-70'}`}
         >
-          <IconSymbol name="square.and.arrow.up" size={16} color="#3B82F6" />
-          <Text className="text-xs font-semibold text-blue-600 dark:text-blue-400">CSV</Text>
+          <IconSymbol name="square.and.arrow.up" size={16} color="#2345C2" />
+          <Text className="text-xs font-semibold text-brand-600 dark:text-brand-300">CSV</Text>
         </Pressable>
       </View>
 
@@ -215,22 +215,22 @@ export default function GouvernanceScreen() {
               <Pressable
                 key={year}
                 onPress={() => { setSelectedYear(year); setYearPickerVisible(false); }}
-                className={`flex-row items-center justify-between px-5 py-3 active:bg-gray-50 dark:active:bg-gray-800 ${selectedYear === year ? 'bg-blue-50 dark:bg-blue-950' : ''}`}
+                className={`flex-row items-center justify-between px-5 py-3 active:bg-gray-50 dark:active:bg-gray-800 ${selectedYear === year ? 'bg-brand-50 dark:bg-brand-950' : ''}`}
               >
-                <Text className={`text-base ${selectedYear === year ? 'font-bold text-blue-600 dark:text-blue-400' : 'text-gray-800 dark:text-gray-200'}`}>
+                <Text className={`text-base ${selectedYear === year ? 'font-bold text-brand-600 dark:text-brand-300' : 'text-gray-800 dark:text-gray-200'}`}>
                   {year}
                 </Text>
-                {selectedYear === year && <IconSymbol name="checkmark" size={18} color="#3B82F6" />}
+                {selectedYear === year && <IconSymbol name="checkmark" size={18} color="#2345C2" />}
               </Pressable>
             ))}
             <Pressable
               onPress={() => { setSelectedYear(null); setYearPickerVisible(false); }}
-              className={`flex-row items-center justify-between px-5 py-3 border-t border-gray-100 dark:border-gray-800 active:bg-gray-50 dark:active:bg-gray-800 ${selectedYear === null ? 'bg-blue-50 dark:bg-blue-950' : ''}`}
+              className={`flex-row items-center justify-between px-5 py-3 border-t border-gray-100 dark:border-gray-800 active:bg-gray-50 dark:active:bg-gray-800 ${selectedYear === null ? 'bg-brand-50 dark:bg-brand-950' : ''}`}
             >
-              <Text className={`text-base ${selectedYear === null ? 'font-bold text-blue-600 dark:text-blue-400' : 'text-gray-800 dark:text-gray-200'}`}>
+              <Text className={`text-base ${selectedYear === null ? 'font-bold text-brand-600 dark:text-brand-300' : 'text-gray-800 dark:text-gray-200'}`}>
                 Toutes années
               </Text>
-              {selectedYear === null && <IconSymbol name="checkmark" size={18} color="#3B82F6" />}
+              {selectedYear === null && <IconSymbol name="checkmark" size={18} color="#2345C2" />}
             </Pressable>
           </Pressable>
         </Pressable>
@@ -238,15 +238,15 @@ export default function GouvernanceScreen() {
 
       {loading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#3B82F6" />
+          <ActivityIndicator size="large" color="#2345C2" />
         </View>
       ) : (
         <ScrollView
           contentContainerStyle={{ padding: 20, paddingBottom: 40 }}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#3B82F6" />}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#2345C2" />}
         >
           <LinearGradient
-            colors={['#3B82F6', '#8B5CF6']}
+            colors={['#2345C2', '#3A5FE0']}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={{ borderRadius: 24, padding: 24, marginBottom: 24 }}
@@ -276,7 +276,7 @@ export default function GouvernanceScreen() {
                     </View>
                     <View className="h-1.5 bg-gray-100 dark:bg-gray-900 rounded-full overflow-hidden">
                       <View
-                        className="h-1.5 bg-blue-500 rounded-full"
+                        className="h-1.5 bg-brand rounded-full"
                         style={{ width: `${Math.max(m.total > 0 ? 4 : 0, (m.total / maxMonthTotal) * 100)}%` }}
                       />
                     </View>
@@ -300,7 +300,7 @@ export default function GouvernanceScreen() {
                     </View>
                     <View className="h-2 bg-gray-100 dark:bg-gray-900 rounded-full overflow-hidden">
                       <View
-                        className="h-2 bg-blue-500 rounded-full"
+                        className="h-2 bg-brand rounded-full"
                         style={{ width: `${Math.max(6, (y.total / maxYearTotal) * 100)}%` }}
                       />
                     </View>
@@ -316,7 +316,7 @@ export default function GouvernanceScreen() {
               className="active:opacity-70 mb-3 flex-row items-center gap-3 bg-gray-50 dark:bg-gray-900 rounded-2xl p-4"
             >
               <View className="bg-white dark:bg-gray-800 rounded-full p-2.5">
-                <IconSymbol name="person.fill.badge.minus" size={20} color="#3B82F6" />
+                <IconSymbol name="person.fill.badge.minus" size={20} color="#2345C2" />
               </View>
               <View className="flex-1">
                 <Text className="text-base font-bold text-gray-900 dark:text-white">
@@ -356,7 +356,7 @@ export default function GouvernanceScreen() {
               className="active:opacity-70 mb-6 flex-row items-center gap-3 bg-gray-50 dark:bg-gray-900 rounded-2xl p-4"
             >
               <View className="bg-white dark:bg-gray-800 rounded-full p-2.5">
-                <IconSymbol name="arrow.triangle.2.circlepath" size={20} color="#3B82F6" />
+                <IconSymbol name="arrow.triangle.2.circlepath" size={20} color="#2345C2" />
               </View>
               <View className="flex-1">
                 <Text className="text-base font-bold text-gray-900 dark:text-white">
@@ -378,7 +378,7 @@ export default function GouvernanceScreen() {
               {canManageActions && (
                 <Pressable
                   onPress={() => router.push(`/(tabs)/(groupes)/${groupId}/role-creer` as any)}
-                  className="w-7 h-7 items-center justify-center bg-blue-500 rounded-full active:opacity-80"
+                  className="w-7 h-7 items-center justify-center bg-brand rounded-full active:opacity-80"
                 >
                   <IconSymbol name="plus" size={14} color="#fff" />
                 </Pressable>
@@ -435,8 +435,8 @@ export default function GouvernanceScreen() {
                           onPress={() => router.push(`/(tabs)/(groupes)/${groupId}/ceder-presidence` as any)}
                           className="flex-row items-center justify-center gap-1.5 mt-3 pt-3 border-t border-gray-100 dark:border-gray-800 active:opacity-70"
                         >
-                          <IconSymbol name="arrow.triangle.2.circlepath" size={14} color="#3B82F6" />
-                          <Text className="text-sm font-semibold text-blue-600 dark:text-blue-400">
+                          <IconSymbol name="arrow.triangle.2.circlepath" size={14} color="#2345C2" />
+                          <Text className="text-sm font-semibold text-brand-600 dark:text-brand-300">
                             Céder la présidence
                           </Text>
                         </Pressable>

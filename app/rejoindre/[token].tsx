@@ -74,7 +74,7 @@ export default function JoinGroupScreen() {
           <Text className="text-sm text-gray-500 dark:text-gray-400 mt-2 text-center">
             {"Demandez un nouveau lien à la personne qui vous l'a envoyé."}
           </Text>
-          <Pressable onPress={later} className="mt-6 px-6 py-3 rounded-xl bg-violet-500 active:opacity-80">
+          <Pressable onPress={later} className="mt-6 px-6 py-3 rounded-xl bg-brand active:opacity-80">
             <Text className="text-white font-semibold">{"Découvrir Solalys"}</Text>
           </Pressable>
         </View>
@@ -86,7 +86,7 @@ export default function JoinGroupScreen() {
     return (
       <SafeAreaView style={{ flex: 1 }} className="bg-white dark:bg-gray-950">
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#8B5CF6" />
+          <ActivityIndicator size="large" color="#2345C2" />
         </View>
       </SafeAreaView>
     );
@@ -100,7 +100,7 @@ export default function JoinGroupScreen() {
       {cover ? (
         <Image source={{ uri: cover }} style={{ width: '100%', height: 260 }} resizeMode="cover" />
       ) : (
-        <LinearGradient colors={['#8B5CF6', '#EC4899']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ height: 260, alignItems: 'center', justifyContent: 'center' }}>
+        <LinearGradient colors={['#2345C2', '#3A5FE0']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ height: 260, alignItems: 'center', justifyContent: 'center' }}>
           <View className="bg-white/15 rounded-full p-6">
             <IconSymbol name="person.2.fill" size={40} color="#fff" />
           </View>
@@ -108,7 +108,7 @@ export default function JoinGroupScreen() {
       )}
 
       <View className="flex-1 px-6 pt-6" style={{ marginTop: -20, borderTopLeftRadius: 24, borderTopRightRadius: 24 }}>
-        <Text className="text-sm font-semibold text-violet-600 dark:text-violet-400 mb-1">
+        <Text className="text-sm font-semibold text-brand-600 dark:text-brand-300 mb-1">
           {'Vous êtes invité(e) à rejoindre'}
         </Text>
         <Text className="text-3xl font-extrabold text-gray-900 dark:text-white">{group.name}</Text>
@@ -122,12 +122,12 @@ export default function JoinGroupScreen() {
         <View className="mt-auto pb-10 gap-3">
           {user ? (
             isMember ? (
-              <Pressable onPress={() => goToGroup(group.id)} className="rounded-2xl bg-violet-500 py-4 active:opacity-90">
+              <Pressable onPress={() => goToGroup(group.id)} className="rounded-2xl bg-brand py-4 active:opacity-90">
                 <Text className="text-white text-center font-bold text-base">{'Vous êtes déjà membre : voir le groupe'}</Text>
               </Pressable>
             ) : (
               <Pressable onPress={handleJoin} disabled={joining} className={`rounded-2xl overflow-hidden ${joining ? 'opacity-60' : 'active:opacity-90'}`}>
-                <LinearGradient colors={['#8B5CF6', '#EC4899']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ paddingVertical: 16 }}>
+                <LinearGradient colors={['#2345C2', '#3A5FE0']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ paddingVertical: 16 }}>
                   <Text className="text-white text-center font-bold text-base">{joining ? 'Un instant...' : 'Rejoindre le groupe'}</Text>
                 </LinearGradient>
               </Pressable>
@@ -135,7 +135,7 @@ export default function JoinGroupScreen() {
           ) : (
             <>
               <Pressable onPress={() => goToAuth('sign-up')} className="rounded-2xl overflow-hidden active:opacity-90">
-                <LinearGradient colors={['#8B5CF6', '#EC4899']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ paddingVertical: 16 }}>
+                <LinearGradient colors={['#2345C2', '#3A5FE0']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ paddingVertical: 16 }}>
                   <Text className="text-white text-center font-bold text-base">{'Créer mon compte et rejoindre'}</Text>
                 </LinearGradient>
               </Pressable>

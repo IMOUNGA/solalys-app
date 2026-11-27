@@ -150,8 +150,8 @@ export default function OpportunitiesScreen() {
             </View>
           )}
           {scope === 'all' && item.group && (
-            <View className="bg-violet-50 dark:bg-violet-950 rounded-full px-2.5 py-1 flex-1">
-              <Text className="text-xs font-semibold text-violet-600 dark:text-violet-400" numberOfLines={1}>
+            <View className="bg-brand-50 dark:bg-brand-950 rounded-full px-2.5 py-1 flex-1">
+              <Text className="text-xs font-semibold text-brand-600 dark:text-brand-300" numberOfLines={1}>
                 {item.group.name}
               </Text>
             </View>
@@ -177,18 +177,18 @@ export default function OpportunitiesScreen() {
         <View className="flex-row items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-800">
           {isAuthor ? (
             <Pressable onPress={() => handleExpand(item)} className="flex-row items-center gap-1.5 active:opacity-70">
-              <IconSymbol name="person.2.fill" size={14} color="#8B5CF6" />
-              <Text className="text-xs font-semibold text-violet-600 dark:text-violet-400">
+              <IconSymbol name="person.2.fill" size={14} color="#2345C2" />
+              <Text className="text-xs font-semibold text-brand-600 dark:text-brand-300">
                 {item.interestCount} intéressé{item.interestCount > 1 ? 's' : ''}
               </Text>
-              <IconSymbol name={isExpanded ? 'chevron.up' as any : 'chevron.down' as any} size={12} color="#8B5CF6" />
+              <IconSymbol name={isExpanded ? 'chevron.up' as any : 'chevron.down' as any} size={12} color="#2345C2" />
             </Pressable>
           ) : (
             <Pressable
               onPress={() => handleToggleInterest(item)}
               disabled={isBusy || item.status === 'closed'}
               className={`flex-row items-center gap-1.5 rounded-full px-3 py-1.5 ${
-                item.interestedByMe ? 'bg-violet-500' : 'bg-gray-100 dark:bg-gray-800'
+                item.interestedByMe ? 'bg-brand' : 'bg-gray-100 dark:bg-gray-800'
               } ${item.status === 'closed' ? 'opacity-50' : 'active:opacity-70'}`}
             >
               <IconSymbol
@@ -205,7 +205,7 @@ export default function OpportunitiesScreen() {
           {isAuthor && item.status === 'open' && (
             <View className="flex-row gap-3">
               <Pressable onPress={() => handleClose(item)} disabled={isBusy} className="active:opacity-70">
-                <Text className="text-xs font-semibold text-blue-600 dark:text-blue-400">Clôturer</Text>
+                <Text className="text-xs font-semibold text-brand-600 dark:text-brand-300">Clôturer</Text>
               </Pressable>
               <Pressable onPress={() => showConfirm(`« ${item.title} » sera définitivement supprimée.`, () => handleDelete(item), 'Supprimer cette opportunité ?', 'Supprimer')} disabled={isBusy} className="active:opacity-70">
                 <Text className="text-xs font-semibold text-red-500">Supprimer</Text>
@@ -246,7 +246,7 @@ export default function OpportunitiesScreen() {
         <Text className="text-lg font-bold text-gray-900 dark:text-white flex-1">Board d'opportunités</Text>
         <Pressable
           onPress={() => router.push(`/(tabs)/(groupes)/${groupId}/opportunite-creer` as any)}
-          className="w-9 h-9 items-center justify-center bg-violet-500 rounded-full active:opacity-80"
+          className="w-9 h-9 items-center justify-center bg-brand rounded-full active:opacity-80"
         >
           <IconSymbol name="plus" size={18} color="#fff" />
         </Pressable>
@@ -254,12 +254,12 @@ export default function OpportunitiesScreen() {
 
       <View className="flex-row items-center gap-4 px-5 pt-3 bg-white dark:bg-gray-900">
         <Pressable onPress={() => setScope('group')} className="active:opacity-70">
-          <Text className={`text-xs font-semibold ${scope === 'group' ? 'text-violet-600 dark:text-violet-400' : 'text-gray-400 dark:text-gray-500'}`}>
+          <Text className={`text-xs font-semibold ${scope === 'group' ? 'text-brand-600 dark:text-brand-300' : 'text-gray-400 dark:text-gray-500'}`}>
             Ce groupe
           </Text>
         </Pressable>
         <Pressable onPress={() => setScope('all')} className="active:opacity-70">
-          <Text className={`text-xs font-semibold ${scope === 'all' ? 'text-violet-600 dark:text-violet-400' : 'text-gray-400 dark:text-gray-500'}`}>
+          <Text className={`text-xs font-semibold ${scope === 'all' ? 'text-brand-600 dark:text-brand-300' : 'text-gray-400 dark:text-gray-500'}`}>
             Tous mes groupes
           </Text>
         </Pressable>
@@ -268,7 +268,7 @@ export default function OpportunitiesScreen() {
       <View className="flex-row gap-3 px-5 py-3 bg-white dark:bg-gray-900">
         <Pressable
           onPress={() => setActiveTab('open')}
-          className={`flex-1 py-2.5 rounded-xl ${activeTab === 'open' ? 'bg-violet-500' : 'bg-gray-100 dark:bg-gray-800'}`}
+          className={`flex-1 py-2.5 rounded-xl ${activeTab === 'open' ? 'bg-brand' : 'bg-gray-100 dark:bg-gray-800'}`}
         >
           <Text className={`text-center font-semibold text-sm ${activeTab === 'open' ? 'text-white' : 'text-gray-600 dark:text-gray-300'}`}>
             Ouvertes ({openCount})
@@ -276,7 +276,7 @@ export default function OpportunitiesScreen() {
         </Pressable>
         <Pressable
           onPress={() => setActiveTab('closed')}
-          className={`flex-1 py-2.5 rounded-xl ${activeTab === 'closed' ? 'bg-violet-500' : 'bg-gray-100 dark:bg-gray-800'}`}
+          className={`flex-1 py-2.5 rounded-xl ${activeTab === 'closed' ? 'bg-brand' : 'bg-gray-100 dark:bg-gray-800'}`}
         >
           <Text className={`text-center font-semibold text-sm ${activeTab === 'closed' ? 'text-white' : 'text-gray-600 dark:text-gray-300'}`}>
             Clôturées ({closedCount})
@@ -286,7 +286,7 @@ export default function OpportunitiesScreen() {
 
       {loading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#8B5CF6" />
+          <ActivityIndicator size="large" color="#2345C2" />
         </View>
       ) : (
         <FlatList
@@ -294,7 +294,7 @@ export default function OpportunitiesScreen() {
           keyExtractor={(item) => String(item.id)}
           renderItem={renderItem}
           contentContainerStyle={{ padding: 20, paddingBottom: 40 }}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#8B5CF6" />}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#2345C2" />}
           ListEmptyComponent={
             <View className="items-center justify-center py-20 px-8">
               <View className="bg-white dark:bg-gray-900 rounded-full p-6 mb-4">

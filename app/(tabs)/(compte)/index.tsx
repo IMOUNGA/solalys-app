@@ -136,7 +136,7 @@ const CompteScreen = () => {
         return (
             <View className="flex-1 bg-white">
                 <LinearGradient
-                    colors={['#3B82F6', '#8B5CF6', '#FFFFFF']}
+                    colors={['#2345C2', '#3A5FE0', '#FFFFFF']}
                     locations={[0, 0.5, 1]}
                     style={{ flex: 1 }}
                 >
@@ -160,7 +160,7 @@ const CompteScreen = () => {
                                         colors={['#FFFFFF', '#F3F4F6']}
                                         style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 16 }}
                                     />
-                                    <Text className="text-blue-600 font-bold text-lg relative z-10">
+                                    <Text className="text-brand-600 font-bold text-lg relative z-10">
                                         Se connecter
                                     </Text>
                                 </Pressable>
@@ -175,7 +175,7 @@ const CompteScreen = () => {
     return (
         <View className="flex-1 bg-white">
             <LinearGradient
-                colors={['#3B82F6', '#8B5CF6', '#FFFFFF']}
+                colors={['#2345C2', '#3A5FE0', '#FFFFFF']}
                 locations={[0, 0.4, 0.8]}
                 style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 300 }}
             />
@@ -211,7 +211,7 @@ const CompteScreen = () => {
                                         <ActivityIndicator color="#fff" />
                                     </View>
                                 )}
-                                <View className="absolute bottom-0 right-0 bg-blue-500 rounded-full p-2">
+                                <View className="absolute bottom-0 right-0 bg-brand rounded-full p-2">
                                     <IconSymbol name="camera.fill" size={16} color="#fff" />
                                 </View>
                             </Pressable>
@@ -242,8 +242,8 @@ const CompteScreen = () => {
                                     className="flex-1 p-5 items-center border-r border-gray-100 active:bg-gray-50"
                                     onPress={() => router.push('/(tabs)/(events)')}
                                 >
-                                    <View className="bg-violet-100 rounded-full p-3 mb-3">
-                                        <IconSymbol name="calendar" size={28} color="#8B5CF6" />
+                                    <View className="bg-brand-50 rounded-full p-3 mb-3">
+                                        <IconSymbol name="calendar" size={28} color="#2345C2" />
                                     </View>
                                     <Text className="text-2xl font-bold text-gray-900 mb-1">
                                         {myParticipations?.length || 0}
@@ -278,7 +278,7 @@ const CompteScreen = () => {
                             className="active:opacity-90"
                         >
                             <LinearGradient
-                                colors={['#10B981', '#3B82F6']}
+                                colors={['#2345C2', '#3A5FE0']}
                                 start={{ x: 0, y: 0 }}
                                 end={{ x: 1, y: 0 }}
                                 style={{ borderRadius: 16, padding: 18 }}
@@ -317,8 +317,8 @@ const CompteScreen = () => {
                                 }}
                                 onPress={() => router.push('/(tabs)/(compte)/abonnement' as any)}
                             >
-                                <View className="bg-violet-50 rounded-full p-3 mr-4">
-                                    <IconSymbol name="star.fill" size={24} color="#8B5CF6" />
+                                <View className="bg-brand-50 rounded-full p-3 mr-4">
+                                    <IconSymbol name="star.fill" size={24} color="#2345C2" />
                                 </View>
                                 <View className="flex-1">
                                     <Text className="text-base font-semibold text-gray-900">
@@ -342,8 +342,8 @@ const CompteScreen = () => {
                                 }}
                                 onPress={() => router.push('/(tabs)/(compte)/account-settings')}
                             >
-                                <View className="bg-blue-50 rounded-full p-3 mr-4">
-                                    <IconSymbol name="person.circle" size={24} color="#3B82F6" />
+                                <View className="bg-brand-50 rounded-full p-3 mr-4">
+                                    <IconSymbol name="person.circle" size={24} color="#2345C2" />
                                 </View>
                                 <View className="flex-1">
                                     <Text className="text-base font-semibold text-gray-900">

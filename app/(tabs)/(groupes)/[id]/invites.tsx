@@ -229,14 +229,14 @@ export default function GuestsScreen() {
         {tab === 'upcoming' && (
           <Pressable
             onPress={() => router.push(`/(tabs)/(groupes)/${groupId}/invite-creer` as any)}
-            className="w-9 h-9 items-center justify-center bg-violet-500 rounded-full active:opacity-80"
+            className="w-9 h-9 items-center justify-center bg-brand rounded-full active:opacity-80"
           >
             <IconSymbol name="plus" size={18} color="#fff" />
           </Pressable>
         )}
         {tab === 'follow-up' && !followUpRestricted && (
           <Pressable onPress={handleExportCsv} disabled={exporting} className="w-9 h-9 items-center justify-center active:opacity-70">
-            {exporting ? <ActivityIndicator size="small" color="#8B5CF6" /> : <IconSymbol name="square.and.arrow.up" size={20} color="#8B5CF6" />}
+            {exporting ? <ActivityIndicator size="small" color="#2345C2" /> : <IconSymbol name="square.and.arrow.up" size={20} color="#2345C2" />}
           </Pressable>
         )}
       </View>
@@ -244,7 +244,7 @@ export default function GuestsScreen() {
       <View className="flex-row gap-3 px-5 py-3 bg-white dark:bg-gray-900">
         <Pressable
           onPress={() => setTab('upcoming')}
-          className={`flex-1 py-2.5 rounded-xl ${tab === 'upcoming' ? 'bg-violet-500' : 'bg-gray-100 dark:bg-gray-800'}`}
+          className={`flex-1 py-2.5 rounded-xl ${tab === 'upcoming' ? 'bg-brand' : 'bg-gray-100 dark:bg-gray-800'}`}
         >
           <Text className={`text-center font-semibold text-sm ${tab === 'upcoming' ? 'text-white' : 'text-gray-600 dark:text-gray-300'}`}>
             À venir ({upcoming.length})
@@ -252,7 +252,7 @@ export default function GuestsScreen() {
         </Pressable>
         <Pressable
           onPress={() => setTab('follow-up')}
-          className={`flex-1 py-2.5 rounded-xl ${tab === 'follow-up' ? 'bg-violet-500' : 'bg-gray-100 dark:bg-gray-800'}`}
+          className={`flex-1 py-2.5 rounded-xl ${tab === 'follow-up' ? 'bg-brand' : 'bg-gray-100 dark:bg-gray-800'}`}
         >
           <Text className={`text-center font-semibold text-sm ${tab === 'follow-up' ? 'text-white' : 'text-gray-600 dark:text-gray-300'}`}>
             Relances {followUpRestricted ? '🔒' : `(${followUp.length})`}
@@ -262,14 +262,14 @@ export default function GuestsScreen() {
 
       {loading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#8B5CF6" />
+          <ActivityIndicator size="large" color="#2345C2" />
         </View>
       ) : tab === 'upcoming' ? (
         <FlatList
           data={upcoming}
           keyExtractor={(item) => String(item.id)}
           contentContainerStyle={{ padding: 20, paddingBottom: 40 }}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#8B5CF6" />}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#2345C2" />}
           renderItem={({ item }) => {
             const info = upcomingStatusInfo(item.status);
             const isBusy = busyId === item.id;
@@ -292,8 +292,8 @@ export default function GuestsScreen() {
                   </Text>
                   {item.visitDate && (
                     <View className="flex-row items-center gap-1.5 mt-1">
-                      <IconSymbol name="calendar" size={13} color="#8B5CF6" />
-                      <Text className="text-xs font-semibold text-violet-500">Vient le {formatShortDate(item.visitDate)}</Text>
+                      <IconSymbol name="calendar" size={13} color="#2345C2" />
+                      <Text className="text-xs font-semibold text-brand-600">Vient le {formatShortDate(item.visitDate)}</Text>
                     </View>
                   )}
                 </View>
@@ -307,7 +307,7 @@ export default function GuestsScreen() {
                     <Pressable
                       onPress={() => handleValidate(item)}
                       disabled={isBusy}
-                      className="rounded-full px-4 py-2 bg-violet-500 active:opacity-80"
+                      className="rounded-full px-4 py-2 bg-brand active:opacity-80"
                     >
                       <Text className="text-xs font-bold text-white">{isBusy ? '...' : 'Valider'}</Text>
                     </Pressable>
@@ -347,11 +347,11 @@ export default function GuestsScreen() {
           data={myGuests}
           keyExtractor={(item) => String(item.id)}
           contentContainerStyle={{ padding: 20, paddingBottom: 40 }}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#8B5CF6" />}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#2345C2" />}
           ListHeaderComponent={
-            <View className="flex-row gap-2.5 bg-violet-50 dark:bg-violet-950/40 rounded-2xl p-3.5 mb-4">
-              <IconSymbol name="lock.fill" size={16} color="#8B5CF6" />
-              <Text className="text-xs text-violet-700 dark:text-violet-300 flex-1">
+            <View className="flex-row gap-2.5 bg-brand-50 dark:bg-brand-950/40 rounded-2xl p-3.5 mb-4">
+              <IconSymbol name="lock.fill" size={16} color="#2345C2" />
+              <Text className="text-xs text-brand-600 dark:text-brand-300 flex-1">
                 Les relances (conversion, export) sont réservées au président, vice-président ou secrétaire, avec un abonnement Pro ou supérieur.
                 {myGuests.length > 0 ? ' Voici où en sont les invités que tu as amenés :' : ''}
               </Text>
@@ -374,7 +374,7 @@ export default function GuestsScreen() {
                 </View>
                 {item.metier && <Text className="text-xs text-gray-500 dark:text-gray-400">{item.metier}</Text>}
                 {item.feedback && (
-                  <Text className="text-sm text-violet-600 dark:text-violet-400 italic mt-1.5">"{item.feedback}"</Text>
+                  <Text className="text-sm text-brand-600 dark:text-brand-300 italic mt-1.5">"{item.feedback}"</Text>
                 )}
               </View>
             );
@@ -417,7 +417,7 @@ export default function GuestsScreen() {
           sections={followUpSections}
           keyExtractor={(item) => String(item.id)}
           contentContainerStyle={{ padding: 20, paddingBottom: 40 }}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#8B5CF6" />}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#2345C2" />}
           renderSectionHeader={({ section }) => (
             <Text className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase mb-2 mt-4">{section.title}</Text>
           )}
@@ -448,7 +448,7 @@ export default function GuestsScreen() {
                     <Text className="text-sm text-gray-600 dark:text-gray-300 mt-1" numberOfLines={2}>{item.notes}</Text>
                   )}
                   {item.feedback && !isExpanded && (
-                    <Text className="text-sm text-violet-600 dark:text-violet-400 italic mt-1" numberOfLines={2}>
+                    <Text className="text-sm text-brand-600 dark:text-brand-300 italic mt-1" numberOfLines={2}>
                       "{item.feedback}"
                     </Text>
                   )}
@@ -512,7 +512,7 @@ export default function GuestsScreen() {
                         <Pressable
                           onPress={() => handleSaveNotes(item)}
                           disabled={busyId === item.id}
-                          className="rounded-full px-4 py-2 bg-violet-500 active:opacity-80"
+                          className="rounded-full px-4 py-2 bg-brand active:opacity-80"
                         >
                           <Text className="text-xs font-bold text-white">Enregistrer</Text>
                         </Pressable>

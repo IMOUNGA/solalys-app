@@ -274,8 +274,8 @@ export default function EventDetailScreen() {
           style={{ marginTop: -20, borderTopLeftRadius: 24, borderTopRightRadius: 24 }}
         >
           {currentEvent.group && (
-            <View className="bg-blue-50 dark:bg-blue-950 px-3 py-1 rounded-full self-start mb-3">
-              <Text className="text-sm font-semibold text-blue-700 dark:text-blue-300">
+            <View className="bg-brand-50 dark:bg-brand-950 px-3 py-1 rounded-full self-start mb-3">
+              <Text className="text-sm font-semibold text-brand-600 dark:text-brand-300">
                 {currentEvent.group.name}
               </Text>
             </View>
@@ -288,13 +288,13 @@ export default function EventDetailScreen() {
           {/* Chips résumé */}
           <View className="flex-row flex-wrap gap-2 mb-6">
             <View className="flex-row items-center gap-1.5 bg-gray-100 dark:bg-gray-900 rounded-full px-3 py-1.5">
-              <IconSymbol name="calendar" size={14} color="#3B82F6" />
+              <IconSymbol name="calendar" size={14} color="#2345C2" />
               <Text className="text-xs font-semibold text-gray-700 dark:text-gray-300">
                 {formatShortDate(currentEvent.hours)}
               </Text>
             </View>
             <View className="flex-row items-center gap-1.5 bg-gray-100 dark:bg-gray-900 rounded-full px-3 py-1.5">
-              <IconSymbol name="person.2.fill" size={14} color="#8B5CF6" />
+              <IconSymbol name="person.2.fill" size={14} color="#2345C2" />
               <Text className="text-xs font-semibold text-gray-700 dark:text-gray-300">
                 {participants.length} participant{participants.length > 1 ? 's' : ''}
               </Text>
@@ -326,8 +326,8 @@ export default function EventDetailScreen() {
           {/* Infos pratiques */}
           <View className="gap-5 mb-6">
             <View className="flex-row items-start gap-3">
-              <View className="bg-blue-50 dark:bg-blue-950 rounded-full p-2">
-                <IconSymbol name="calendar" size={18} color="#3B82F6" />
+              <View className="bg-brand-50 dark:bg-brand-950 rounded-full p-2">
+                <IconSymbol name="calendar" size={18} color="#2345C2" />
               </View>
               <View className="flex-1">
                 <Text className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Date et heure</Text>
@@ -352,7 +352,7 @@ export default function EventDetailScreen() {
                   </Text>
                 )}
                 {distance !== null && (
-                  <Text className="text-sm text-blue-600 dark:text-blue-400 font-semibold mt-0.5">
+                  <Text className="text-sm text-brand-600 dark:text-brand-300 font-semibold mt-0.5">
                     {currentEvent.detailsHidden ? 'Environ ' : ''}
                     {formatDistance(distance)} de vous
                   </Text>
@@ -410,9 +410,9 @@ export default function EventDetailScreen() {
               }
               className="active:opacity-80 mb-6"
             >
-              <View className="flex-row items-center gap-3 bg-blue-50 dark:bg-blue-950 rounded-2xl p-4">
+              <View className="flex-row items-center gap-3 bg-brand-50 dark:bg-brand-950 rounded-2xl p-4">
                 <View className="bg-white dark:bg-gray-800 rounded-full p-2.5">
-                  <IconSymbol name="person.2.fill" size={20} color="#3B82F6" />
+                  <IconSymbol name="person.2.fill" size={20} color="#2345C2" />
                 </View>
                 <View className="flex-1">
                   <Text className="text-base font-bold text-gray-900 dark:text-white">
@@ -422,7 +422,7 @@ export default function EventDetailScreen() {
                     {currentEvent.group.name}
                   </Text>
                 </View>
-                <IconSymbol name="chevron.right" size={18} color="#3B82F6" />
+                <IconSymbol name="chevron.right" size={18} color="#2345C2" />
               </View>
             </Pressable>
           )}

@@ -20,7 +20,7 @@ const STATUS_LABEL: Record<string, string> = {
 
 const STATUS_COLOR: Record<string, { bg: string; text: string }> = {
   pending: { bg: 'bg-amber-50 dark:bg-amber-950', text: 'text-amber-700 dark:text-amber-300' },
-  accepted: { bg: 'bg-blue-50 dark:bg-blue-950', text: 'text-blue-700 dark:text-blue-300' },
+  accepted: { bg: 'bg-brand-50 dark:bg-brand-950', text: 'text-brand-600 dark:text-brand-300' },
   converted: { bg: 'bg-green-50 dark:bg-green-950', text: 'text-green-700 dark:text-green-300' },
   declined: { bg: 'bg-gray-100 dark:bg-gray-800', text: 'text-gray-500 dark:text-gray-400' },
 };
@@ -159,9 +159,9 @@ export default function ReferralsScreen() {
               <Pressable
                 onPress={() => updateStatus(item.id, 'accepted')}
                 disabled={isBusy}
-                className="flex-1 py-2.5 rounded-xl bg-blue-50 dark:bg-blue-950 items-center active:opacity-70"
+                className="flex-1 py-2.5 rounded-xl bg-brand-50 dark:bg-brand-950 items-center active:opacity-70"
               >
-                <Text className="text-xs font-semibold text-blue-600 dark:text-blue-400">Accepter</Text>
+                <Text className="text-xs font-semibold text-brand-600 dark:text-brand-300">Accepter</Text>
               </Pressable>
             )}
             <Pressable

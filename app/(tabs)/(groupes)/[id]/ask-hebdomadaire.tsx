@@ -97,7 +97,7 @@ export default function WeeklyAskScreen() {
     if (editing) {
       return (
         <View
-          className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-5 border-2 border-violet-400"
+          className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-5 border-2 border-brand"
           style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 }}
         >
           <TextInput
@@ -126,7 +126,7 @@ export default function WeeklyAskScreen() {
                 onPress={handlePublish}
                 disabled={saving || !content.trim()}
                 className={`rounded-full px-4 py-2 ${
-                  saving || !content.trim() ? 'bg-gray-200 dark:bg-gray-800' : 'bg-violet-500 active:opacity-80'
+                  saving || !content.trim() ? 'bg-gray-200 dark:bg-gray-800' : 'bg-brand active:opacity-80'
                 }`}
               >
                 <Text
@@ -148,13 +148,13 @@ export default function WeeklyAskScreen() {
       return (
         <Pressable onPress={startEditing} className="active:opacity-80 mb-5">
           <View
-            className="bg-violet-50 dark:bg-violet-950 rounded-2xl p-4 border border-violet-200 dark:border-violet-800"
+            className="bg-brand-50 dark:bg-brand-950 rounded-2xl p-4 border border-brand-100 dark:border-violet-800"
           >
             <View className="flex-row items-center gap-1.5 mb-2">
-              <IconSymbol name="pin.fill" size={12} color="#8B5CF6" />
-              <Text className="text-xs font-bold text-violet-600 dark:text-violet-400">Votre demande cette semaine</Text>
+              <IconSymbol name="pin.fill" size={12} color="#2345C2" />
+              <Text className="text-xs font-bold text-brand-600 dark:text-brand-300">Votre demande cette semaine</Text>
               <View className="flex-1" />
-              <IconSymbol name="pencil" size={14} color="#8B5CF6" />
+              <IconSymbol name="pencil" size={14} color="#2345C2" />
             </View>
             <Text className="text-sm text-gray-900 dark:text-white">{myAsk.content}</Text>
           </View>
@@ -166,8 +166,8 @@ export default function WeeklyAskScreen() {
     return (
       <Pressable onPress={startEditing} className="active:opacity-80 mb-5">
         <View className="bg-white dark:bg-gray-900 rounded-2xl p-4 border-2 border-dashed border-gray-200 dark:border-gray-800 items-center">
-          <IconSymbol name="plus.circle.fill" size={22} color="#8B5CF6" />
-          <Text className="text-sm font-semibold text-violet-600 dark:text-violet-400 mt-2">
+          <IconSymbol name="plus.circle.fill" size={22} color="#2345C2" />
+          <Text className="text-sm font-semibold text-brand-600 dark:text-brand-300 mt-2">
             Publier ce que vous recherchez cette semaine
           </Text>
         </View>
@@ -189,7 +189,7 @@ export default function WeeklyAskScreen() {
 
       {loading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#8B5CF6" />
+          <ActivityIndicator size="large" color="#2345C2" />
         </View>
       ) : (
         <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
@@ -197,7 +197,7 @@ export default function WeeklyAskScreen() {
             data={othersAsks}
             keyExtractor={(item) => String(item.id)}
             contentContainerStyle={{ padding: 20, paddingBottom: 40 }}
-            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#8B5CF6" />}
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#2345C2" />}
             ListHeaderComponent={renderMySlot()}
             renderItem={({ item }) => (
               <View

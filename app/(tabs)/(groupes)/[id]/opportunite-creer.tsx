@@ -52,7 +52,7 @@ export default function CreateOpportunityScreen() {
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <View>
           <LinearGradient
-            colors={['#F59E0B', '#EC4899']}
+            colors={['#F2B632', '#E39B12']}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={{ paddingBottom: 28 }}
@@ -138,7 +138,7 @@ export default function CreateOpportunityScreen() {
             className={`rounded-2xl overflow-hidden mt-2 ${isSending ? 'opacity-60' : 'active:opacity-90'}`}
           >
             <LinearGradient
-              colors={['#F59E0B', '#EC4899']}
+              colors={['#F2B632', '#E39B12']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={{ paddingVertical: 16 }}

@@ -112,8 +112,8 @@ export default function GroupesScreen() {
           )}
           {item.events && item.events.length > 0 && (
             <View className="flex-row items-center gap-2">
-              <View className="bg-blue-50 rounded-full p-1.5">
-                <IconSymbol name="calendar" size={16} color="#3B82F6" />
+              <View className="bg-brand-50 rounded-full p-1.5">
+                <IconSymbol name="calendar" size={16} color="#2345C2" />
               </View>
               <Text className="text-sm text-gray-700 font-medium">
                 {item.events.length} événement{item.events.length > 1 ? 's' : ''}
@@ -127,11 +127,11 @@ export default function GroupesScreen() {
       {activeTab === 'creator' && (
         <View className="flex-row gap-2 mt-4 pt-4 border-t border-gray-100">
           <Pressable
-            className="flex-1 py-3 px-4 rounded-xl bg-blue-50 active:bg-blue-100 flex-row items-center justify-center gap-2"
+            className="flex-1 py-3 px-4 rounded-xl bg-brand-50 active:bg-brand-50 flex-row items-center justify-center gap-2"
             onPress={() => router.push(`/(tabs)/(groupes)/${item.id}/edit` as any)}
           >
-            <IconSymbol name="pencil" size={18} color="#3B82F6" />
-            <Text className="text-blue-600 font-semibold">Modifier</Text>
+            <IconSymbol name="pencil" size={18} color="#2345C2" />
+            <Text className="text-brand-600 font-semibold">Modifier</Text>
           </Pressable>
           <Pressable
             className="flex-1 py-3 px-4 rounded-xl bg-red-50 active:bg-red-100 flex-row items-center justify-center gap-2"
@@ -152,7 +152,7 @@ export default function GroupesScreen() {
     return (
       <View className="flex-1 bg-white">
         <LinearGradient
-          colors={['#10B981', '#3B82F6', '#FFFFFF']}
+          colors={['#2345C2', '#3A5FE0', '#FFFFFF']}
           locations={[0, 0.5, 1]}
           style={{ flex: 1 }}
         >
@@ -190,7 +190,7 @@ export default function GroupesScreen() {
     return (
       <View className="flex-1 bg-white">
         <LinearGradient
-          colors={['#10B981', '#3B82F6', '#FFFFFF']}
+          colors={['#2345C2', '#3A5FE0', '#FFFFFF']}
           locations={[0, 0.3, 0.7]}
           style={{ flex: 1 }}
         >
@@ -208,7 +208,7 @@ export default function GroupesScreen() {
   return (
     <View className="flex-1 bg-white">
       <LinearGradient
-        colors={['#10B981', '#3B82F6', '#FFFFFF']}
+        colors={['#2345C2', '#3A5FE0', '#FFFFFF']}
         locations={[0, 0.4, 0.8]}
         style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 280 }}
       />
@@ -310,7 +310,7 @@ export default function GroupesScreen() {
                 onPress={() => router.push(activeTab === 'member' ? '/(tabs)/(groupes)/invitations' as any : '/(tabs)/(groupes)/create' as any)}
               >
                 <LinearGradient
-                  colors={['#10B981', '#3B82F6']}
+                  colors={['#2345C2', '#3A5FE0']}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                   style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 16 }}

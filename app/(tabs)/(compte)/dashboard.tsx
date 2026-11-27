@@ -320,7 +320,7 @@ export default function DashboardScreen() {
       </View>
 
       <LinearGradient
-        colors={['#10B981', '#3B82F6']}
+        colors={['#2345C2', '#3A5FE0']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={{ borderRadius: 24, padding: 24, marginBottom: 24 }}
@@ -391,7 +391,7 @@ export default function DashboardScreen() {
                       </Text>
                       <View className="h-1.5 bg-gray-100 dark:bg-gray-900 rounded-full overflow-hidden mt-1">
                         <View
-                          className="h-1.5 bg-blue-500 rounded-full"
+                          className="h-1.5 bg-brand rounded-full"
                           style={{ width: `${Math.max(6, (p.total / maxPersonTotal) * 100)}%` }}
                         />
                       </View>
@@ -447,7 +447,7 @@ export default function DashboardScreen() {
       data={opportunities}
       keyExtractor={(item) => String(item.id)}
       contentContainerStyle={{ padding: 20, paddingBottom: 40 }}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#8B5CF6" />}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#2345C2" />}
       renderItem={({ item }) => {
         const info = opportunityTypeInfo(item.type);
         const isAuthor = Number(user?.id) === item.userId;
@@ -478,8 +478,8 @@ export default function DashboardScreen() {
                   </View>
                 )}
                 {item.group && (
-                  <View className="bg-violet-50 dark:bg-violet-950 rounded-full px-2.5 py-1 flex-1">
-                    <Text className="text-xs font-semibold text-violet-600 dark:text-violet-400" numberOfLines={1}>
+                  <View className="bg-brand-50 dark:bg-brand-950 rounded-full px-2.5 py-1 flex-1">
+                    <Text className="text-xs font-semibold text-brand-600 dark:text-brand-300" numberOfLines={1}>
                       {item.group.name}
                     </Text>
                   </View>
@@ -504,7 +504,7 @@ export default function DashboardScreen() {
                   onPress={() => handleToggleInterest(item)}
                   disabled={isBusy || item.status === 'closed'}
                   className={`self-start flex-row items-center gap-1.5 rounded-full px-3 py-1.5 ${
-                    item.interestedByMe ? 'bg-violet-500' : 'bg-gray-100 dark:bg-gray-800'
+                    item.interestedByMe ? 'bg-brand' : 'bg-gray-100 dark:bg-gray-800'
                   } ${item.status === 'closed' ? 'opacity-50' : 'active:opacity-70'}`}
                 >
                   <IconSymbol name="hand.raised.fill" size={13} color={item.interestedByMe ? '#fff' : '#6B7280'} />
@@ -538,7 +538,7 @@ export default function DashboardScreen() {
       data={guests}
       keyExtractor={(item) => String(item.id)}
       contentContainerStyle={{ padding: 20, paddingBottom: 40 }}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#8B5CF6" />}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#2345C2" />}
       ListHeaderComponent={
         guests.length > 0 ? (
           <Text className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">
@@ -574,7 +574,7 @@ export default function DashboardScreen() {
                 {item.metier ? `${item.metier} · ` : ''}{item.group?.name}
               </Text>
               {item.feedback && (
-                <Text className="text-sm text-violet-600 dark:text-violet-400 italic mt-1.5" numberOfLines={2}>
+                <Text className="text-sm text-brand-600 dark:text-brand-300 italic mt-1.5" numberOfLines={2}>
                   "{item.feedback}"
                 </Text>
               )}
@@ -609,7 +609,7 @@ export default function DashboardScreen() {
         <Text className="text-lg font-bold text-gray-900 dark:text-white flex-1">Dashboard</Text>
         <Pressable
           onPress={handleCreatePress}
-          className="w-9 h-9 items-center justify-center bg-violet-500 rounded-full active:opacity-80"
+          className="w-9 h-9 items-center justify-center bg-brand rounded-full active:opacity-80"
         >
           <IconSymbol name="plus" size={18} color="#fff" />
         </Pressable>
@@ -626,7 +626,7 @@ export default function DashboardScreen() {
         </Pressable>
         <Pressable
           onPress={() => setTab('opportunities')}
-          className={`flex-1 py-2.5 rounded-xl ${tab === 'opportunities' ? 'bg-violet-500' : 'bg-gray-100 dark:bg-gray-800'}`}
+          className={`flex-1 py-2.5 rounded-xl ${tab === 'opportunities' ? 'bg-brand' : 'bg-gray-100 dark:bg-gray-800'}`}
         >
           <Text className={`text-center font-semibold text-xs ${tab === 'opportunities' ? 'text-white' : 'text-gray-600 dark:text-gray-300'}`}>
             Opportunités
@@ -634,7 +634,7 @@ export default function DashboardScreen() {
         </Pressable>
         <Pressable
           onPress={() => setTab('guests')}
-          className={`flex-1 py-2.5 rounded-xl ${tab === 'guests' ? 'bg-violet-500' : 'bg-gray-100 dark:bg-gray-800'}`}
+          className={`flex-1 py-2.5 rounded-xl ${tab === 'guests' ? 'bg-brand' : 'bg-gray-100 dark:bg-gray-800'}`}
         >
           <Text className={`text-center font-semibold text-xs ${tab === 'guests' ? 'text-white' : 'text-gray-600 dark:text-gray-300'}`}>
             Invités
@@ -701,7 +701,7 @@ export default function DashboardScreen() {
 
       {isLoading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#8B5CF6" />
+          <ActivityIndicator size="large" color="#2345C2" />
         </View>
       ) : tab === 'ca' ? (
         renderCaTab()

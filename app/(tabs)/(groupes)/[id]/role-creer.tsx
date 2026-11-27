@@ -57,7 +57,7 @@ export default function CreateGroupRoleScreen() {
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <View>
           <LinearGradient
-            colors={['#3B82F6', '#8B5CF6']}
+            colors={['#2345C2', '#3A5FE0']}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={{ paddingBottom: 20 }}
@@ -87,7 +87,7 @@ export default function CreateGroupRoleScreen() {
             return (
               <Pressable
                 onPress={() => setSelectedId(item.id)}
-                className={`flex-row items-center gap-3 p-3 rounded-xl mb-2 ${isSelected ? 'bg-blue-50 dark:bg-blue-950 border-2 border-blue-500' : 'bg-gray-50 dark:bg-gray-900 border-2 border-transparent'}`}
+                className={`flex-row items-center gap-3 p-3 rounded-xl mb-2 ${isSelected ? 'bg-brand-50 dark:bg-brand-950 border-2 border-brand' : 'bg-gray-50 dark:bg-gray-900 border-2 border-transparent'}`}
               >
                 <Avatar name={`${item.firstname} ${item.lastname}`} uri={item.avatar} size={40} />
                 <View className="flex-1">
@@ -98,7 +98,7 @@ export default function CreateGroupRoleScreen() {
                     <Text className="text-xs text-gray-500 dark:text-gray-400">Créateur du groupe</Text>
                   )}
                 </View>
-                {isSelected && <IconSymbol name="checkmark.circle.fill" size={22} color="#3B82F6" />}
+                {isSelected && <IconSymbol name="checkmark.circle.fill" size={22} color="#2345C2" />}
               </Pressable>
             );
           }}
@@ -112,7 +112,7 @@ export default function CreateGroupRoleScreen() {
                 <Pressable
                   key={t}
                   onPress={() => setTitle(t)}
-                  className={`px-3.5 py-2 rounded-full ${title === t ? 'bg-blue-500' : 'bg-gray-100 dark:bg-gray-900'}`}
+                  className={`px-3.5 py-2 rounded-full ${title === t ? 'bg-brand' : 'bg-gray-100 dark:bg-gray-900'}`}
                 >
                   <Text className={`text-sm font-semibold ${title === t ? 'text-white' : 'text-gray-600 dark:text-gray-300'}`}>
                     {t}
@@ -121,7 +121,7 @@ export default function CreateGroupRoleScreen() {
               ))}
               <Pressable
                 onPress={() => setTitle('autre')}
-                className={`px-3.5 py-2 rounded-full ${title === 'autre' ? 'bg-blue-500' : 'bg-gray-100 dark:bg-gray-900'}`}
+                className={`px-3.5 py-2 rounded-full ${title === 'autre' ? 'bg-brand' : 'bg-gray-100 dark:bg-gray-900'}`}
               >
                 <Text className={`text-sm font-semibold ${title === 'autre' ? 'text-white' : 'text-gray-600 dark:text-gray-300'}`}>
                   Autre
@@ -143,9 +143,9 @@ export default function CreateGroupRoleScreen() {
             </View>
           )}
 
-          <View className="flex-row items-start gap-2 bg-blue-50 dark:bg-blue-950 rounded-xl p-3">
-            <IconSymbol name="info.circle.fill" size={16} color="#3B82F6" />
-            <Text className="flex-1 text-xs text-blue-700 dark:text-blue-300 leading-4">
+          <View className="flex-row items-start gap-2 bg-brand-50 dark:bg-brand-950 rounded-xl p-3">
+            <IconSymbol name="info.circle.fill" size={16} color="#2345C2" />
+            <Text className="flex-1 text-xs text-brand-600 dark:text-brand-300 leading-4">
               Un seul membre peut être Président par groupe. Les autres rôles n'ont pas de limite.
             </Text>
           </View>
@@ -156,7 +156,7 @@ export default function CreateGroupRoleScreen() {
             className={`rounded-2xl overflow-hidden mt-2 ${isSending ? 'opacity-60' : 'active:opacity-90'}`}
           >
             <LinearGradient
-              colors={['#3B82F6', '#8B5CF6']}
+              colors={['#2345C2', '#3A5FE0']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={{ paddingVertical: 16 }}

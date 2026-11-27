@@ -97,14 +97,14 @@ export default function RecurringSeriesScreen() {
 
       {loading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#8B5CF6" />
+          <ActivityIndicator size="large" color="#2345C2" />
         </View>
       ) : (
         <FlatList
           data={series}
           keyExtractor={(item) => String(item.id)}
           contentContainerStyle={{ padding: 20, paddingBottom: 40 }}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#8B5CF6" />}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#2345C2" />}
           renderItem={({ item }) => {
             const isBusy = busyId === item.id;
             return (
@@ -131,7 +131,7 @@ export default function RecurringSeriesScreen() {
                   <Pressable
                     onPress={() => handleToggleActive(item)}
                     disabled={isBusy}
-                    className={`rounded-full px-4 py-2 ${item.active ? 'bg-gray-100 dark:bg-gray-800' : 'bg-violet-500'}`}
+                    className={`rounded-full px-4 py-2 ${item.active ? 'bg-gray-100 dark:bg-gray-800' : 'bg-brand'}`}
                   >
                     <Text className={`text-xs font-bold ${item.active ? 'text-gray-600 dark:text-gray-300' : 'text-white'}`}>
                       {isBusy ? '...' : item.active ? 'Mettre en pause' : 'Reprendre'}

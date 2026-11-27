@@ -54,7 +54,7 @@ const ForgotPasswordScreen = () => {
         return (
             <View className="flex-1 bg-white">
                 <LinearGradient
-                    colors={['#10B981', '#3B82F6']}
+                    colors={['#2345C2', '#3A5FE0']}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }}
                     style={{ flex: 1 }}
@@ -80,7 +80,7 @@ const ForgotPasswordScreen = () => {
                                 onPress={() => router.push('/(auth)/sign-in')}
                             >
                                 <LinearGradient
-                                    colors={['#10B981', '#3B82F6']}
+                                    colors={['#2345C2', '#3A5FE0']}
                                     start={{ x: 0, y: 0 }}
                                     end={{ x: 1, y: 0 }}
                                     style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 16 }}
@@ -92,11 +92,11 @@ const ForgotPasswordScreen = () => {
 
                             {/* Mode dev: afficher le token et lien vers reset password */}
                             {__DEV__ && devToken && (
-                                <View className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-2xl w-full">
-                                    <Text className="text-blue-800 text-sm font-semibold mb-2">
+                                <View className="mt-6 p-4 bg-brand-50 border border-brand-100 rounded-2xl w-full">
+                                    <Text className="text-brand-600 text-sm font-semibold mb-2">
                                         🔧 Mode Développement
                                     </Text>
-                                    <Text className="text-blue-600 text-xs mb-2">
+                                    <Text className="text-brand-600 text-xs mb-2">
                                         Voici le token de réinitialisation :
                                     </Text>
 
@@ -107,7 +107,7 @@ const ForgotPasswordScreen = () => {
                                         </Text>
                                         <Pressable
                                             className="px-3 py-2 rounded-lg flex-row items-center gap-1 active:opacity-80"
-                                            style={{ backgroundColor: isCopied ? '#10b981' : '#3B82F6' }}
+                                            style={{ backgroundColor: isCopied ? '#10b981' : '#2345C2' }}
                                             onPress={async () => {
                                                 await Clipboard.setStringAsync(devToken);
                                                 setIsCopied(true);
@@ -125,11 +125,11 @@ const ForgotPasswordScreen = () => {
                                         </Pressable>
                                     </View>
 
-                                    <Text className="text-blue-600 text-xs mb-3">
+                                    <Text className="text-brand-600 text-xs mb-3">
                                         Cliquez sur "Copier" puis utilisez-le sur la page de réinitialisation.
                                     </Text>
                                     <Pressable
-                                        className="bg-blue-600 py-3 px-4 rounded-xl active:opacity-80"
+                                        className="bg-brand py-3 px-4 rounded-xl active:opacity-80"
                                         onPress={() => router.push('/(auth)/reset-password')}
                                     >
                                         <Text className="text-white text-center font-semibold text-sm">
@@ -148,7 +148,7 @@ const ForgotPasswordScreen = () => {
     return (
         <View className="flex-1">
             <LinearGradient
-                colors={['#3B82F6', '#8B5CF6']}
+                colors={['#2345C2', '#3A5FE0']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={{ flex: 1 }}
@@ -213,7 +213,7 @@ const ForgotPasswordScreen = () => {
                                     disabled={isLoading}
                                 >
                                     <LinearGradient
-                                        colors={isLoading ? ['#9ca3af', '#9ca3af'] : ['#3B82F6', '#8B5CF6']}
+                                        colors={isLoading ? ['#9ca3af', '#9ca3af'] : ['#2345C2', '#3A5FE0']}
                                         start={{ x: 0, y: 0 }}
                                         end={{ x: 1, y: 0 }}
                                         style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 16 }}

@@ -30,8 +30,8 @@ const TIER_CONFIG: Record<'pro' | 'organisateur', {
   pro: {
     label: 'Pro',
     icon: 'star.fill',
-    accent: '#8B5CF6',
-    accentBg: '#EDE9FE',
+    accent: '#2345C2',
+    accentBg: '#EEF2FF',
     badge: 'Le plus populaire',
     features: [
       "Création d'événements & réunions",
@@ -200,20 +200,20 @@ export default function AbonnementScreen() {
 
       {loading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#8B5CF6" />
+          <ActivityIndicator size="large" color="#2345C2" />
         </View>
       ) : (
         <ScrollView
           contentContainerStyle={{ padding: 20, paddingBottom: 40 }}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#8B5CF6" />}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#2345C2" />}
         >
           {/* Palier actuel */}
           <View
             className="rounded-2xl p-4 mb-6 flex-row items-center gap-3 bg-white dark:bg-gray-900"
             style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 }}
           >
-            <View className="bg-violet-100 dark:bg-violet-950 rounded-full p-2.5">
-              <IconSymbol name={currentTier === 'gratuit' ? 'sparkles' : 'star.fill'} size={18} color="#8B5CF6" />
+            <View className="bg-brand-50 dark:bg-brand-950 rounded-full p-2.5">
+              <IconSymbol name={currentTier === 'gratuit' ? 'sparkles' : 'star.fill'} size={18} color="#2345C2" />
             </View>
             <View className="flex-1">
               <Text className="text-xs text-gray-500 dark:text-gray-400">Palier actuel</Text>
@@ -230,14 +230,14 @@ export default function AbonnementScreen() {
           </View>
 
           {managedOnWeb ? (
-            <View className="bg-violet-50 dark:bg-violet-950 rounded-3xl p-6 mb-6">
+            <View className="bg-brand-50 dark:bg-brand-950 rounded-3xl p-6 mb-6">
               <Text className="text-base font-bold text-gray-900 dark:text-white mb-2">Abonnement géré sur solalys.com</Text>
               <Text className="text-sm text-gray-600 dark:text-gray-300 leading-5 mb-4">
                 Vous vous êtes abonné(e) sur le site Solalys. Pour changer de formule, consulter vos factures ou résilier, rendez-vous dans votre espace en ligne.
               </Text>
               <Pressable
                 onPress={() => WebBrowser.openBrowserAsync('https://solalys.com/espace')}
-                className="bg-violet-600 rounded-2xl py-3 active:opacity-90"
+                className="bg-brand rounded-2xl py-3 active:opacity-90"
               >
                 <Text className="text-white text-center font-bold">Gérer mon abonnement</Text>
               </Pressable>
@@ -245,7 +245,7 @@ export default function AbonnementScreen() {
           ) : !hasAnyPackage ? (
             <View className="rounded-3xl overflow-hidden">
               <LinearGradient
-                colors={['#F59E0B', '#10B981']}
+                colors={['#F2B632', '#E39B12']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={{ padding: 28, alignItems: 'center' }}
@@ -362,7 +362,7 @@ export default function AbonnementScreen() {
                       disabled={!pkg || isCurrent || isPurchasing || !!purchasingId}
                       className={`rounded-2xl overflow-hidden ${isCurrent ? 'opacity-50' : isPurchasing ? 'opacity-70' : 'active:opacity-90'}`}
                     >
-                      <LinearGradient colors={['#8B5CF6', '#EC4899']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ paddingVertical: 14 }}>
+                      <LinearGradient colors={['#2345C2', '#3A5FE0']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ paddingVertical: 14 }}>
                         <Text className="text-white text-center font-bold">
                           {isCurrent ? 'Palier actuel' : isPurchasing ? '...' : pkg ? `S'abonner — ${pkg.product.priceString}` : 'Indisponible'}
                         </Text>
@@ -375,7 +375,7 @@ export default function AbonnementScreen() {
           )}
 
           <Pressable onPress={handleRestore} disabled={restoring} className="mt-2 mb-6 items-center active:opacity-70">
-            <Text className="text-sm font-semibold text-violet-600 dark:text-violet-400">
+            <Text className="text-sm font-semibold text-brand-600 dark:text-brand-300">
               {restoring ? 'Restauration...' : 'Restaurer mes achats'}
             </Text>
           </Pressable>
