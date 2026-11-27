@@ -260,7 +260,7 @@ export default function AbonnementScreen() {
                 </Text>
                 <Text className="text-white text-center text-sm leading-5" style={{ opacity: 0.92 }}>
                   {freeAccessUntil
-                    ? "Profitez de toutes les fonctionnalités de Solalys sans restriction pendant le lancement. Les abonnements Pro et Organisateur ouvriront ensuite, avec un premier mois offert."
+                    ? "Profitez de toutes les fonctionnalités de Solalys sans restriction pendant le lancement. Les abonnements Pro et Organisateur ouvriront ensuite."
                     : "Les abonnements Pro et Organisateur ne sont pas encore disponibles dans l'application. Réessayez un peu plus tard, ou abonnez-vous sur solalys.com."}
                 </Text>
               </LinearGradient>

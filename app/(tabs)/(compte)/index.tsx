@@ -325,7 +325,7 @@ const CompteScreen = () => {
                                         Mon abonnement
                                     </Text>
                                     <Text className="text-sm text-gray-600 mt-0.5">
-                                        Palier Pro/Organisateur, premier mois offert
+                                        Formules Pro et Organisateur
                                     </Text>
                                 </View>
                                 <IconSymbol name="chevron.right" size={20} color="#9CA3AF" />
