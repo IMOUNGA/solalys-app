@@ -6,7 +6,6 @@
     "start": "expo start",
     "start:dev": "dotenv -e .env.development -- expo start -c",
     "start:prod": "dotenv -e .env.production  -- expo start -c",
-    "reset-project": "node ./scripts/reset-project.js",
     "android": "dotenv -e .env.development -- expo run:android",
     "ios": "dotenv -e .env.development -- expo run:ios",
     "web": "expo start --web",

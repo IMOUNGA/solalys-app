@@ -5,6 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { ThemedText } from '@/components/themed-text';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useAppSelector } from '@/hooks/useRedux';
+import Constants from 'expo-constants';
 
 const { width } = Dimensions.get('window');
 
@@ -117,7 +118,7 @@ const AuthLandingScreen = () => {
 
                     {/* Footer */}
                     <Text className="text-white/80 text-center text-xs mt-8">
-                        Solalys v1.0.0 • Made with ❤️
+                        Solalys v{Constants.expoConfig?.version ?? ''}
                     </Text>
                 </View>
             </LinearGradient>

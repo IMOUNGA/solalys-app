@@ -1,7 +1,6 @@
-// Events
+// Routes d'authentification de l'API (préfixe /v1 ajouté par apiService).
 export const URLS = {
     AUTH: {
-        ROOT: '/auth',
         LOGIN: '/auth/signin',
         REGISTER: '/auth/signup',
         LOGOUT: '/auth/logout',
@@ -9,8 +8,4 @@ export const URLS = {
         FORGOT_PASSWORD: '/auth/forgot-password',
         RESET_PASSWORD: '/auth/reset-password',
     },
-    EVENT: {
-        ROOT: '/event/',
-        FIND_ALL: '/event/findall',
-    }
 }

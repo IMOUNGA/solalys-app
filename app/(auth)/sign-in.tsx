@@ -35,7 +35,7 @@ const SignIn = () => {
         if (emailError) newErrors.email = emailError;
 
         // Validation password
-        const passwordError = validatePassword(password);
+        const passwordError = password ? undefined : "Le mot de passe est requis";
         if (passwordError) newErrors.password = passwordError;
 
         setErrors(newErrors);

@@ -8,6 +8,7 @@ import { useAppDispatch, useAppSelector } from '@/hooks/useRedux';
 import { registerThunk } from '@/store/thunks/authThunks';
 import { validateFirstName, validateLastName, validateEmail, validatePassword } from '@/utils/validation';
 import { useErrorAlert } from '@/hooks/useAlert';
+import * as WebBrowser from 'expo-web-browser';
 
 const { width } = Dimensions.get('window');
 
@@ -55,7 +56,7 @@ const SignUp = () => {
         if (emailError) newErrors.email = emailError;
 
         // Validation password
-        const passwordError = validatePassword(password);
+        const passwordError = validatePassword(password, 8);
         if (passwordError) newErrors.password = passwordError;
 
         setErrors(newErrors);
@@ -66,7 +67,7 @@ const SignUp = () => {
         if (!validateForm()) return;
 
         try {
-            await dispatch(registerThunk({ firstName, lastName, email, password })).unwrap();
+            await dispatch(registerThunk({ firstname: firstName, lastname: lastName, email, password })).unwrap();
             router.replace('/(tabs)/(trouver)');
         } catch (err: any) {
             showErrorAlert(
@@ -185,6 +186,14 @@ const SignUp = () => {
                                     autoComplete="password-new"
                                     icon="lock"
                                 />
+
+                                <Text className="text-xs text-gray-500 -mt-2">8 caractères minimum.</Text>
+                                <Text className="text-xs text-gray-500 leading-5">
+                                    En créant un compte, vous acceptez les{' '}
+                                    <Text className="underline" onPress={() => WebBrowser.openBrowserAsync('https://solalys.com/mentions-legales')}>conditions d'utilisation et de vente</Text>
+                                    {' '}et la{' '}
+                                    <Text className="underline" onPress={() => WebBrowser.openBrowserAsync('https://solalys.com/confidentialite')}>politique de confidentialité</Text>.
+                                </Text>
 
                                 {/* Bouton de création de compte */}
                                 <Pressable

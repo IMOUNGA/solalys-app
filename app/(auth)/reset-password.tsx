@@ -44,7 +44,7 @@ const ResetPasswordScreen = () => {
             newErrors.token = 'Le token est requis';
         }
 
-        const passwordError = validatePassword(newPassword);
+        const passwordError = validatePassword(newPassword, 8);
         if (passwordError) newErrors.newPassword = passwordError;
 
         const confirmError = validatePasswordConfirmation(newPassword, confirmPassword);
