@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, Text, ScrollView, Pressable, ActivityIndicator, Linking, SafeAreaView, Image, Dimensions } from 'react-native';
+import { View, Text, ScrollView, Pressable, ActivityIndicator, Linking, SafeAreaView, Image, Dimensions, Platform, Share } from 'react-native';
 import { router, useFocusEffect, useLocalSearchParams, useSegments } from 'expo-router';
 import * as Location from 'expo-location';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -14,7 +14,7 @@ import { useSuccessAlert, useErrorAlert, useConfirmAlert } from '@/hooks/useAler
 import { calculateDistance, formatDistance } from '@/utils/distance';
 import { apiService } from '@/services/apiService';
 import { AttendanceCard } from '@/components/event/AttendanceCard';
-import { GroupCover } from '@/components/group/GroupCover';
+import { GroupBadge } from '@/components/group/GroupCover';
 import { BRAND } from '@/lib/brand';
 
 const { width } = Dimensions.get('window');
@@ -136,28 +136,6 @@ export default function EventDetailScreen() {
     );
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('fr-FR', {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
-
-  const formatShortDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('fr-FR', {
-      day: 'numeric',
-      month: 'short',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
-
   if (!currentEvent) {
     return (
       <SafeAreaView style={{ flex: 1 }} className="bg-white dark:bg-gray-950">
@@ -207,316 +185,247 @@ export default function EventDetailScreen() {
   const overflowCount = participants.length - stackedParticipants.length;
   const isFull = !!currentEvent.maxParticipants && participants.length >= currentEvent.maxParticipants;
 
+  const start = new Date(currentEvent.hours);
+  const end = currentEvent.endTime ? new Date(currentEvent.endTime) : null;
+  const timeFr = (d: Date) => d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  const dayFr = start.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+  const placeLine = currentEvent.adress || `${currentEvent.city}, ${currentEvent.country}`;
+  const seatsLeft = currentEvent.maxParticipants ? Math.max(0, currentEvent.maxParticipants - participants.length) : null;
+  const namedParticipants = participants.filter((p) => p.user).map((p) => p.user!.firstname);
+  const participantsLine =
+    namedParticipants.length === 0
+      ? `${participants.length} inscrit${participants.length > 1 ? 's' : ''}`
+      : namedParticipants.length <= 3 && namedParticipants.length === participants.length
+        ? namedParticipants.join(', ')
+        : `${namedParticipants.slice(0, 3).join(', ')} et ${participants.length - Math.min(3, namedParticipants.length)} autre${participants.length - Math.min(3, namedParticipants.length) > 1 ? 's' : ''}`;
+
+  const openDirections = () => {
+    const query = encodeURIComponent(`${placeLine}${currentEvent.adress ? `, ${currentEvent.city}` : ''}`);
+    Linking.openURL(Platform.OS === 'ios' ? `http://maps.apple.com/?daddr=${query}` : `geo:0,0?q=${query}`);
+  };
+  const shareEvent = () =>
+    Share.share({
+      message: `${currentEvent.name}${currentEvent.group ? ` (${currentEvent.group.name})` : ''} · ${dayFr} à ${timeFr(start)} · ${currentEvent.city}. Sur Solalys.`,
+    });
+  const openGroup = () =>
+    currentEvent.group &&
+    router.push({
+      pathname: `/(tabs)/(groupes)/${currentEvent.group.id}` as any,
+      params: { returnTo: `/(tabs)/${currentTab}/${currentEvent.id}` },
+    });
+
   return (
-    <View style={{ flex: 1 }} className="bg-white dark:bg-gray-950">
+    <View style={{ flex: 1 }} className="bg-slate-100">
       <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 24 }} bounces={false}>
-        {/* Hero */}
-        {/* Sans photo : couverture bleu roi plus courte, aux initiales du groupe */}
-        <View style={{ height: hasImages ? HERO_HEIGHT : 220 }}>
+        {/* Couverture : photo (ou bleu roi), avec la date et le titre posés dessus */}
+        <View style={{ height: hasImages ? HERO_HEIGHT : 230, backgroundColor: BRAND.blue, overflow: 'hidden' }}>
           {hasImages ? (
-            <>
-              <ScrollView
-                horizontal
-                pagingEnabled
-                showsHorizontalScrollIndicator={false}
-                onScroll={(event) => {
-                  const x = event.nativeEvent.contentOffset.x;
-                  const index = Math.round(x / width);
-                  setCurrentImageIndex(index);
-                }}
-                scrollEventThrottle={16}
-              >
-                {currentEvent.images!.map((imageUrl: string, index: number) => (
-                  <Image
-                    key={index}
-                    source={{ uri: imageUrl }}
-                    style={{ width, height: HERO_HEIGHT }}
-                    resizeMode="cover"
-                  />
-                ))}
-              </ScrollView>
-
-              {/* Dégradé pour la lisibilité du bouton retour + des indicateurs */}
-              <LinearGradient
-                colors={['rgba(0,0,0,0.35)', 'transparent']}
-                style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 100 }}
-                pointerEvents="none"
-              />
-
-              {currentEvent.images!.length > 1 && (
-                <View className="absolute bottom-4 left-0 right-0 flex-row justify-center items-center gap-2">
-                  {currentEvent.images!.map((_: any, index: number) => (
-                    <View
-                      key={index}
-                      className={`h-1.5 rounded-full ${
-                        index === currentImageIndex ? 'w-5 bg-white' : 'w-1.5 bg-white/50'
-                      }`}
-                    />
-                  ))}
-                </View>
-              )}
-            </>
+            <ScrollView
+              horizontal
+              pagingEnabled
+              showsHorizontalScrollIndicator={false}
+              onScroll={(event) => setCurrentImageIndex(Math.round(event.nativeEvent.contentOffset.x / width))}
+              scrollEventThrottle={16}
+            >
+              {currentEvent.images!.map((imageUrl: string, index: number) => (
+                <Image key={index} source={{ uri: imageUrl }} style={{ width, height: HERO_HEIGHT }} resizeMode="cover" />
+              ))}
+            </ScrollView>
           ) : (
-            <GroupCover name={currentEvent.group?.name ?? currentEvent.name} height={220} />
+            <>
+              <View style={{ position: 'absolute', right: -70, top: -50, width: 260, height: 260, borderRadius: 130, backgroundColor: BRAND.blueLight }} />
+              <View style={{ position: 'absolute', right: 56, top: 70, width: 12, height: 12, borderRadius: 6, backgroundColor: BRAND.gold }} />
+            </>
           )}
-
-          {/* Bouton retour flottant */}
-          <SafeAreaView style={{ position: 'absolute', top: 0, left: 0 }}>
-            <View className="m-4">
+          <LinearGradient
+            colors={hasImages ? ['rgba(0,0,0,0.35)', 'transparent', 'rgba(0,0,0,0.65)'] : ['transparent', 'transparent']}
+            locations={[0, 0.35, 1]}
+            style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+            pointerEvents="none"
+          />
+          {hasImages && currentEvent.images!.length > 1 && (
+            <View className="absolute top-16 left-0 right-0 flex-row justify-center items-center gap-2">
+              {currentEvent.images!.map((_: any, index: number) => (
+                <View key={index} className={`h-1.5 rounded-full ${index === currentImageIndex ? 'w-5 bg-white' : 'w-1.5 bg-white/50'}`} />
+              ))}
+            </View>
+          )}
+          <View className="absolute left-5 right-5 bottom-5 flex-row items-end gap-3">
+            <View className="bg-white rounded-2xl items-center py-1.5" style={{ width: 58 }}>
+              <Text style={{ color: BRAND.blue }} className="text-[11px] font-bold uppercase">
+                {start.toLocaleDateString('fr-FR', { weekday: 'short' }).replace('.', '')}
+              </Text>
+              <Text className="text-2xl font-extrabold text-gray-900 leading-7">{start.getDate()}</Text>
+              <Text className="text-[10px] text-gray-500 uppercase">
+                {start.toLocaleDateString('fr-FR', { month: 'short' }).replace('.', '')}
+              </Text>
+            </View>
+            <View className="flex-1">
+              {(currentEvent.group || currentEvent.series) && (
+                <Text style={{ color: '#DCE4FF' }} className="text-xs font-medium" numberOfLines={1}>
+                  {[currentEvent.group?.name, currentEvent.series ? seriesRhythm(currentEvent.series).toLowerCase() : null]
+                    .filter(Boolean)
+                    .join(' · ')}
+                </Text>
+              )}
+              <Text className="text-2xl font-bold text-white" numberOfLines={2}>
+                {currentEvent.name}
+              </Text>
+            </View>
+          </View>
+          <SafeAreaView style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
+            <View className="m-4 flex-row justify-between">
               <BackButton />
+              <Pressable
+                onPress={shareEvent}
+                accessibilityLabel="Partager l'événement"
+                className="w-10 h-10 rounded-full items-center justify-center active:opacity-70"
+                style={{ backgroundColor: 'rgba(255,255,255,0.22)' }}
+              >
+                <IconSymbol name="square.and.arrow.up" size={18} color="#fff" />
+              </Pressable>
             </View>
           </SafeAreaView>
         </View>
 
-        {/* Carte de contenu */}
-        <View
-          className="bg-white dark:bg-gray-950 px-5 pt-6 pb-8"
-          style={{ marginTop: -20, borderTopLeftRadius: 24, borderTopRightRadius: 24 }}
-        >
-          {currentEvent.group && (
-            <View className="bg-brand-50 dark:bg-brand-950 px-3 py-1 rounded-full self-start mb-3">
-              <Text className="text-sm font-semibold text-brand-600 dark:text-brand-300">
-                {currentEvent.group.name}
-              </Text>
-            </View>
+        {/* Infos pratiques */}
+        <Section title="Infos pratiques">
+          <InfoRow
+            first
+            icon="clock.fill"
+            title={end ? `${timeFr(start)} – ${timeFr(end)}` : timeFr(start)}
+            subtitle={dayFr.charAt(0).toUpperCase() + dayFr.slice(1)}
+          />
+          <InfoRow
+            icon="location.fill"
+            title={placeLine}
+            subtitle={
+              currentEvent.detailsHidden
+                ? "L'adresse exacte s'affiche une fois inscrit"
+                : [currentEvent.adress ? currentEvent.city : null, distance !== null ? `à ${formatDistance(distance)}` : null]
+                    .filter(Boolean)
+                    .join(' · ') || undefined
+            }
+            action={!currentEvent.detailsHidden ? { label: 'Itinéraire', onPress: openDirections } : undefined}
+          />
+          <InfoRow
+            icon="ticket.fill"
+            title={
+              seatsLeft !== null
+                ? isFull
+                  ? 'Complet'
+                  : `${seatsLeft} place${seatsLeft > 1 ? 's' : ''} restante${seatsLeft > 1 ? 's' : ''}`
+                : 'Places illimitées'
+            }
+            subtitle={
+              currentEvent.maxParticipants
+                ? `${participants.length} inscrit${participants.length > 1 ? 's' : ''} sur ${currentEvent.maxParticipants}`
+                : `${participants.length} inscrit${participants.length > 1 ? 's' : ''}`
+            }
+          />
+          {currentEvent.link && (
+            <InfoRow icon="link" title="Lien de la réunion" subtitle="Visio ou page externe" action={{ label: 'Ouvrir', onPress: () => Linking.openURL(currentEvent.link!) }} />
           )}
-
-          <Text className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-            {currentEvent.name}
-          </Text>
-
-          {/* Chips résumé */}
-          <View className="flex-row flex-wrap gap-2 mb-6">
-            <View className="flex-row items-center gap-1.5 bg-gray-100 dark:bg-gray-900 rounded-full px-3 py-1.5">
-              <IconSymbol name="calendar" size={14} color="#2345C2" />
-              <Text className="text-xs font-semibold text-gray-700 dark:text-gray-300">
-                {formatShortDate(currentEvent.hours)}
-              </Text>
-            </View>
-            <View className="flex-row items-center gap-1.5 bg-gray-100 dark:bg-gray-900 rounded-full px-3 py-1.5">
-              <IconSymbol name="person.2.fill" size={14} color="#2345C2" />
-              <Text className="text-xs font-semibold text-gray-700 dark:text-gray-300">
-                {participants.length} participant{participants.length > 1 ? 's' : ''}
-              </Text>
-            </View>
-            {distance !== null && (
-              <View className="flex-row items-center gap-1.5 bg-gray-100 dark:bg-gray-900 rounded-full px-3 py-1.5">
-                <IconSymbol name="location.circle.fill" size={14} color="#EF4444" />
-                <Text className="text-xs font-semibold text-gray-700 dark:text-gray-300">
-                  {formatDistance(distance)}
-                </Text>
-              </View>
-            )}
-          </View>
-
-          {/* Description */}
-          {currentEvent.description && (
-            <View className="mb-6">
-              <Text className="text-base font-bold text-gray-900 dark:text-white mb-2">
-                À propos
-              </Text>
-              <Text className="text-base text-gray-600 dark:text-gray-400 leading-6">
-                {currentEvent.description}
-              </Text>
-            </View>
-          )}
-
-          <View className="border-t border-gray-100 dark:border-gray-800 mb-6" />
-
-          {/* Infos pratiques */}
-          <View className="gap-5 mb-6">
-            <View className="flex-row items-start gap-3">
-              <View className="bg-brand-50 dark:bg-brand-950 rounded-full p-2">
-                <IconSymbol name="calendar" size={18} color="#2345C2" />
-              </View>
-              <View className="flex-1">
-                <Text className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Date et heure</Text>
-                <Text className="text-base text-gray-900 dark:text-white font-medium capitalize">
-                  {formatDate(currentEvent.hours)}
-                </Text>
-              </View>
-            </View>
-
-            <View className="flex-row items-start gap-3">
-              <View className="bg-red-50 dark:bg-red-950 rounded-full p-2">
-                <IconSymbol name="location.fill" size={18} color="#EF4444" />
-              </View>
-              <View className="flex-1">
-                <Text className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Lieu</Text>
-                <Text className="text-base text-gray-900 dark:text-white font-medium">
-                  {currentEvent.adress || `${currentEvent.city}, ${currentEvent.country}`}
-                </Text>
-                {currentEvent.detailsHidden && (
-                  <Text className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                    {"L'adresse exacte s'affiche une fois inscrit."}
-                  </Text>
-                )}
-                {distance !== null && (
-                  <Text className="text-sm text-brand-600 dark:text-brand-300 font-semibold mt-0.5">
-                    {currentEvent.detailsHidden ? 'Environ ' : ''}
-                    {formatDistance(distance)} de vous
-                  </Text>
-                )}
-              </View>
-            </View>
-
-            {currentEvent.link && (
-              <View className="flex-row items-start gap-3">
-                <View className="bg-amber-50 dark:bg-amber-950 rounded-full p-2">
-                  <IconSymbol name="link" size={18} color="#F59E0B" />
-                </View>
-                <View className="flex-1">
-                  <Text className="text-xs text-gray-500 dark:text-gray-400 mb-1">Lien</Text>
-                  <Pressable
-                    onPress={() => Linking.openURL(currentEvent.link!)}
-                    className="self-start bg-amber-50 dark:bg-amber-950 rounded-full px-4 py-2 active:opacity-70"
-                  >
-                    <Text className="text-sm text-amber-700 dark:text-amber-300 font-semibold">
-                      Ouvrir le lien
-                    </Text>
-                  </Pressable>
-                </View>
-              </View>
-            )}
-          </View>
-
-          <View className="border-t border-gray-100 dark:border-gray-800 mb-6" />
-
-          {/* Organisateur */}
-          {currentEvent.user && (
-            <View className="mb-6">
-              <Text className="text-xs text-gray-500 dark:text-gray-400 mb-2">Organisé par</Text>
-              <View className="flex-row items-center gap-3">
-                <Avatar
-                  uri={currentEvent.user.avatar}
-                  name={`${currentEvent.user.firstname} ${currentEvent.user.lastname}`}
-                  size={48}
-                />
-                <Text className="text-base text-gray-900 dark:text-white font-semibold">
-                  {currentEvent.user.firstname} {currentEvent.user.lastname}
-                </Text>
-              </View>
-            </View>
-          )}
-
-          {/* Groupe organisateur — mise en avant */}
-          {currentEvent.group && (
-            <Pressable
-              onPress={() =>
-                router.push({
-                  pathname: `/(tabs)/(groupes)/${currentEvent.group!.id}` as any,
-                  params: { returnTo: `/(tabs)/${currentTab}/${currentEvent.id}` },
-                })
-              }
-              className="active:opacity-80 mb-6"
-            >
-              <View className="flex-row items-center gap-3 bg-brand-50 dark:bg-brand-950 rounded-2xl p-4">
-                <View className="bg-white dark:bg-gray-800 rounded-full p-2.5">
-                  <IconSymbol name="person.2.fill" size={20} color="#2345C2" />
-                </View>
-                <View className="flex-1">
-                  <Text className="text-base font-bold text-gray-900 dark:text-white">
-                    Infos sur le groupe
-                  </Text>
-                  <Text className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
-                    {currentEvent.group.name}
-                  </Text>
-                </View>
-                <IconSymbol name="chevron.right" size={18} color="#2345C2" />
-              </View>
-            </Pressable>
-          )}
-
-          {/* Événement récurrent */}
           {currentEvent.seriesId && (
-            <View className="flex-row items-center gap-3 bg-gray-50 dark:bg-gray-900 rounded-2xl p-4 mb-6">
-              <View className="bg-white dark:bg-gray-800 rounded-full p-2.5">
-                <IconSymbol name="arrow.triangle.2.circlepath" size={18} color="#6B7280" />
-              </View>
-              <View className="flex-1">
-                <Text className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                  {seriesRhythm(currentEvent.series)}
-                </Text>
-                {currentEvent.series && !currentEvent.series.active && (
-                  <Text className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Récurrence arrêtée</Text>
-                )}
-              </View>
-              {currentEvent.canManageSeries && currentEvent.series?.active !== false && (
-                <Pressable onPress={handleStopRecurrence} disabled={isStoppingRecurrence} className="active:opacity-70">
-                  <Text className="text-xs font-semibold text-red-500">
-                    {isStoppingRecurrence ? '...' : 'Arrêter'}
-                  </Text>
-                </Pressable>
-              )}
-            </View>
+            <InfoRow
+              icon="arrow.triangle.2.circlepath"
+              title={seriesRhythm(currentEvent.series)}
+              subtitle={currentEvent.series && !currentEvent.series.active ? 'Récurrence arrêtée' : 'Réunion récurrente'}
+              action={
+                currentEvent.canManageSeries && currentEvent.series?.active !== false
+                  ? { label: isStoppingRecurrence ? '...' : 'Arrêter', onPress: handleStopRecurrence, danger: true }
+                  : undefined
+              }
+            />
           )}
+        </Section>
 
-          <AttendanceCard event={currentEvent} onChanged={() => dispatch(fetchEventByIdThunk(currentEvent.id))} />
+        {/* Présence (membres du groupe) : la carte a déjà son propre titre */}
+        {currentEvent.groupId && currentEvent.myAttendance !== undefined && (
+          <View className="px-3 mt-4">
+            <AttendanceCard event={currentEvent} onChanged={() => dispatch(fetchEventByIdThunk(currentEvent.id))} />
+          </View>
+        )}
 
-          {/* Participants */}
-          <Pressable
-            onPress={() => router.push(`/(tabs)/${currentTab}/${currentEvent.id}/participants` as any)}
-            className="active:opacity-70"
-          >
-            <View className="flex-row items-center justify-between mb-2">
-              <Text className="text-xs text-gray-500 dark:text-gray-400">
-                {currentEvent.maxParticipants
-                  ? `Participants (${participants.length}/${currentEvent.maxParticipants})`
-                  : participants.length > 0
-                  ? `Participants (${participants.length})`
-                  : 'Personne ne participe pour l\'instant'}
-              </Text>
-              <View className="flex-row items-center gap-2">
-                {isFull && (
-                  <View className="bg-red-50 dark:bg-red-950 rounded-full px-2 py-0.5">
-                    <Text className="text-xs font-bold text-red-500">Complet</Text>
-                  </View>
-                )}
-                {participants.length > 0 && (
-                  <IconSymbol name="chevron.right" size={16} color="#9CA3AF" />
-                )}
-              </View>
-            </View>
+        {/* Participants */}
+        <Section
+          title="Participants"
+          action={participants.length > 0 ? { label: 'Tout voir', onPress: () => router.push(`/(tabs)/${currentTab}/${currentEvent.id}/participants` as any) } : undefined}
+        >
+          <View className="flex-row items-center gap-3 py-3">
             {participants.length > 0 ? (
-              <View className="flex-row items-center">
-                {stackedParticipants.map((p, index) => (
-                  <View
-                    key={p.id}
-                    style={{ marginLeft: index === 0 ? 0 : -12, zIndex: stackedParticipants.length - index }}
-                  >
-                    <Avatar
-                      name={p.user ? `${p.user.firstname} ${p.user.lastname}` : '?'}
-                      size={36}
-                      style={{ borderWidth: 2, borderColor: '#fff' }}
-                    />
-                  </View>
-                ))}
-                {overflowCount > 0 && (
-                  <View
-                    className="bg-gray-200 dark:bg-gray-800 rounded-full items-center justify-center"
-                    style={{ width: 36, height: 36, marginLeft: -12, borderWidth: 2, borderColor: '#fff' }}
-                  >
-                    <Text className="text-xs font-bold text-gray-600 dark:text-gray-300">
-                      +{overflowCount}
-                    </Text>
-                  </View>
+              <>
+                <View className="flex-row items-center">
+                  {stackedParticipants.map((p, index) => (
+                    <View key={p.id} style={{ marginLeft: index === 0 ? 0 : -10, zIndex: stackedParticipants.length - index }}>
+                      <Avatar name={p.user ? `${p.user.firstname} ${p.user.lastname}` : '?'} size={34} style={{ borderWidth: 2, borderColor: '#fff' }} />
+                    </View>
+                  ))}
+                  {overflowCount > 0 && (
+                    <View className="bg-gray-100 rounded-full items-center justify-center" style={{ width: 34, height: 34, marginLeft: -10, borderWidth: 2, borderColor: '#fff' }}>
+                      <Text className="text-xs font-bold text-gray-600">+{overflowCount}</Text>
+                    </View>
+                  )}
+                </View>
+                <Text className="flex-1 text-sm text-gray-600" numberOfLines={2}>
+                  {participantsLine}
+                </Text>
+              </>
+            ) : (
+              <>
+                <View className="bg-brand-50 rounded-full p-2.5">
+                  <IconSymbol name="person.2.fill" size={18} color={BRAND.blue} />
+                </View>
+                <Text className="flex-1 text-sm text-gray-600">{'Personne pour l’instant. Soyez le premier à vous inscrire !'}</Text>
+              </>
+            )}
+          </View>
+        </Section>
+
+        {/* Organisé par : le groupe (et la personne) */}
+        {(currentEvent.group || currentEvent.user) && (
+          <Section title="Organisé par">
+            <Pressable onPress={openGroup} disabled={!currentEvent.group} className="flex-row items-center gap-3 py-3 active:opacity-70">
+              {currentEvent.group ? (
+                <GroupBadge name={currentEvent.group.name} size={42} inverted />
+              ) : (
+                <Avatar uri={currentEvent.user!.avatar} name={`${currentEvent.user!.firstname} ${currentEvent.user!.lastname}`} size={42} />
+              )}
+              <View className="flex-1">
+                <Text className="text-sm font-semibold text-gray-900">
+                  {currentEvent.group ? currentEvent.group.name : `${currentEvent.user!.firstname} ${currentEvent.user!.lastname}`}
+                </Text>
+                {currentEvent.group && currentEvent.user && (
+                  <Text className="text-xs text-gray-500 mt-0.5">{`par ${currentEvent.user.firstname} ${currentEvent.user.lastname}`}</Text>
                 )}
               </View>
-            ) : (
-              <Text className="text-base text-gray-400 dark:text-gray-500">
-                Soyez le premier à rejoindre !
-              </Text>
-            )}
-          </Pressable>
-        </View>
-      </ScrollView>
+              {currentEvent.group && <IconSymbol name="chevron.right" size={16} color="#CBD5E1" />}
+            </Pressable>
+          </Section>
+        )}
 
+        {/* À propos */}
+        {currentEvent.description && (
+          <Section title="À propos">
+            <Text className="text-sm text-gray-700 leading-6 py-3">{currentEvent.description}</Text>
+          </Section>
+        )}
+      </ScrollView>
       {/* Participer / ne plus participer (rien à faire sur un événement terminé) */}
       <SafeAreaView className="bg-white dark:bg-gray-950">
-        <View className="p-5 pt-3 border-t border-gray-100 dark:border-gray-800">
+        <View className="px-5 pt-3 pb-2 border-t border-gray-100 flex-row items-center gap-3">
+          <View className="flex-1">
+            <Text className="text-sm font-semibold text-gray-900" numberOfLines={1}>
+              {`${start.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })} · ${timeFr(start)}`}
+            </Text>
+            <Text className="text-xs text-gray-500">
+              {seatsLeft !== null ? (isFull ? 'Complet' : `${seatsLeft} place${seatsLeft > 1 ? 's' : ''}`) : 'Places illimitées'}
+            </Text>
+          </View>
+          <View style={{ flex: 1.2 }}>
           {isFinished ? (
-            <View className="py-4 px-6 rounded-2xl bg-gray-100 dark:bg-gray-900">
-              <Text className="text-gray-500 dark:text-gray-400 text-center font-semibold text-base">
+            <View className="py-3.5 px-4 rounded-2xl bg-gray-100">
+              <Text className="text-gray-500 text-center font-semibold text-base">
                 {'Événement terminé'}
               </Text>
             </View>
@@ -527,26 +436,88 @@ export default function EventDetailScreen() {
               disabled={isJoining || (isFull && !isParticipating)}
             >
               {isParticipating ? (
-                <View className="py-4 px-6 rounded-2xl border border-red-200 dark:border-red-900 bg-white dark:bg-gray-950">
+                <View className="py-3.5 px-4 rounded-2xl border border-red-200 dark:border-red-900 bg-white dark:bg-gray-950">
                   <Text className="text-red-500 text-center font-bold text-lg">
-                    {isJoining ? 'Un instant...' : 'Ne plus participer'}
+                    {isJoining ? 'Un instant...' : 'Me désinscrire'}
                   </Text>
                 </View>
               ) : isFull ? (
-                <View className="py-4 px-6 bg-gray-300 dark:bg-gray-700">
+                <View className="py-3.5 px-4 bg-gray-300 dark:bg-gray-700">
                   <Text className="text-white text-center font-bold text-lg">Complet</Text>
                 </View>
               ) : (
-                <View style={{ backgroundColor: BRAND.blue, paddingVertical: 16, paddingHorizontal: 24 }}>
+                <View style={{ backgroundColor: BRAND.blue, paddingVertical: 14, paddingHorizontal: 16 }}>
                   <Text className="text-white text-center font-bold text-lg">
-                    {!user ? 'Se connecter pour participer' : isJoining ? 'Un instant...' : 'Participer'}
+                    {!user ? 'Se connecter' : isJoining ? 'Un instant...' : 'Je viens'}
                   </Text>
                 </View>
               )}
             </Pressable>
           )}
+          </View>
         </View>
       </SafeAreaView>
+    </View>
+  );
+}
+
+/** Bloc blanc avec un petit titre gris au-dessus (fond de page gris clair). */
+function Section({
+  title,
+  action,
+  children,
+}: {
+  title: string;
+  action?: { label: string; onPress: () => void };
+  children: React.ReactNode;
+}) {
+  return (
+    <View className="mt-4 px-3">
+      <View className="flex-row items-center justify-between px-2 mb-1.5">
+        <Text className="text-xs font-semibold text-slate-500 uppercase tracking-wide">{title}</Text>
+        {action && (
+          <Pressable onPress={action.onPress} className="active:opacity-60">
+            <Text style={{ color: BRAND.blue }} className="text-sm font-semibold">
+              {action.label}
+            </Text>
+          </Pressable>
+        )}
+      </View>
+      <View className="bg-white rounded-2xl px-4">{children}</View>
+    </View>
+  );
+}
+
+/** Ligne d'information : icône, titre, sous-titre et action facultative à droite. */
+function InfoRow({
+  icon,
+  title,
+  subtitle,
+  action,
+  first,
+}: {
+  icon: string;
+  title: string;
+  subtitle?: string;
+  action?: { label: string; onPress: () => void; danger?: boolean };
+  first?: boolean;
+}) {
+  return (
+    <View className={`flex-row items-center gap-3 py-3 ${first ? '' : 'border-t border-slate-100'}`}>
+      <View className="bg-brand-50 rounded-xl items-center justify-center" style={{ width: 36, height: 36 }}>
+        <IconSymbol name={icon as any} size={17} color={BRAND.blue} />
+      </View>
+      <View className="flex-1">
+        <Text className="text-sm font-semibold text-gray-900">{title}</Text>
+        {subtitle ? <Text className="text-xs text-gray-500 mt-0.5">{subtitle}</Text> : null}
+      </View>
+      {action && (
+        <Pressable onPress={action.onPress} className="active:opacity-60 pl-2">
+          <Text style={{ color: action.danger ? '#EF4444' : BRAND.blue }} className="text-sm font-semibold">
+            {action.label}
+          </Text>
+        </Pressable>
+      )}
     </View>
   );
 }

@@ -67,7 +67,7 @@ export function AttendanceCard({ event, onChanged }: Props) {
   };
 
   return (
-    <View className="bg-gray-50 dark:bg-gray-900 rounded-2xl p-4 mb-6">
+    <View className="bg-white rounded-2xl p-4">
       <View className="flex-row items-center gap-2 mb-2">
         <IconSymbol name="checkmark.circle.fill" size={18} color="#2345C2" />
         <Text className="text-base font-bold text-gray-900 dark:text-white flex-1">Présence</Text>
