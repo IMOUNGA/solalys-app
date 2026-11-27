@@ -6,6 +6,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useAppDispatch } from '@/hooks/useRedux';
 import { apiService } from '@/services/apiService';
+import { apiErrorMessage } from '@/store/thunks/authThunks';
 import { fetchMyEventsThunk } from '@/store/thunks/eventsThunks';
 import { useSuccessAlert, useErrorAlert } from '@/hooks/useAlert';
 
@@ -112,11 +113,12 @@ export default function EditEventScreen() {
         country: country.trim(),
         adress: address.trim() || undefined,
         link: link.trim() || undefined,
-        maxParticipants: maxParticipants ? parseInt(maxParticipants) : undefined,
+        maxParticipants: maxParticipants && Number.isInteger(Number(maxParticipants)) ? Number(maxParticipants) : undefined,
       };
 
       // Upload new images if any
       const uploadedImageUrls: string[] = [];
+      let failedUploads = 0;
       if (newImages.length > 0) {
         for (let i = 0; i < newImages.length; i++) {
           const image = newImages[i];
@@ -131,9 +133,11 @@ export default function EditEventScreen() {
           formData.append('resourceId', String(id));
           formData.append('index', String(existingImages.length + i));
 
-          const uploadResponse = await apiService.upload.image(formData);
-          if (uploadResponse.data.url) {
-            uploadedImageUrls.push(uploadResponse.data.url);
+          try {
+            const uploadResponse = await apiService.upload.image(formData);
+            if (uploadResponse.data.url) uploadedImageUrls.push(uploadResponse.data.url);
+          } catch {
+            failedUploads++;
           }
         }
       }
@@ -144,14 +148,18 @@ export default function EditEventScreen() {
       // Update event
       await apiService.events.update(Number(id), updateData);
 
-      showSuccess('Événement mis à jour avec succès');
+      if (failedUploads > 0) {
+        showError(`Événement mis à jour, mais ${failedUploads} photo(s) n'ont pas pu être envoyées. Réessayez depuis la modification de l'événement.`);
+      } else {
+        showSuccess('Événement mis à jour avec succès');
+      }
 
       // Refresh events list
       await dispatch(fetchMyEventsThunk());
 
       router.back();
     } catch (error: any) {
-      showError(error.message || 'Erreur lors de la mise à jour');
+      showError(apiErrorMessage(error, 'Erreur lors de la mise à jour'));
     } finally {
       setIsSubmitting(false);
     }

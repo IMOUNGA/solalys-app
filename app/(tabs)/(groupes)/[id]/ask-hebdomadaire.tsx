@@ -4,7 +4,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Avatar } from '@/components/Avatar';
 import { useAppSelector } from '@/hooks/useRedux';
-import { useSuccessAlert, useErrorAlert } from '@/hooks/useAlert';
+import { useSuccessAlert, useErrorAlert, useConfirmAlert } from '@/hooks/useAlert';
 import { apiService } from '@/services/apiService';
 import { WeeklyAsk } from '@/types/weeklyAsk';
 
@@ -25,6 +25,7 @@ export default function WeeklyAskScreen() {
   const [saving, setSaving] = useState(false);
   const showSuccess = useSuccessAlert();
   const showError = useErrorAlert();
+  const showConfirm = useConfirmAlert();
 
   const myAsk = asks.find((a) => a.userId === Number(user?.id));
   const othersAsks = asks.filter((a) => a.userId !== Number(user?.id));
@@ -114,7 +115,7 @@ export default function WeeklyAskScreen() {
             <Text className="text-xs text-gray-400 dark:text-gray-500">{content.length}/{MAX_LENGTH}</Text>
             <View className="flex-row items-center gap-4">
               {myAsk && (
-                <Pressable onPress={handleDelete} disabled={saving} className="active:opacity-70">
+                <Pressable onPress={() => showConfirm('Votre demande de la semaine sera supprimée.', handleDelete, 'Supprimer ma demande ?', 'Supprimer')} disabled={saving} className="active:opacity-70">
                   <Text className="text-xs font-semibold text-red-500">Supprimer</Text>
                 </Pressable>
               )}

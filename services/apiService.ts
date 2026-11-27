@@ -33,7 +33,6 @@ const processQueue = (error: any, token: string | null = null) => {
 apiInstance.interceptors.request.use(
     (config) => {
         const token = getAccessToken();
-        console.log('🔐 [Request Interceptor]', config.url, 'Token:', token ? `${token.substring(0, 20)}...` : 'NO TOKEN');
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
@@ -49,10 +48,8 @@ apiInstance.interceptors.response.use(
 
         // Si erreur 401 et qu'on n'a pas encore essayé de refresh
         if (error.response?.status === 401 && !originalRequest._retry) {
-            console.log('🔄 [401 Interceptor] Received 401, attempting refresh...');
 
             if (isRefreshing) {
-                console.log('⏳ [401 Interceptor] Refresh already in progress, queuing request');
                 // Si un refresh est déjà en cours, on met la requête en attente
                 return new Promise((resolve, reject) => {
                     failedQueue.push({ resolve, reject });
@@ -68,10 +65,8 @@ apiInstance.interceptors.response.use(
             isRefreshing = true;
 
             const refreshToken = getRefreshToken();
-            console.log('🔑 [401 Interceptor] Refresh token:', refreshToken ? 'EXISTS' : 'MISSING');
 
             if (!refreshToken) {
-                console.log('❌ [401 Interceptor] No refresh token, logging out');
                 // Pas de refresh token, on déconnecte
                 await clearTokens();
                 store.dispatch(logoutState());
@@ -81,7 +76,6 @@ apiInstance.interceptors.response.use(
             }
 
             try {
-                console.log('📡 [401 Interceptor] Calling /auth/refresh...');
                 // Appel au endpoint refresh avec le refresh token
                 const response = await axios.post(`${BASE_URL}/auth/refresh`, {}, {
                     headers: {
@@ -90,7 +84,6 @@ apiInstance.interceptors.response.use(
                 });
 
                 const { accessToken, refreshToken: newRefreshToken } = response.data;
-                console.log('✅ [401 Interceptor] New tokens received');
 
                 // Sauvegarder les nouveaux tokens
                 await saveTokens(accessToken, newRefreshToken);
@@ -101,12 +94,9 @@ apiInstance.interceptors.response.use(
                 // Traiter les requêtes en attente
                 processQueue(null, accessToken);
                 isRefreshing = false;
-
-                console.log('🔄 [401 Interceptor] Retrying original request');
                 // Réessayer la requête originale
                 return apiInstance(originalRequest);
             } catch (refreshError: any) {
-                console.log('❌ [401 Interceptor] Refresh failed:', refreshError?.response?.status);
                 // Le refresh a échoué, on déconnecte l'utilisateur
                 processQueue(refreshError, null);
                 isRefreshing = false;
@@ -305,10 +295,12 @@ export const apiService = {
     },
     // Upload
     upload: {
+        // Délai plus long que les autres appels : une photo peut peser plusieurs Mo.
         image: (formData: FormData) => apiInstance.post('/upload/image', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },
+            timeout: 60000,
         }),
     },
 };

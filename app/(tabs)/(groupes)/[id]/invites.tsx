@@ -5,7 +5,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { File, Paths } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { useSuccessAlert, useErrorAlert } from '@/hooks/useAlert';
+import { useSuccessAlert, useErrorAlert, useConfirmAlert } from '@/hooks/useAlert';
 import { useSmartBack } from '@/hooks/useSmartBack';
 import { apiService } from '@/services/apiService';
 import { Guest, GUEST_STATUSES, GuestStatus, UPCOMING_GUEST_STATUSES } from '@/types/guest';
@@ -42,6 +42,7 @@ export default function GuestsScreen() {
   const [statusFilter, setStatusFilter] = useState<GuestStatus[]>(GUEST_STATUSES.map((s) => s.value));
   const showSuccess = useSuccessAlert();
   const showError = useErrorAlert();
+  const showConfirm = useConfirmAlert();
   const goBack = useSmartBack();
 
   const load = useCallback(async () => {
@@ -189,8 +190,11 @@ export default function GuestsScreen() {
       file.write(res.data);
       if (await Sharing.isAvailableAsync()) {
         await Sharing.shareAsync(file.uri, { mimeType: 'text/csv', dialogTitle: 'Export invités' });
+        // Données de tiers : le fichier temporaire est effacé une fois partagé.
+        if (file.exists) file.delete();
       } else {
-        showSuccess(`Fichier enregistré : ${file.uri}`, 'Export terminé');
+        if (file.exists) file.delete();
+        showError("Le partage de fichiers n'est pas disponible sur cet appareil.");
       }
     } catch (error: any) {
       showError(error?.response?.data?.message || "Impossible d'exporter le suivi");
@@ -296,7 +300,7 @@ export default function GuestsScreen() {
 
                 {item.status === 'en_attente' && (
                   <View className="flex-row items-center gap-3 pt-3 border-t border-gray-100 dark:border-gray-800">
-                    <Pressable onPress={() => handleReject(item)} disabled={isBusy} className="active:opacity-70">
+                    <Pressable onPress={() => showConfirm(`La proposition pour ${item.firstname} ${item.lastname} sera refusée et supprimée.`, () => handleReject(item), 'Refuser cet invité ?', 'Refuser')} disabled={isBusy} className="active:opacity-70">
                       <Text className="text-xs font-semibold text-red-500">Rejeter</Text>
                     </Pressable>
                     <View className="flex-1" />
@@ -502,7 +506,7 @@ export default function GuestsScreen() {
                       </View>
 
                       <View className="flex-row items-center justify-between">
-                        <Pressable onPress={() => handleDelete(item)} disabled={busyId === item.id} className="active:opacity-70">
+                        <Pressable onPress={() => showConfirm(`${item.firstname} ${item.lastname} sera définitivement supprimé(e) du suivi.`, () => handleDelete(item), 'Supprimer cet invité ?', 'Supprimer')} disabled={busyId === item.id} className="active:opacity-70">
                           <Text className="text-xs font-semibold text-red-500">Supprimer</Text>
                         </Pressable>
                         <Pressable

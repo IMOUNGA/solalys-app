@@ -6,6 +6,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useAppDispatch } from '@/hooks/useRedux';
 import { apiService } from '@/services/apiService';
+import { apiErrorMessage } from '@/store/thunks/authThunks';
 import { fetchMyGroupsThunk } from '@/store/thunks/groupsThunks';
 import { useSuccessAlert, useErrorAlert } from '@/hooks/useAlert';
 
@@ -89,6 +90,7 @@ export default function CreateGroupScreen() {
         link: link.trim() || undefined,
       });
       const createdGroup = response.data;
+      let failedUploads = 0;
 
       if (images.length > 0) {
         const uploadedImageUrls: string[] = [];
@@ -111,7 +113,8 @@ export default function CreateGroupScreen() {
               uploadedImageUrls.push(uploadResponse.data.url);
             }
           } catch {
-            // Le groupe est déjà créé — un échec d'upload ne doit pas bloquer le flow
+            // Le groupe est déjà créé : l'échec est signalé à la fin, sans bloquer.
+            failedUploads++;
           }
         }
 
@@ -120,7 +123,11 @@ export default function CreateGroupScreen() {
         }
       }
 
-      showSuccess('Groupe créé avec succès');
+      if (failedUploads > 0) {
+        showError(`Groupe créé, mais ${failedUploads} photo(s) n'ont pas pu être envoyées. Ajoutez-les depuis la modification du groupe.`);
+      } else {
+        showSuccess('Groupe créé avec succès');
+      }
       await dispatch(fetchMyGroupsThunk());
       router.replace(`/(tabs)/(groupes)/${createdGroup.id}` as any);
     } catch (error: any) {

@@ -12,6 +12,7 @@ import { fetchMyGroupsThunk } from '@/store/thunks/groupsThunks';
 import { fetchMyParticipationsThunk } from '@/store/thunks/eventsThunks';
 import { useSuccessAlert, useErrorAlert, useConfirmAlert } from '@/hooks/useAlert';
 import { apiService } from '@/services/apiService';
+import { openSitePage } from '@/lib/links';
 import { logoutPurchasesUser } from '@/services/purchasesService';
 
 const { width } = Dimensions.get('window');
@@ -364,7 +365,7 @@ const CompteScreen = () => {
                                     shadowRadius: 8,
                                     elevation: 2,
                                 }}
-                                onPress={() => router.push('/(tabs)/(compte)/support')}
+                                onPress={() => openSitePage('support')}
                             >
                                 <View className="bg-green-50 rounded-full p-3 mr-4">
                                     <IconSymbol name="questionmark.circle" size={24} color="#10B981" />
@@ -389,7 +390,7 @@ const CompteScreen = () => {
                                     shadowRadius: 8,
                                     elevation: 2,
                                 }}
-                                onPress={() => router.push('/(tabs)/(compte)/privacy')}
+                                onPress={() => openSitePage('privacy')}
                             >
                                 <View className="bg-amber-50 rounded-full p-3 mr-4">
                                     <IconSymbol name="lock.shield" size={24} color="#F59E0B" />
@@ -414,7 +415,7 @@ const CompteScreen = () => {
                                     shadowRadius: 8,
                                     elevation: 2,
                                 }}
-                                onPress={() => router.push('/(tabs)/(compte)/legal')}
+                                onPress={() => openSitePage('cgu')}
                             >
                                 <View className="bg-gray-100 rounded-full p-3 mr-4">
                                     <IconSymbol name="doc.text" size={24} color="#6B7280" />

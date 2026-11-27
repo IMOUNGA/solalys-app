@@ -4,7 +4,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Avatar } from '@/components/Avatar';
 import { useAppSelector } from '@/hooks/useRedux';
-import { useSuccessAlert, useErrorAlert } from '@/hooks/useAlert';
+import { useSuccessAlert, useErrorAlert, useConfirmAlert } from '@/hooks/useAlert';
 import { useSmartBack } from '@/hooks/useSmartBack';
 import { apiService } from '@/services/apiService';
 import { Opportunity, OPPORTUNITY_TYPES } from '@/types/opportunity';
@@ -30,6 +30,7 @@ export default function OpportunitiesScreen() {
   const [busyId, setBusyId] = useState<number | null>(null);
   const showSuccess = useSuccessAlert();
   const showError = useErrorAlert();
+  const showConfirm = useConfirmAlert();
   const goBack = useSmartBack();
 
   const load = useCallback(async () => {
@@ -206,7 +207,7 @@ export default function OpportunitiesScreen() {
               <Pressable onPress={() => handleClose(item)} disabled={isBusy} className="active:opacity-70">
                 <Text className="text-xs font-semibold text-blue-600 dark:text-blue-400">Clôturer</Text>
               </Pressable>
-              <Pressable onPress={() => handleDelete(item)} disabled={isBusy} className="active:opacity-70">
+              <Pressable onPress={() => showConfirm(`« ${item.title} » sera définitivement supprimée.`, () => handleDelete(item), 'Supprimer cette opportunité ?', 'Supprimer')} disabled={isBusy} className="active:opacity-70">
                 <Text className="text-xs font-semibold text-red-500">Supprimer</Text>
               </Pressable>
             </View>

@@ -54,7 +54,6 @@ export async function registerForPushNotifications(): Promise<void> {
     try {
         const { data: token } = await Notifications.getExpoPushTokenAsync({ projectId });
         await apiService.users.registerPushToken(token);
-        console.log('✅ Token push enregistré:', token);
     } catch (error) {
         console.error('❌ Échec de récupération/enregistrement du token push:', error);
     }
@@ -66,13 +65,22 @@ export async function registerForPushNotifications(): Promise<void> {
  * centre de notifications in-app, via le payload `data` envoyé par l'API.
  * À appeler une fois au démarrage de l'app.
  */
+type PushData = { entityType?: 'event' | 'guest_group'; entityId?: number | string; tab?: 'upcoming' | 'follow-up' };
+
 export function addNotificationTapListener(): () => void {
     const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
-        const data = response.notification.request.content.data as
-            | { entityType?: 'event' | 'guest_group'; entityId?: number | string; tab?: 'upcoming' | 'follow-up' }
-            | undefined;
+        const data = response.notification.request.content.data as PushData | undefined;
         if (data) openNotificationTarget(data);
     });
+
+    // App lancée en touchant une notification (elle était fermée) : le
+    // listener ci-dessus n'a pas encore été branché, on rejoue la dernière.
+    Notifications.getLastNotificationResponseAsync()
+        .then((response) => {
+            const data = response?.notification.request.content.data as PushData | undefined;
+            if (data) setTimeout(() => openNotificationTarget(data), 500);
+        })
+        .catch(() => {});
 
     return () => subscription.remove();
 }

@@ -7,6 +7,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux';
 import { apiService } from '@/services/apiService';
+import { apiErrorMessage } from '@/store/thunks/authThunks';
 import { fetchEventsThunk } from '@/store/thunks/eventsThunks';
 import { useSuccessAlert, useErrorAlert } from '@/hooks/useAlert';
 import { useSubscriptionTier } from '@/hooks/useSubscriptionTier';
@@ -187,6 +188,7 @@ export default function CreateEventScreen() {
 
       // Upload images if any
       const uploadedImageUrls: string[] = [];
+      let failedUploads = 0;
       if (selectedImages.length > 0 && createdEvent.id) {
         for (let i = 0; i < selectedImages.length; i++) {
           const image = selectedImages[i];
@@ -212,8 +214,8 @@ export default function CreateEventScreen() {
             if (uploadResponse.data.url) {
               uploadedImageUrls.push(uploadResponse.data.url);
             }
-          } catch (uploadError) {
-            console.error(`Error uploading image ${i + 1}:`, uploadError);
+          } catch {
+            failedUploads++;
           }
         }
 
@@ -225,7 +227,9 @@ export default function CreateEventScreen() {
         }
       }
 
-      showSuccess(
+      if (failedUploads > 0) {
+        showError(`Événement créé, mais ${failedUploads} photo(s) n'ont pas pu être envoyées. Ajoutez-les depuis la modification de l'événement.`);
+      } else showSuccess(
         isRecurring
           ? 'Événement récurrent créé — les prochaines occurrences seront générées automatiquement chaque semaine'
           : 'Événement créé avec succès !'
@@ -237,8 +241,7 @@ export default function CreateEventScreen() {
       // Go back to events list
       router.back();
     } catch (error: any) {
-      console.error('Error creating event:', error);
-      showError(error.response?.data?.message || 'Une erreur est survenue lors de la création de l\'événement');
+      showError(apiErrorMessage(error, "Une erreur est survenue lors de la création de l'événement"));
     } finally {
       setIsSubmitting(false);
     }

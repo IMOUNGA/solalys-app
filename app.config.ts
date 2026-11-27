@@ -19,7 +19,7 @@ export default (): ExpoConfig => {
     const CURRENT_API = process.env.EXPO_PUBLIC_API ?? DEFAULT_API_BY_ENV[APP_ENV] ?? API_DEV;
 
     return {
-        name: 'solalys',
+        name: 'Solalys',
         slug: 'solalys',
         version: "1.3.0",
         orientation: "portrait",
@@ -39,7 +39,6 @@ export default (): ExpoConfig => {
             // à 2 le 21/08, le build 1 sur TestFlight était déjà pris).
             infoPlist: {
                 ITSAppUsesNonExemptEncryption: false,
-                NSLocationWhenInUseUsageDescription: "Solalys utilise votre position pour vous montrer les événements proches de vous.",
                 // En dev l'API tourne en HTTP local (127.0.0.1/10.0.2.2) ; preprod et prod
                 // sont en HTTPS valide, donc pas besoin (et pas souhaitable pour la review App Store)
                 // d'autoriser les chargements arbitraires en dehors du dev.
@@ -59,7 +58,8 @@ export default (): ExpoConfig => {
             },
             edgeToEdgeEnabled: true,
             predictiveBackGestureEnabled: false,
-            package: "com.lilvinssou.solalysapp"
+            package: "com.lilvinssou.solalysapp",
+            blockedPermissions: ["android.permission.WRITE_EXTERNAL_STORAGE"]
         },
         web: {
             output: "static",
@@ -77,6 +77,26 @@ export default (): ExpoConfig => {
                     dark: {
                         "backgroundColor": "#000000"
                     }
+                }
+            ],
+            // Autorisations iOS/Android : uniquement ce que l'app utilise vraiment,
+            // avec des textes en français (exigence App Store 5.1.1).
+            [
+                "expo-image-picker",
+                {
+                    photosPermission: "Solalys accède à vos photos uniquement pour choisir une photo de profil, de groupe ou d'événement.",
+                    cameraPermission: false,
+                    microphonePermission: false
+                }
+            ],
+            [
+                "expo-location",
+                {
+                    locationWhenInUsePermission: "Solalys utilise votre position pour vous montrer les événements proches de vous.",
+                    locationAlwaysAndWhenInUsePermission: false,
+                    locationAlwaysPermission: false,
+                    isIosBackgroundLocationEnabled: false,
+                    isAndroidBackgroundLocationEnabled: false
                 }
             ],
             [

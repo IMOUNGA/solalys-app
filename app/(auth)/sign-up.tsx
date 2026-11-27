@@ -8,7 +8,7 @@ import { useAppDispatch, useAppSelector } from '@/hooks/useRedux';
 import { registerThunk } from '@/store/thunks/authThunks';
 import { validateFirstName, validateLastName, validateEmail, validatePassword } from '@/utils/validation';
 import { useErrorAlert } from '@/hooks/useAlert';
-import * as WebBrowser from 'expo-web-browser';
+import { openSitePage } from '@/lib/links';
 
 const { width } = Dimensions.get('window');
 
@@ -190,9 +190,9 @@ const SignUp = () => {
                                 <Text className="text-xs text-gray-500 -mt-2">8 caractères minimum.</Text>
                                 <Text className="text-xs text-gray-500 leading-5">
                                     En créant un compte, vous acceptez les{' '}
-                                    <Text className="underline" onPress={() => WebBrowser.openBrowserAsync('https://solalys.com/mentions-legales')}>conditions d'utilisation et de vente</Text>
+                                    <Text className="underline" onPress={() => openSitePage('cgu')}>conditions d'utilisation et de vente</Text>
                                     {' '}et la{' '}
-                                    <Text className="underline" onPress={() => WebBrowser.openBrowserAsync('https://solalys.com/confidentialite')}>politique de confidentialité</Text>.
+                                    <Text className="underline" onPress={() => openSitePage('privacy')}>politique de confidentialité</Text>.
                                 </Text>
 
                                 {/* Bouton de création de compte */}

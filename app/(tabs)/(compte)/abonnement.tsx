@@ -7,6 +7,7 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useSuccessAlert, useErrorAlert } from '@/hooks/useAlert';
 import { apiService } from '@/services/apiService';
 import * as WebBrowser from 'expo-web-browser';
+import { openSitePage } from '@/lib/links';
 import { getAvailablePackages, purchasePackage, restorePurchases } from '@/services/purchasesService';
 
 type Tier = 'gratuit' | 'pro' | 'organisateur';
@@ -385,10 +386,10 @@ export default function AbonnementScreen() {
                 L'abonnement se renouvelle automatiquement sauf annulation au moins 24h avant la fin de la période en cours, dans les réglages de votre compte App Store / Google Play.
               </Text>
               <View className="flex-row gap-4">
-                <Pressable onPress={() => router.push('/(tabs)/(compte)/legal')}>
+                <Pressable onPress={() => openSitePage('cgu')}>
                   <Text className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 underline">CGU et CGV</Text>
                 </Pressable>
-                <Pressable onPress={() => router.push('/(tabs)/(compte)/privacy')}>
+                <Pressable onPress={() => openSitePage('privacy')}>
                   <Text className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 underline">Confidentialité</Text>
                 </Pressable>
               </View>

@@ -6,6 +6,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useAppDispatch } from '@/hooks/useRedux';
 import { apiService } from '@/services/apiService';
+import { apiErrorMessage } from '@/store/thunks/authThunks';
 import { fetchMyGroupsThunk } from '@/store/thunks/groupsThunks';
 import { useSuccessAlert, useErrorAlert } from '@/hooks/useAlert';
 
@@ -110,6 +111,7 @@ export default function EditGroupScreen() {
       };
 
       const uploadedImageUrls: string[] = [];
+      let failedUploads = 0;
       for (let i = 0; i < newImages.length; i++) {
         const image = newImages[i];
         try {
@@ -129,7 +131,8 @@ export default function EditGroupScreen() {
             uploadedImageUrls.push(uploadResponse.data.url);
           }
         } catch {
-          // un échec d'upload individuel ne doit pas bloquer la mise à jour du reste
+          // Un échec d'upload ne bloque pas le reste de la mise à jour, mais il est signalé.
+          failedUploads++;
         }
       }
 
@@ -137,14 +140,18 @@ export default function EditGroupScreen() {
 
       await apiService.groups.update(Number(id), updateData);
 
-      showSuccess('Groupe mis à jour avec succès');
+      if (failedUploads > 0) {
+        showError(`Groupe mis à jour, mais ${failedUploads} photo(s) n'ont pas pu être envoyées. Réessayez depuis la modification du groupe.`);
+      } else {
+        showSuccess('Groupe mis à jour avec succès');
+      }
 
       // Refresh groups list
       await dispatch(fetchMyGroupsThunk());
 
       router.back();
     } catch (error: any) {
-      showError(error.message || 'Erreur lors de la mise à jour');
+      showError(apiErrorMessage(error, 'Erreur lors de la mise à jour'));
     } finally {
       setIsSubmitting(false);
     }
