@@ -27,8 +27,8 @@ const SLIDES: Slide[] = [
     key: 'gratuit',
     icon: 'gift.fill',
     colors: ['#F59E0B', '#10B981'],
-    title: "Gratuit jusqu'au 30 novembre",
-    description: "Testez toutes les fonctionnalités sans engagement pendant le lancement. Les abonnements Pro et Organisateur ouvriront le 1ᵉʳ décembre 2026.",
+    title: "Gratuit jusqu'au 31 janvier",
+    description: "Testez toutes les fonctionnalités sans engagement pendant le lancement. Les abonnements Pro et Organisateur ouvriront le 1ᵉʳ février 2027.",
   },
   {
     key: 'exclusivite',

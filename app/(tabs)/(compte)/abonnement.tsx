@@ -68,6 +68,10 @@ const tierOfProduct = (productId: string): 'pro' | 'organisateur' | null => {
   return null;
 };
 
+// L'API renvoie l'instant de fin (ex: 1er février 00:00, heure de Paris) :
+// le dernier jour gratuit affiché est la veille.
+const lastFreeDay = (iso: string) => new Date(new Date(iso).getTime() - 60 * 60 * 1000).toISOString();
+
 const periodOfProduct = (pkg: PurchasesPackage): Period =>
   pkg.product.subscriptionPeriod === 'P1Y' ? 'annual' : 'monthly';
 
@@ -75,6 +79,7 @@ export default function AbonnementScreen() {
   const [currentTier, setCurrentTier] = useState<Tier>('gratuit');
   const [periodEnd, setPeriodEnd] = useState<string | null>(null);
   const [subStatus, setSubStatus] = useState<string>('none');
+  const [freeAccessUntil, setFreeAccessUntil] = useState<string | null>(null);
   const [packages, setPackages] = useState<PurchasesPackage[]>([]);
   const [period, setPeriod] = useState<Period>('annual');
   const [loading, setLoading] = useState(true);
@@ -90,6 +95,7 @@ export default function AbonnementScreen() {
       setCurrentTier((subRes.data?.subscriptionTier as Tier) ?? 'gratuit');
       setSubStatus(subRes.data?.subscriptionStatus ?? 'none');
       setPeriodEnd(subRes.data?.subscriptionCurrentPeriodEnd ?? null);
+      setFreeAccessUntil(subRes.data?.freeAccessUntil ?? null);
     } catch (error: any) {
       showError(error?.response?.data?.message || "Impossible de charger l'abonnement");
     }
@@ -227,11 +233,14 @@ export default function AbonnementScreen() {
                   <IconSymbol name="gift.fill" size={30} color="#fff" />
                 </View>
                 <Text className="text-white text-lg font-bold text-center mb-2">
-                  Gratuit jusqu'au 30 novembre
+                  {freeAccessUntil
+                    ? `Gratuit jusqu'au ${formatDate(lastFreeDay(freeAccessUntil))}`
+                    : 'Abonnements bientôt disponibles'}
                 </Text>
                 <Text className="text-white text-center text-sm leading-5" style={{ opacity: 0.92 }}>
-                  Profitez de toutes les fonctionnalités de Solalys sans restriction. Les abonnements Pro et
-                  Organisateur ouvriront le 1ᵉʳ décembre 2026.
+                  {freeAccessUntil
+                    ? "Profitez de toutes les fonctionnalités de Solalys sans restriction pendant le lancement. Les abonnements Pro et Organisateur ouvriront ensuite, avec un premier mois offert."
+                    : "Les abonnements Pro et Organisateur ne sont pas encore disponibles dans l'application. Réessayez un peu plus tard, ou abonnez-vous sur solalys.com."}
                 </Text>
               </LinearGradient>
             </View>
