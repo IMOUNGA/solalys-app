@@ -7,6 +7,7 @@ import { useAppDispatch, useAppSelector } from '@/hooks/useRedux';
 import { fetchEventByIdThunk, joinEventThunk, leaveEventThunk } from '@/store/thunks/eventsThunks';
 import { clearCurrentEvent } from '@/store/slices/eventsSlice';
 import type { Event } from '@/types/event';
+import { weeklyRhythm } from '@/lib/rhythm';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Avatar } from '@/components/Avatar';
 import { BackButton } from '@/components/ui/BackButton';
@@ -18,12 +19,9 @@ const { width } = Dimensions.get('window');
 const HERO_HEIGHT = width * 0.72;
 const MAX_STACKED_AVATARS = 5;
 
-const WEEKDAYS = ['dimanches', 'lundis', 'mardis', 'mercredis', 'jeudis', 'vendredis', 'samedis'];
-
 /** « Tous les mardis à 08h00 » ; texte générique si le rythme n'est pas connu. */
 function seriesRhythm(series: Event['series']): string {
-  if (!series || !WEEKDAYS[series.dayOfWeek]) return "Fait partie d'une série récurrente";
-  return `Tous les ${WEEKDAYS[series.dayOfWeek]} à ${series.startTime.replace(':', 'h')}`;
+  return weeklyRhythm(series?.dayOfWeek, series?.startTime) ?? "Fait partie d'une série récurrente";
 }
 
 export default function EventDetailScreen() {

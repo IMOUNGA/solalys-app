@@ -21,6 +21,22 @@ export interface Group {
   events?: Event[];
   memberCount?: number;
   isMember?: boolean;
+  // Rythme des réunions (séries actives) : dayOfWeek 0 = dimanche .. 6 = samedi.
+  meetings?: { dayOfWeek: number; startTime: string }[];
+  // null si le groupe ne publie pas ses chiffres et que l'on n'est pas membre.
+  stats?: GroupStats | null;
+  // Envoyé aux membres seulement : chiffres visibles des non-membres.
+  publicStats?: boolean;
+}
+
+export interface GroupStats {
+  // Arrondi au millier inférieur pour un non-membre (null sous 1 000 €).
+  revenueTotal: number | null;
+  // null pour un non-membre.
+  revenueThisYear: number | null;
+  revenueRounded: boolean;
+  referralsThisMonth: number;
+  convertedReferrals: number;
 }
 
 export interface GroupMembership {
@@ -55,6 +71,7 @@ export interface CreateGroupDTO {
   link?: string;
   slogan?: string;
   images?: string[];
+  publicStats?: boolean;
 }
 
 export interface UpdateGroupDTO extends Partial<CreateGroupDTO> {}

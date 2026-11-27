@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, Pressable, TextInput, SafeAreaView, KeyboardAvoidingView, ActivityIndicator, Platform, Alert, Image } from 'react-native';
+import { View, Text, ScrollView, Pressable, TextInput, SafeAreaView, KeyboardAvoidingView, ActivityIndicator, Platform, Alert, Image, Switch } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as ImagePicker from 'expo-image-picker';
@@ -32,6 +32,7 @@ export default function EditGroupScreen() {
   const [country, setCountry] = useState('');
   const [address, setAddress] = useState('');
   const [link, setLink] = useState('');
+  const [publicStats, setPublicStats] = useState(true);
 
   useEffect(() => {
     loadGroupData();
@@ -50,6 +51,7 @@ export default function EditGroupScreen() {
       setCountry(group.country || '');
       setAddress(group.adresse || '');
       setLink(group.link || '');
+      setPublicStats(group.publicStats !== false);
     } catch (error: any) {
       showError(error.message || 'Erreur lors du chargement du groupe');
       router.back();
@@ -108,6 +110,7 @@ export default function EditGroupScreen() {
         country: country.trim(),
         adresse: address.trim() || undefined,
         link: link.trim() || undefined,
+        publicStats,
       };
 
       const uploadedImageUrls: string[] = [];
@@ -288,6 +291,17 @@ export default function EditGroupScreen() {
                 placeholder="Ex: Ensemble vers les sommets"
                 placeholderTextColor="#9CA3AF"
               />
+            </View>
+
+            {/* Chiffres publics */}
+            <View className="mb-5 flex-row items-center gap-3 bg-gray-50 p-4 rounded-xl">
+              <View className="flex-1">
+                <Text className="text-gray-700 font-semibold">Afficher les chiffres aux visiteurs</Text>
+                <Text className="text-gray-500 text-xs mt-1">
+                  {"CA généré (arrondi au millier) et recommandations, sur la page du groupe. Les membres voient toujours les chiffres exacts."}
+                </Text>
+              </View>
+              <Switch value={publicStats} onValueChange={setPublicStats} />
             </View>
 
             {/* City */}

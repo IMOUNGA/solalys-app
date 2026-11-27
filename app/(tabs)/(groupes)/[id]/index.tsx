@@ -9,6 +9,8 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Avatar } from '@/components/Avatar';
 import { BackButton } from '@/components/ui/BackButton';
 import { useSuccessAlert, useErrorAlert } from '@/hooks/useAlert';
+import { GroupHighlights } from '@/components/group/GroupHighlights';
+import { weeklyRhythm } from '@/lib/rhythm';
 
 const MAX_STACKED_AVATARS = 5;
 
@@ -146,7 +148,7 @@ export default function GroupDetailScreen() {
 
           {currentGroup.slogan && (
             <Text className="text-base text-gray-500 dark:text-gray-400 italic mb-4">
-              "{currentGroup.slogan}"
+              “{currentGroup.slogan}”
             </Text>
           )}
 
@@ -177,6 +179,17 @@ export default function GroupDetailScreen() {
                 {memberCount} membre{memberCount > 1 ? 's' : ''}
               </Text>
             </View>
+            {(currentGroup.meetings || []).map((m) => (
+              <View
+                key={`${m.dayOfWeek}-${m.startTime}`}
+                className="flex-row items-center gap-1.5 bg-blue-50 dark:bg-blue-950 rounded-full px-3 py-1.5"
+              >
+                <IconSymbol name="arrow.triangle.2.circlepath" size={14} color="#3B82F6" />
+                <Text className="text-xs font-semibold text-blue-700 dark:text-blue-300">
+                  {weeklyRhythm(m.dayOfWeek, m.startTime)}
+                </Text>
+              </View>
+            ))}
             {currentGroup.events && currentGroup.events.length > 0 && (
               <View className="flex-row items-center gap-1.5 bg-gray-100 dark:bg-gray-900 rounded-full px-3 py-1.5">
                 <IconSymbol name="calendar" size={14} color="#3B82F6" />
@@ -186,6 +199,8 @@ export default function GroupDetailScreen() {
               </View>
             )}
           </View>
+
+          <GroupHighlights stats={currentGroup.stats} memberCount={memberCount} />
 
           {/* Annuaire — réservé aux membres */}
           {canInvite && (
@@ -291,7 +306,7 @@ export default function GroupDetailScreen() {
               </View>
               <View className="flex-1">
                 <Text className="text-base font-bold text-gray-900 dark:text-white">
-                  Board d'opportunités
+                  Board d&apos;opportunités
                 </Text>
                 <Text className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                   Prestataires, partenariats, recrutements...
