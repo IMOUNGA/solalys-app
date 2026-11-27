@@ -6,6 +6,7 @@ import { PurchasesPackage } from 'react-native-purchases';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useSuccessAlert, useErrorAlert } from '@/hooks/useAlert';
 import { apiService } from '@/services/apiService';
+import * as WebBrowser from 'expo-web-browser';
 import { getAvailablePackages, purchasePackage, restorePurchases } from '@/services/purchasesService';
 
 type Tier = 'gratuit' | 'pro' | 'organisateur';
@@ -48,7 +49,6 @@ const TIER_CONFIG: Record<'pro' | 'organisateur', {
       'Rôles & gouvernance de groupe',
       'Gestion des membres',
       'Espace invités sur 12 mois',
-      'Événements payants',
     ],
   },
 };
@@ -80,6 +80,8 @@ export default function AbonnementScreen() {
   const [periodEnd, setPeriodEnd] = useState<string | null>(null);
   const [subStatus, setSubStatus] = useState<string>('none');
   const [freeAccessUntil, setFreeAccessUntil] = useState<string | null>(null);
+  const [paidTier, setPaidTier] = useState<Tier>('gratuit');
+  const [source, setSource] = useState<string | null>(null);
   const [packages, setPackages] = useState<PurchasesPackage[]>([]);
   const [period, setPeriod] = useState<Period>('annual');
   const [loading, setLoading] = useState(true);
@@ -96,6 +98,8 @@ export default function AbonnementScreen() {
       setSubStatus(subRes.data?.subscriptionStatus ?? 'none');
       setPeriodEnd(subRes.data?.subscriptionCurrentPeriodEnd ?? null);
       setFreeAccessUntil(subRes.data?.freeAccessUntil ?? null);
+      setPaidTier((subRes.data?.paidTier as Tier) ?? 'gratuit');
+      setSource(subRes.data?.subscriptionSource ?? null);
     } catch (error: any) {
       showError(error?.response?.data?.message || "Impossible de charger l'abonnement");
     }
@@ -180,6 +184,9 @@ export default function AbonnementScreen() {
   }, [periodEnd, subStatus]);
 
   const hasAnyPackage = packages.length > 0;
+  // Abonnement payé sur le site : il se gère sur solalys.com, jamais par un
+  // second achat dans l'app (sinon double facturation).
+  const managedOnWeb = source === 'stripe' && paidTier !== 'gratuit';
 
   return (
     <SafeAreaView style={{ flex: 1 }} className="bg-gray-50 dark:bg-gray-950">
@@ -221,7 +228,20 @@ export default function AbonnementScreen() {
             )}
           </View>
 
-          {!hasAnyPackage ? (
+          {managedOnWeb ? (
+            <View className="bg-violet-50 dark:bg-violet-950 rounded-3xl p-6 mb-6">
+              <Text className="text-base font-bold text-gray-900 dark:text-white mb-2">Abonnement géré sur solalys.com</Text>
+              <Text className="text-sm text-gray-600 dark:text-gray-300 leading-5 mb-4">
+                Vous vous êtes abonné(e) sur le site Solalys. Pour changer de formule, consulter vos factures ou résilier, rendez-vous dans votre espace en ligne.
+              </Text>
+              <Pressable
+                onPress={() => WebBrowser.openBrowserAsync('https://solalys.com/espace')}
+                className="bg-violet-600 rounded-2xl py-3 active:opacity-90"
+              >
+                <Text className="text-white text-center font-bold">Gérer mon abonnement</Text>
+              </Pressable>
+            </View>
+          ) : !hasAnyPackage ? (
             <View className="rounded-3xl overflow-hidden">
               <LinearGradient
                 colors={['#F59E0B', '#10B981']}

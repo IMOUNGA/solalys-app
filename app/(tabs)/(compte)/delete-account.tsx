@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Pressable, ScrollView, ActivityIndicator, SafeAreaView, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, Pressable, ScrollView, ActivityIndicator, SafeAreaView, KeyboardAvoidingView, Platform, Linking } from 'react-native';
 import { router } from 'expo-router';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { TextInput } from '@/components/ui/text-input';
@@ -79,7 +79,7 @@ export default function DeleteAccountScreen() {
                 Cette action est irréversible
               </Text>
               <Text className="text-sm text-gray-500 dark:text-gray-400 text-center leading-5">
-                Votre profil, vos adhésions et vos recommandations personnelles seront définitivement supprimés.
+                Votre profil, vos adhésions et vos recommandations personnelles seront définitivement supprimés. Un abonnement pris sur solalys.com est résilié automatiquement.
               </Text>
             </View>
 
@@ -111,6 +111,16 @@ export default function DeleteAccountScreen() {
                 </Text>
               </View>
             ))}
+
+            <View className="flex-row items-start gap-2 bg-blue-50 dark:bg-blue-950 rounded-xl p-3">
+              <IconSymbol name="info.circle.fill" size={16} color="#3B82F6" />
+              <Text className="flex-1 text-sm text-blue-800 dark:text-blue-200 leading-5">
+                Abonnement pris dans l'app ? Apple ne permet pas de le résilier à notre place : pensez à l'annuler dans Réglages › votre nom › Abonnements.{' '}
+                <Text className="font-bold underline" onPress={() => Linking.openURL('https://apps.apple.com/account/subscriptions')}>
+                  Ouvrir mes abonnements
+                </Text>
+              </Text>
+            </View>
 
             {!hasImpact && (
               <View className="flex-row items-start gap-2 bg-gray-50 dark:bg-gray-900 rounded-xl p-3">
