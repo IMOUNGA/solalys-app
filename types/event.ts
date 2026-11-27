@@ -9,40 +9,40 @@ export interface Event {
   adress?: string;
   link?: string;
   maxParticipants?: number | null;
-  userId?: number;
-  groupId?: number;
+  userId?: number | null;
+  groupId?: number | null;
   images?: string[];
   latitude?: number;
   longitude?: number;
   seriesId?: number | null;
+  // Organisateur : visible seulement des membres du groupe et des participants.
   user?: {
     id: number;
     firstname: string;
     lastname: string;
-    email: string;
     avatar?: string | null;
-  };
+  } | null;
   group?: {
     id: number;
     name: string;
   };
   participants?: EventParticipant[];
+  participantCount?: number;
+  distance?: number;
 }
 
 export interface EventParticipant {
   id: number;
   eventId: number;
-  userId: number;
+  // null pour un visiteur qui n'est ni membre du groupe ni participant.
+  userId: number | null;
   user?: {
     id: number;
     firstname: string;
     lastname: string;
+    avatar?: string | null;
     metier?: string | null;
-    primaryGroup?: {
-      id: number;
-      name: string;
-    } | null;
-  };
+  } | null;
 }
 
 export interface CreateEventDTO {

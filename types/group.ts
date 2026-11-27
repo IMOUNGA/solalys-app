@@ -10,14 +10,17 @@ export interface Group {
   images?: string[];
   groupcreation?: string;
   groupcreator: number;
+  // Absent (null) pour un visiteur qui n'est pas membre du groupe.
   creator?: {
     id: number;
     firstname: string;
     lastname: string;
-    email: string;
-  };
+    avatar?: string | null;
+  } | null;
   groupMemberships?: GroupMembership[];
   events?: Event[];
+  memberCount?: number;
+  isMember?: boolean;
 }
 
 export interface GroupMembership {

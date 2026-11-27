@@ -118,9 +118,7 @@ const CompteScreen = () => {
                 return;
             }
 
-            // Update user profile with avatar URL
-            await apiService.users.updateMe({ avatar: uploadResponse.data.url });
-
+            // L'API enregistre elle-même la nouvelle photo de profil à l'upload.
             // Refresh user data
             await dispatch(refreshUserThunk()).unwrap();
 

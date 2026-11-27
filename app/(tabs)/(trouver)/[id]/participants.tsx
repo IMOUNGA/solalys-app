@@ -18,25 +18,26 @@ export default function EventParticipantsScreen() {
     }
   }, [id]);
 
-  const participants = currentEvent?.participants || [];
+  const allParticipants = currentEvent?.participants || [];
+  // Les noms ne sont transmis qu'aux membres du groupe et aux participants :
+  // pour les autres, on n'affiche que le nombre.
+  const participants = allParticipants.filter((p) => p.user);
+  const hiddenCount = allParticipants.length - participants.length;
 
   const renderParticipant = ({ item }: { item: EventParticipant }) => {
     const name = item.user ? `${item.user.firstname} ${item.user.lastname}` : 'Utilisateur';
-    const isOrganizer = currentEvent?.userId === item.userId;
+    const isOrganizer = !!item.userId && currentEvent?.userId === item.userId;
     const metier = item.user?.metier?.trim();
-    const groupName = item.user?.primaryGroup?.name;
 
     return (
       <View className="flex-row items-center gap-3 px-5 py-3">
-        <Avatar name={name} size={44} />
+        <Avatar name={name} uri={item.user?.avatar} size={44} />
         <View className="flex-1">
           <Text className="text-base font-semibold text-gray-900 dark:text-white">
             {name}
           </Text>
-          {(metier || groupName) && (
-            <Text className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-              {[metier, groupName].filter(Boolean).join(' · ')}
-            </Text>
+          {metier && (
+            <Text className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{metier}</Text>
           )}
           {isOrganizer && (
             <Text className="text-xs text-blue-600 dark:text-blue-400 font-medium mt-0.5">
@@ -59,11 +60,11 @@ export default function EventParticipantsScreen() {
           <IconSymbol name="chevron.left" size={22} color="#000" />
         </Pressable>
         <Text className="text-lg font-bold text-gray-900 dark:text-white">
-          Participants {participants.length > 0 ? `(${participants.length})` : ''}
+          Participants {allParticipants.length > 0 ? `(${allParticipants.length})` : ''}
         </Text>
       </View>
 
-      {status === 'loading' && participants.length === 0 ? (
+      {status === 'loading' && allParticipants.length === 0 ? (
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color="#3B82F6" />
         </View>
@@ -76,6 +77,12 @@ export default function EventParticipantsScreen() {
             <View className="h-px bg-gray-100 dark:bg-gray-800 ml-[72px]" />
           )}
         />
+      ) : hiddenCount > 0 ? (
+        <View className="flex-1 items-center justify-center px-8">
+          <Text className="text-base text-gray-500 dark:text-gray-400 text-center">
+            {hiddenCount} participant{hiddenCount > 1 ? 's' : ''}. Les noms sont visibles uniquement par les membres du groupe et les participants.
+          </Text>
+        </View>
       ) : (
         <View className="flex-1 items-center justify-center px-8">
           <Text className="text-base text-gray-400 dark:text-gray-500 text-center">

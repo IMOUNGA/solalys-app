@@ -33,7 +33,7 @@ export default function GroupDetailScreen() {
 
   useEffect(() => {
     if (currentGroup && user) {
-      const member = currentGroup.groupMemberships?.some(
+      const member = currentGroup.isMember ?? currentGroup.groupMemberships?.some(
         (m) => m.userId === user.id
       );
       setIsMember(member || false);
@@ -90,6 +90,8 @@ export default function GroupDetailScreen() {
   }
 
   const memberships = currentGroup.groupMemberships || [];
+  // Les non-membres ne reçoivent pas la liste des membres, seulement leur nombre.
+  const memberCount = currentGroup.memberCount ?? memberships.length;
   const stackedMembers = memberships.slice(0, MAX_STACKED_AVATARS);
   const overflowCount = memberships.length - stackedMembers.length;
   const isCreator = user ? currentGroup.groupcreator === user.id : false;
@@ -172,7 +174,7 @@ export default function GroupDetailScreen() {
             <View className="flex-row items-center gap-1.5 bg-gray-100 dark:bg-gray-900 rounded-full px-3 py-1.5">
               <IconSymbol name="person.2.fill" size={14} color="#8B5CF6" />
               <Text className="text-xs font-semibold text-gray-700 dark:text-gray-300">
-                {memberships.length} membre{memberships.length > 1 ? 's' : ''}
+                {memberCount} membre{memberCount > 1 ? 's' : ''}
               </Text>
             </View>
             {currentGroup.events && currentGroup.events.length > 0 && (

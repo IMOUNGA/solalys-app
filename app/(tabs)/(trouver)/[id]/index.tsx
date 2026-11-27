@@ -166,7 +166,7 @@ export default function EventDetailScreen() {
         )
       : null;
   const participants = currentEvent.participants || [];
-  const stackedParticipants = participants.slice(0, MAX_STACKED_AVATARS);
+  const stackedParticipants = participants.filter((p) => p.user).slice(0, MAX_STACKED_AVATARS);
   const overflowCount = participants.length - stackedParticipants.length;
   const isFull = !!currentEvent.maxParticipants && participants.length >= currentEvent.maxParticipants;
 
