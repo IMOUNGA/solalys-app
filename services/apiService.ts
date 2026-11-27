@@ -14,6 +14,20 @@ export interface InviteLink {
     uses: number;
 }
 
+export interface DiscoverGroup {
+    id: number;
+    name: string;
+    city: string;
+    country: string;
+    slogan: string | null;
+    image: string | null;
+    memberCount: number;
+    meeting: { dayOfWeek: number; startTime: string } | null;
+    revenueRounded: number | null;
+    distance: number | null;
+    isMember: boolean;
+}
+
 export interface InviteLinkPreview {
     group: {
         id: number;
@@ -207,6 +221,11 @@ export const apiService = {
     },
     // Groups
     groups: {
+        // Groupes à découvrir près d'une position (ou les plus actifs sans position).
+        discover: (params: { latitude?: number; longitude?: number; radius?: number; limit?: number }) => {
+            const query = buildQueryParams(params as Record<string, number>);
+            return apiInstance.get<DiscoverGroup[]>(`/groups/discover${query ? `?${query}` : ''}`);
+        },
         getAll: (page = 1, limit = 20) => {
             const params = buildQueryParams({ page, limit });
             return apiInstance.get(`/groups?${params}`);

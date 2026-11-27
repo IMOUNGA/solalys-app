@@ -42,7 +42,7 @@ export default function TabLayout() {
             <Tabs.Screen
                 name="(trouver)"
                 options={{
-                    title: 'Trouver',
+                    title: 'Découvrir',
                     tabBarIcon: ({color}) => <IconSymbol size={28} name="magnifyingglass" color={color}/>,
                 }}
                 listeners={resetOnPress}

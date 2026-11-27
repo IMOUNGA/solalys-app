@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, FlatList, Pressable, RefreshControl, ActivityIndicator, SafeAreaView, TextInput, Switch, Alert, Image } from 'react-native';
+import { View, Text, FlatList, Pressable, RefreshControl, ActivityIndicator, SafeAreaView, TextInput, Alert, ScrollView } from 'react-native';
 import { router } from 'expo-router';
 import * as Location from 'expo-location';
 import Slider from '@react-native-community/slider';
@@ -10,6 +10,12 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { apiService } from '@/services/apiService';
 import { calculateDistance, formatDistance } from '@/utils/distance';
 import { NotificationBell } from '@/components/NotificationBell';
+import { GroupDiscoverCard } from '@/components/group/GroupDiscoverCard';
+import { EventThumb } from '@/components/event/EventThumb';
+import type { DiscoverGroup } from '@/services/apiService';
+import { BRAND } from '@/lib/brand';
+
+const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
 export default function TrouverScreen() {
   const dispatch = useAppDispatch();
@@ -28,6 +34,8 @@ export default function TrouverScreen() {
   const [hasSearched, setHasSearched] = useState(false);
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const [debouncedRadius, setDebouncedRadius] = useState(10);
+  const [thisWeek, setThisWeek] = useState(false);
+  const [nearbyGroups, setNearbyGroups] = useState<DiscoverGroup[]>([]);
 
   useEffect(() => {
     dispatch(fetchEventsThunk({}));
@@ -44,10 +52,7 @@ export default function TrouverScreen() {
             latitude: location.coords.latitude,
             longitude: location.coords.longitude,
           };
-          console.log('📍 Position actuelle:', coords);
           setUserLocation(coords);
-        } else {
-          console.log('⚠️ Permission géolocalisation non accordée');
         }
       } catch (error) {
         console.log('Could not get initial location:', error);
@@ -74,6 +79,22 @@ export default function TrouverScreen() {
 
     return () => clearTimeout(timer);
   }, [radius]);
+
+  // Groupes près de chez vous (ou les plus actifs sans position connue).
+  const loadNearbyGroups = useCallback(async () => {
+    try {
+      const res = await apiService.groups.discover(
+        userLocation ? { latitude: userLocation.latitude, longitude: userLocation.longitude, radius: 50, limit: 10 } : { limit: 10 },
+      );
+      setNearbyGroups(res.data || []);
+    } catch {
+      setNearbyGroups([]);
+    }
+  }, [userLocation]);
+
+  useEffect(() => {
+    loadNearbyGroups();
+  }, [loadNearbyGroups, user?.id]);
 
   // Recherche automatique dès 3 caractères ou si géolocalisation activée
   useEffect(() => {
@@ -146,30 +167,6 @@ export default function TrouverScreen() {
     }
   };
 
-  // Recherche
-  const handleSearch = useCallback(async () => {
-    setIsSearching(true);
-    try {
-      const response = await apiService.events.search(
-        searchQuery.trim() || undefined,
-        useGeolocation ? userLocation?.latitude : undefined,
-        useGeolocation ? userLocation?.longitude : undefined,
-        radius,
-        1,
-        50
-      );
-
-      setSearchResults(response.data.data || []);
-      setHasSearched(true);
-      setShowFilters(false);
-    } catch (error: any) {
-      console.error('Search error:', error);
-      Alert.alert('Erreur', 'Impossible de rechercher les événements.');
-    } finally {
-      setIsSearching(false);
-    }
-  }, [user, authStatus, searchQuery, useGeolocation, userLocation, radius]);
-
   // Reset recherche
   const handleResetSearch = () => {
     setSearchQuery('');
@@ -178,12 +175,13 @@ export default function TrouverScreen() {
     setSearchResults([]);
     setShowFilters(false);
     setHasSearched(false);
+    setThisWeek(false);
   };
 
   const onRefresh = async () => {
     setRefreshing(true);
     handleResetSearch();
-    await dispatch(fetchEventsThunk({}));
+    await Promise.all([dispatch(fetchEventsThunk({})), loadNearbyGroups()]);
     setRefreshing(false);
   };
 
@@ -208,20 +206,7 @@ export default function TrouverScreen() {
     // Calculer la distance si la géolocalisation est activée
     let distance: number | null = null;
     if (userLocation && item.latitude && item.longitude) {
-      distance = calculateDistance(
-        userLocation.latitude,
-        userLocation.longitude,
-        item.latitude,
-        item.longitude
-      );
-    } else {
-      // Debug: vérifier pourquoi la distance n'est pas calculée
-      if (!userLocation) {
-        console.log('⚠️ userLocation non disponible');
-      }
-      if (!item.latitude || !item.longitude) {
-        console.log(`⚠️ Event ${item.id} sans coordonnées (lat: ${item.latitude}, lng: ${item.longitude})`);
-      }
+      distance = calculateDistance(userLocation.latitude, userLocation.longitude, item.latitude, item.longitude);
     }
 
     const hasImage = item.images && item.images.length > 0;
@@ -265,20 +250,13 @@ export default function TrouverScreen() {
             </View>
           </View>
 
-          {/* Image à droite, compacte pour laisser la place au titre */}
-          {hasImage && (
-            <Image
-              source={{ uri: item.images[0] }}
-              style={{ width: 56, height: 56 }}
-              className="rounded-xl"
-              resizeMode="cover"
-            />
-          )}
+          {/* Vignette à droite : photo, sinon bleu roi aux initiales du groupe */}
+          <EventThumb image={hasImage ? item.images[0] : null} name={item.group?.name ?? item.name} />
         </View>
 
         <View className="flex-row items-center gap-2 mb-3">
-          <View className="bg-gray-50 rounded-full p-1.5">
-            <IconSymbol name="location.fill" size={16} color="#6B7280" />
+          <View className="bg-brand-50 rounded-full p-1.5">
+            <IconSymbol name="location.fill" size={16} color={BRAND.blue} />
           </View>
           <View className="flex-1 flex-row items-center justify-between">
             <Text className="text-sm text-gray-600">
@@ -299,8 +277,8 @@ export default function TrouverScreen() {
             <View className="flex-row items-center gap-2">
               {item.participants && item.participants.length > 0 && (
                 <>
-                  <View className="bg-green-50 rounded-full p-1.5">
-                    <IconSymbol name="person.2.fill" size={16} color="#10B981" />
+                  <View className="bg-brand-50 rounded-full p-1.5">
+                    <IconSymbol name="person.2.fill" size={16} color={BRAND.blue} />
                   </View>
                   <Text className="text-sm text-gray-700 font-medium">
                     {item.participants.length} participant{item.participants.length > 1 ? 's' : ''}
@@ -320,6 +298,13 @@ export default function TrouverScreen() {
     );
   };
 
+
+  const baseEvents = hasSearched ? searchResults : events;
+  // Toujours par date (la recherche géolocalisée renvoie par distance) ; la distance reste affichée.
+  const visibleEvents = [...baseEvents]
+    .filter((e: any) => !thisWeek || new Date(e.hours).getTime() <= Date.now() + WEEK_MS)
+    .sort((a: any, b: any) => new Date(a.hours).getTime() - new Date(b.hours).getTime());
+  const isTextSearch = debouncedQuery.trim().length >= 3;
 
   if (status === 'loading' && events.length === 0) {
     return (
@@ -353,12 +338,12 @@ export default function TrouverScreen() {
         <View className="px-6 pt-4 pb-4">
           <View className="flex-row items-start justify-between mb-2">
             <Text className="text-white text-3xl font-bold flex-1">
-              Événements
+              Découvrir
             </Text>
             <NotificationBell />
           </View>
           <Text className="text-white/90 text-base">
-            Découvrez les événements près de chez vous
+            Groupes et réunions d&apos;entrepreneurs autour de vous
           </Text>
         </View>
 
@@ -377,129 +362,98 @@ export default function TrouverScreen() {
           </View>
         )}
 
-        {/* Search Bar */}
-        <View className="px-6 pb-4">
-          <View className="bg-white/95 rounded-2xl overflow-hidden" style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 3 }}>
-            {/* Input recherche */}
-            <View className="flex-row items-center px-4 py-3 border-b border-gray-100">
-              {isSearching ? (
-                <ActivityIndicator size="small" color="#2345C2" />
-              ) : (
-                <IconSymbol name="magnifyingglass" size={20} color="#6B7280" />
-              )}
-              <TextInput
-                value={searchQuery}
-                onChangeText={setSearchQuery}
-                placeholder="Tapez au moins 3 lettres pour rechercher..."
-                placeholderTextColor="#9CA3AF"
-                className="flex-1 ml-3 text-base text-gray-900"
-              />
-              {(searchQuery || searchResults.length > 0) && (
-                <Pressable onPress={handleResetSearch} className="ml-2">
-                  <IconSymbol name="xmark.circle.fill" size={20} color="#9CA3AF" />
-                </Pressable>
-              )}
-            </View>
-
-            {/* Filtres */}
-            <View className="px-4 py-3">
-              <Pressable
-                onPress={() => setShowFilters(!showFilters)}
-                className="flex-row items-center justify-between"
-              >
-                <View className="flex-row items-center gap-2">
-                  <IconSymbol name="line.3.horizontal.decrease.circle" size={20} color="#2345C2" />
-                  <Text className="text-sm font-semibold text-gray-700">
-                    Filtres {useGeolocation && `(${radius}km)`}
-                  </Text>
-                </View>
-                <IconSymbol name={showFilters ? "chevron.up" : "chevron.down"} size={16} color="#6B7280" />
+        {/* Recherche et filtres rapides */}
+        <View className="px-6 pb-3">
+          <View
+            className="bg-white rounded-2xl flex-row items-center px-4 py-3"
+            style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 3 }}
+          >
+            {isSearching ? (
+              <ActivityIndicator size="small" color={BRAND.blue} />
+            ) : (
+              <IconSymbol name="magnifyingglass" size={20} color="#6B7280" />
+            )}
+            <TextInput
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              placeholder="Réunion, groupe, ville..."
+              placeholderTextColor="#9CA3AF"
+              className="flex-1 ml-3 text-base text-gray-900"
+              returnKeyType="search"
+            />
+            {(searchQuery || hasSearched) && (
+              <Pressable onPress={handleResetSearch} className="ml-2" accessibilityLabel="Effacer la recherche">
+                <IconSymbol name="xmark.circle.fill" size={20} color="#9CA3AF" />
               </Pressable>
-
-              {showFilters && (
-                <View className="mt-4 pt-4 border-t border-gray-100">
-                  {/* Toggle autour de moi */}
-                  <View className="flex-row items-center justify-between mb-4">
-                    <View className="flex-row items-center gap-2">
-                      <IconSymbol name="location.fill" size={18} color="#10B981" />
-                      <Text className="text-sm font-medium text-gray-700">
-                        Autour de moi
-                      </Text>
-                    </View>
-                    <Switch
-                      value={useGeolocation}
-                      onValueChange={handleGeolocationToggle}
-                      trackColor={{ false: '#D1D5DB', true: '#10B981' }}
-                      thumbColor="#fff"
-                    />
-                  </View>
-
-                  {/* Slider rayon */}
-                  {useGeolocation && (
-                    <View className="mb-4">
-                      <View className="flex-row items-center justify-between mb-2">
-                        <Text className="text-sm font-medium text-gray-700">
-                          Rayon de recherche
-                        </Text>
-                        <Text className="text-sm font-bold text-brand-600">
-                          {radius} km
-                        </Text>
-                      </View>
-                      <Slider
-                        value={radius}
-                        onValueChange={setRadius}
-                        minimumValue={1}
-                        maximumValue={100}
-                        step={1}
-                        minimumTrackTintColor="#2345C2"
-                        maximumTrackTintColor="#D1D5DB"
-                        thumbTintColor="#2345C2"
-                      />
-                      <View className="flex-row justify-between">
-                        <Text className="text-xs text-gray-400">1 km</Text>
-                        <Text className="text-xs text-gray-400">100 km</Text>
-                      </View>
-                    </View>
-                  )}
-                </View>
-              )}
-
-              {/* Bouton Rechercher */}
-              <Pressable
-                onPress={handleSearch}
-                disabled={isSearching}
-                className={`mt-3 py-3 px-4 rounded-xl ${isSearching ? 'opacity-50' : 'active:opacity-80'}`}
-              >
-                <LinearGradient
-                  colors={isSearching ? ['#9CA3AF', '#9CA3AF'] : ['#2345C2', '#3A5FE0']}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 12 }}
-                />
-                <View className="flex-row items-center justify-center gap-2">
-                  {isSearching ? (
-                    <>
-                      <ActivityIndicator color="#fff" size="small" />
-                      <Text className="text-white font-semibold">Recherche...</Text>
-                    </>
-                  ) : (
-                    <>
-                      <IconSymbol name="magnifyingglass" size={16} color="#fff" />
-                      <Text className="text-white font-semibold">Rechercher</Text>
-                    </>
-                  )}
-                </View>
-              </Pressable>
-            </View>
+            )}
           </View>
         </View>
+        <View className="flex-row flex-wrap gap-2 px-6 pb-3">
+          <Chip
+            label="Près de moi"
+            icon="location.fill"
+            active={useGeolocation}
+            onPress={() => handleGeolocationToggle(!useGeolocation)}
+          />
+          <Chip label="Cette semaine" icon="calendar" active={thisWeek} onPress={() => setThisWeek((v) => !v)} />
+          {useGeolocation && (
+            <Chip
+              label={`${radius} km`}
+              icon="slider.horizontal.3"
+              active={showFilters}
+              onPress={() => setShowFilters((v) => !v)}
+            />
+          )}
+        </View>
+        {useGeolocation && showFilters && (
+          <View className="mx-6 mb-2 bg-white rounded-2xl px-4 py-3">
+            <View className="flex-row items-center justify-between mb-1">
+              <Text className="text-sm font-medium text-gray-700">Rayon de recherche</Text>
+              <Text className="text-sm font-bold text-brand-600">{radius} km</Text>
+            </View>
+            <Slider
+              value={radius}
+              onValueChange={(v) => setRadius(Math.round(v))}
+              minimumValue={1}
+              maximumValue={100}
+              step={1}
+              minimumTrackTintColor={BRAND.blue}
+              maximumTrackTintColor="#D1D5DB"
+              thumbTintColor={BRAND.blue}
+            />
+          </View>
+        )}
 
         {/* Liste des événements */}
         <FlatList
-          data={hasSearched ? searchResults : events}
+          data={visibleEvents}
+          ListHeaderComponent={
+            <View>
+              {!isTextSearch && nearbyGroups.length > 0 && (
+                <View className="mb-5">
+                  <Text className="text-lg font-bold text-gray-900 mb-3">
+                    {userLocation ? 'Groupes près de chez vous' : 'Groupes actifs'}
+                  </Text>
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    style={{ marginHorizontal: -20 }}
+                    contentContainerStyle={{ paddingHorizontal: 20, gap: 12, paddingBottom: 6 }}
+                  >
+                    {nearbyGroups.map((g) => (
+                      <GroupDiscoverCard key={g.id} group={g} />
+                    ))}
+                  </ScrollView>
+                </View>
+              )}
+              <Text className="text-lg font-bold text-gray-900 mb-3">
+                {isTextSearch ? 'Résultats' : useGeolocation ? `Prochains événements à moins de ${radius} km` : 'Prochains événements'}
+              </Text>
+            </View>
+          }
           renderItem={renderEvent}
           keyExtractor={(item) => item.id.toString()}
-          contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 8, paddingBottom: 100 }}
+          contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 12, paddingBottom: 100 }}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
@@ -548,5 +502,24 @@ export default function TrouverScreen() {
         </Pressable>
       </SafeAreaView>
     </View>
+  );
+}
+
+function Chip({ label, icon, active, onPress }: { label: string; icon: string; active: boolean; onPress: () => void }) {
+  return (
+    <Pressable
+      onPress={onPress}
+      className="flex-row items-center gap-1.5 rounded-full px-3.5 py-2 active:opacity-80"
+      style={{
+        backgroundColor: active ? BRAND.blue : '#FFFFFF',
+        borderWidth: 1,
+        borderColor: active ? BRAND.blue : '#E2E8F0',
+      }}
+    >
+      <IconSymbol name={icon as any} size={14} color={active ? '#FFFFFF' : BRAND.blue} />
+      <Text style={{ color: active ? '#FFFFFF' : '#1F2937' }} className="text-sm font-semibold">
+        {label}
+      </Text>
+    </Pressable>
   );
 }
